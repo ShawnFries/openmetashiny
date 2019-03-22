@@ -1,0 +1,76 @@
+---
+title: 
+output: html_document
+always_allow_html: yes
+params:
+  res: NA
+  
+  reportTitle: NA
+  reportAuthor: NA
+  includeTimeCode: NA
+  reportIntro: NA
+---
+
+
+```{r setup, echo=FALSE}
+
+options(width=100)
+
+```
+
+```{r,results='asis', echo=FALSE}
+
+cat('<p style="font-size:20px;">', params$reportTitle, '</p>')
+
+```
+
+
+```{r,results='asis', echo=FALSE}
+
+sys.date <- if(params$includeTimeCode == TRUE){
+  date()
+}else{
+  ""
+}
+
+cat('<p>', params$reportAuthor, '<br>', sys.date, '</p>')
+
+```
+
+
+```{r,results='asis', echo=FALSE}
+
+cat('<p>', params$reportIntro, '</p>')
+
+```
+
+
+#### Analysis 1
+
+
+```{r, results='asis', echo=FALSE}
+
+cat("Estimate: ", res$beta)
+
+```
+
+```{r, results='asis', echo=FALSE}
+
+cat("Standard error: ", res$se)
+
+```
+
+```{r, results='asis', echo=FALSE}
+
+cat("Confidence interval: (", res$ci.lb, ",", res$ci.ub, ")")
+
+```
+
+```{r, results='asis', echo=FALSE}
+
+cat("Heterogeneity esitimate: ", res$tau2)
+
+```
+
+
+
