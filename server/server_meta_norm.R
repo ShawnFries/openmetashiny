@@ -162,18 +162,18 @@ observeEvent(input$oknorm_res, {
 
 res <- res()
 
-#####################NEED TO BE GENERALIZED############################
+#####################NEEDS TO BE GENERALIZED############################
 conflevel <- as.numeric(as.character(input$conflevel))
 output$forest_norm <- renderPlot({
   conflevel <- as.numeric(as.character(input$conflevel))
   
   ##display forest plot
   if (input$metric1 == "PLO"){
-    forest(res, transf=transf.ilogit, targs=list(ni=vals$datar$ni), xlim=c(0, 1), refline=NA, digits=input$digits, level=conflevel)
+    forest(res, transf=transf.ilogit, targs=list(ni=vals$datar$ni), refline=NA, level=conflevel, digits=input$digits)
   } else if(input$metric1 == "PAS") {
-    forest(res, transf=transf.isqrt, targs=list(ni=vals$datar$ni), xlim=c(0, 1), refline=NA, digits=input$digits, level=conflevel)
+    forest(res, transf=transf.isqrt, targs=list(ni=vals$datar$ni), refline=NA, level=conflevel, digits=input$digits)
   } else if(input$metric1 == "PR") {
-    forest(res, xlim=c(0, 1), refline=NA, digits=input$digits, level=conflevel)
+    forest(res, refline=NA, level=conflevel, digits=input$digits)
   }
 
   })
@@ -221,11 +221,11 @@ observeEvent(input$ok_save_fplot,{
   png(filename=input$fplot_path, width=as.numeric(input$fplot_w), height=as.numeric(input$fplot_h), units=input$fplot_unit, res=as.numeric(input$fplot_resolution))
   
   if(input$metric1 == "PLO") {
-    forest(res, transf=transf.ilogit, targs=list(ni=vals$datar$ni), xlim=c(0,1), refline=NA, digits=input$digits, level=conflevel)
+    forest(res, transf=transf.ilogit, targs=list(ni=vals$datar$ni), refline=NA, digits=input$digits, level=conflevel)
   } else if(input$metric1 == "PAS") {
-    forest(res, transf=transf.isqrt, targs=list(ni=vals$datar$ni), xlim=c(0,1), refline=NA, digits=input$digits, level=conflevel)
+    forest(res, transf=transf.isqrt, targs=list(ni=vals$datar$ni), refline=NA, digits=input$digits, level=conflevel)
   } else if(input$metric1 == "PR") {
-    forest(res, xlim=c(0,1), refline=NA, digits=input$digits, level=conflevel)
+    forest(res, refline=NA, digits=input$digits, level=conflevel)
   }
   
   dev.off()
