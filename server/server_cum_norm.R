@@ -103,29 +103,27 @@ observeEvent(input$oknorm_cum_escalc,{                                          
 # #################################
 # 
 # observeEvent(input$oknorm_res,{
-#   cc<-as.numeric(as.character(input$cc))
+#   cc <- as.numeric(as.character(input$cc))
 #   
-#   res<-if(input$fixed_norm=="FE"){
+#   res<-if (input$fixed_norm == "FE") {
 #     rma(yi, vi, method=input$fixed_norm, data=vals$dataescalc, weighted=FALSE, add=cc, to=input$addto)
-#   }else if(input$fixed_norm=="RE"){
+#   } else if (input$fixed_norm == "RE") {
 #     rma(yi, vi, method=input$rand_est, data=vals$dataescalc, weighted=FALSE, add=cc, to=input$addto)
 #   }
 #   
-#   #####################NEED TO BE GENERALIZED############################
+#   #####################NEEDS TO BE GENERALIZED############################
 #   output$forest_norm<-renderPlot({
 #     conflevel<-as.numeric(as.character(input$conflevel))
-#     if(input$metric1=="PLO"){
-#       forest(res, transf=transf.ilogit, targs=list(ni=vals$data$ni), 
-#              xlim=c(0,1), refline=NA, digits=input$digits, level=conflevel)
-#     }else if(input$metric1=="PAS"){
-#       forest(res, transf=transf.isqrt, targs=list(ni=vals$data$ni), 
-#              xlim=c(0,1), refline=NA, digits=input$digits, level=conflevel)
-#     }else if(input$metric1=="PR"){
+#     if (input$metric1 == "PLO") {
+#       forest(res, transf=transf.ilogit, targs=list(ni=vals$data$ni), refline=NA, digits=input$digits, level=conflevel)
+#     } else if (input$metric1 == "PAS") {
+#       forest(res, transf=transf.isqrt, targs=list(ni=vals$data$ni), refline=NA, digits=input$digits, level=conflevel)
+#     } else if (input$metric1 == "PR") {
 #       forest(res, xlim=c(0,1), refline=NA, digits=input$digits, level=conflevel)
 #     }
 #   })
 #   
-#   output$msummary_norm<-renderPrint({
+#   output$msummary_norm <- renderPrint({
 #     print(res)
 #   })
 #   
