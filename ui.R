@@ -2,7 +2,7 @@ library(shiny)
 library(shinydashboard)
 library(shinyBS)
 library(DT)
-library(openmetar)
+library(metafor)
 library(dplyr)
 
 # dashboardPage(

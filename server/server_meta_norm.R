@@ -4,19 +4,12 @@
 
 dataModal2 <- function(failed=F) {
   modalDialog(
-    selectInput("type",
-                "Type of data",
-                choices=c("One proportion", "One mean", "Two proportions", "Two means"),
-                selected="One proportion"
-               ),
+    selectInput("type", "Type of data", choices=c("One proportion", "One mean", "Two proportions", "Two means"), selected="One proportion"),
     conditionalPanel(
       condition="input.type == 'One proportion'",
       selectInput("metric1",
                   "Metric", 
-                  choices=c(`PR - raw proportion`="PR", 
-                            `PAS - arcsine transformed proportion`="PAS", 
-                            `PLO - logit transformed proportion`="PLO"
-                           ),
+                  choices=c(`PR - raw proportion`="PR", `PAS - arcsine transformed proportion`="PAS", `PLO - logit transformed proportion`="PLO"),
                   selected="PR"
                  )
     ),
@@ -95,12 +88,9 @@ observeEvent(input$oknorm_escalc, {                                             
     )#ends tryCatch
     removeModal()
     
-  }else if(!is.null(vals$datar) & input$type=="Two proportions"){
+  } else if(!is.null(vals$datar) & input$type == "Two proportions"){
     vals$dataescalc<-tryCatch({
-      escalc(measure=input$metric3, 
-             ai=vals$datar$ai, n1i=vals$datar$n1i, 
-             ci=vals$datar$ci, n2i=vals$datar$n2i, 
-             data=vals$datar)},
+      escalc(measure=input$metric3, ai=vals$datar$ai, n1i=vals$datar$n1i, ci=vals$datar$ci, n2i=vals$datar$n2i, data=vals$datar)},
       error=function(err){
         print(paste("ERROR:  ",err))}
     )#ends tryCatch
@@ -246,14 +236,14 @@ observeEvent(input$ok_save_fplot,{
 ##     dynamic UI       ##
 ##########################
 
-output$rand_estimation<-renderUI({
+output$rand_estimation <- renderUI({
   # if(input$type=="."){
   #   NULL
   # }else 
   
-  if (input$fixed_norm == "FE"){                                                   ####fixed_norm in ui_meta_norm.R
+  if (input$fixed_norm == "FE") {                                                   ####fixed_norm in ui_meta_norm.R
     selectInput("fixed_est", "Estimation method", choices=c("Inverse-variance"), selected="Inverse-variance")
   }else if (input$fixed_norm == "RE") {                                             ####fixed_norm in ui_meta_norm.R
-    selectInput("rand_est", "Estimation method", choices=c(`DerSimonian Laird`="DL", `Maximum likelihood`="ML", `Restricted ML`="REML"), selected="DL")
+    selectInput("rand_est", "Estimation method", choices=c(`DerSimonian Laird`="DL", `Maximum likelihood`="ML", `Restricted ML`="REML"), selected="REML")
   }
 })

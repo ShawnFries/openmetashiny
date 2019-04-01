@@ -2,21 +2,21 @@ observeEvent(input$okexact_res,{
   
   tryCatch({
     if (input$type2 == "Mean") {
-      #print(1)
+      print(1)
       res <- rma.glmm(mi=vals$datar$mi,
+                      #ti=vals$datar$sdi, 
                       ni=vals$datar$ni,
                       method=if (input$fixed_exact == "FE") input$fixed_exact else input$rand_est2,
                       data=vals$datar,
-                      measure=input$metric_exact  # TODO: Expand/fix this
+                      measure=input$metric_mean_exact  # TODO: Expand/fix this
                       )
     } else {  # Assumed to be proportion data
-      #print(2)
-      #print(input$metric_prop_exact)
+      print(2)
       res <- rma.glmm(xi=vals$datar$count,
                       ni=vals$datar$ni,
                       method=if (input$fixed_exact == "FE") input$fixed_exact else input$rand_est2,
                       data=vals$datar,
-                      measure=input$metric_exact  # TODO: Expand/fix this
+                      measure=input$metric_prop_exact  # TODO: Expand/fix this
       )
     }
   },
@@ -32,7 +32,7 @@ observeEvent(input$okexact_res,{
   # 
   # })
   
-  output$msummary_exact <- renderPrint({
+  output$msummary_exact<-renderPrint({
     print(res)
   })
   
@@ -49,16 +49,43 @@ observeEvent(input$okexact_res,{
 
 dataModal5 <- function(failed = FALSE) {
   modalDialog(
-    selectInput("type2", "Type of data", choices=c("Proportion", "Mean", "Two proportions (2X2)"), selected="Proportion"),
-    selectInput("metric_exact",
+    selectInput("type2", "Type of data", 
+                choices=c("Proportion", "Mean", "Two proportions (2X2)"),
+                selected="Proportion"),
+    conditionalPanel(
+      condition="input.type2 == 'Proportion'",
+      selectInput("metric_prop_exact",
                   "Metric", 
-                  choices=c(`OR - odds ratio`="OR", 
-                            `IRR - incidence rate ratio`="IRR", 
-                            `PLO - logit transformed proportion`="PLO",
-                            `IRLN - log transformed incidence rate`="IRLN"
-                           ),
-                  selected="PLO"
-                ),
+                  choices=c(`PR - raw proportion`="PR", 
+                            `PAS - arcsine transformed proportion`="PAS", 
+                            `PLO - logit transformed proportion`="PLO"
+                  ),
+                  selected="PR"
+      )
+    ),
+    conditionalPanel(
+      condition="input.type2 == 'Mean'",
+      selectInput("metric_mean_exact",
+                  "Metric", 
+                  choices=c(`MN - raw mean`="MN", 
+                            `MNLN - log transformed mean`="MNLN", 
+                            `CVLN - log transformed coefficient of variation`="CVLN",
+                            `SDLN - log transformed standard deviation`="SDLN"),
+                  selected="MN")
+    ),
+    conditionalPanel(
+      condition="input.type2 == 'Two proportions (2X2)'",
+      selectInput("metric_two_props_exact",
+                  "Metric", 
+                  choices=c(`RR - log risk ratio`="RR", 
+                            `OR - log odds ratio`="OR", 
+                            `RD - risk difference`="RD", 
+                            `AS - arcsine square root transformed risk difference`="AS", 
+                            `PETO - log odds ratio estimated with Peto's method`="PETO"
+                  ),
+                  selected="RR"
+      )
+    ),
     footer = tagList(
       modalButton("Cancel"),
       actionButton("okexact_data", "OK")

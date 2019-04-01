@@ -1,7 +1,7 @@
 library(shiny)
 library(shinydashboard) #tabBox()
 library(DT)
-library(openmetar)
+library(metafor)
 library(dplyr)
 library(grDevices) #png()
 
