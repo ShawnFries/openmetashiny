@@ -73,13 +73,13 @@ observeEvent(input$oknorm_escalc, {                                             
     )#ends tryCatch
     removeModal()
   
-  } else if(!is.null(vals$datar) & input$type == "One mean"){
+  } else if(!is.null(output$hot) & input$type == "One mean"){
     vals$dataescalc <- tryCatch({
       escalc(measure=input$metric2, 
-             mi=vals$datar$mi,
-             sdi=vals$datar$sdi, 
-             ni=vals$datar$ni, 
-             data=vals$datar
+             mi=output$hot$mi,
+             sdi=output$hot$sdi, 
+             ni=output$hot$ni, 
+             data=output$hot
              )
       },
       error=function(err) {
@@ -88,27 +88,31 @@ observeEvent(input$oknorm_escalc, {                                             
     )#ends tryCatch
     removeModal()
     
-  } else if(!is.null(vals$datar) & input$type == "Two proportions"){
+  } else if(!is.null(output$hot) & input$type == "Two proportions"){
     vals$dataescalc<-tryCatch({
-      escalc(measure=input$metric3, ai=vals$datar$ai, n1i=vals$datar$n1i, ci=vals$datar$ci, n2i=vals$datar$n2i, data=vals$datar)},
+      escalc(measure=input$metric3, ai=output$hot$ai, n1i=output$hot$n1i, ci=output$hot$ci, n2i=output$hot$n2i, data=output$hot)},
       error=function(err){
         print(paste("ERROR:  ",err))}
     )#ends tryCatch
     removeModal()
     
-  }else if(!is.null(vals$datar) & input$type=="Two means"){
+  } else if(!is.null(output$hot) & input$type=="Two means"){
     vals$dataescalc<-tryCatch({
       escalc(measure=input$metric4, 
-             m1i=vals$datar$m1i, sd1i=vals$datar$sd1i, n1i=vals$datar$n1i,
-             m2i=vals$datar$m2i, sd2i=vals$datar$sd2i, n2i=vals$datar$n2i, 
-             data=vals$datar)},
+             m1i=output$hot$m1i,
+             sd1i=output$hot$sd1i,
+             n1i=output$hot$n1i,
+             m2i=output$hot$m2i,
+             sd2i=output$hot$sd2i,
+             n2i=output$hot$n2i, 
+             data=output$hot)},
       error=function(err){
         print(paste("ERROR:  ",err))}
     )#ends tryCatch
     removeModal()
     
   }else{
-    showModal(dataModal(failed = TRUE))
+    showModal(dataModal(failed=T))
   }
   
   
@@ -159,9 +163,9 @@ output$forest_norm <- renderPlot({
   
   ##display forest plot
   if (input$metric1 == "PLO"){
-    forest(res, transf=transf.ilogit, targs=list(ni=vals$datar$ni), refline=NA, level=conflevel, digits=input$digits)
+    forest(res, transf=transf.ilogit, targs=list(ni=output$hot$ni), refline=NA, level=conflevel, digits=input$digits)
   } else if(input$metric1 == "PAS") {
-    forest(res, transf=transf.isqrt, targs=list(ni=vals$datar$ni), refline=NA, level=conflevel, digits=input$digits)
+    forest(res, transf=transf.isqrt, targs=list(ni=output$hot$ni), refline=NA, level=conflevel, digits=input$digits)
   } else if(input$metric1 == "PR") {
     forest(res, refline=NA, level=conflevel, digits=input$digits)
   }
@@ -211,9 +215,9 @@ observeEvent(input$ok_save_fplot,{
   png(filename=input$fplot_path, width=as.numeric(input$fplot_w), height=as.numeric(input$fplot_h), units=input$fplot_unit, res=as.numeric(input$fplot_resolution))
   
   if(input$metric1 == "PLO") {
-    forest(res, transf=transf.ilogit, targs=list(ni=vals$datar$ni), refline=NA, digits=input$digits, level=conflevel)
+    forest(res, transf=transf.ilogit, targs=list(ni=output$hot$ni), refline=NA, digits=input$digits, level=conflevel)
   } else if(input$metric1 == "PAS") {
-    forest(res, transf=transf.isqrt, targs=list(ni=vals$datar$ni), refline=NA, digits=input$digits, level=conflevel)
+    forest(res, transf=transf.isqrt, targs=list(ni=output$hot$ni), refline=NA, digits=input$digits, level=conflevel)
   } else if(input$metric1 == "PR") {
     forest(res, refline=NA, digits=input$digits, level=conflevel)
   }
@@ -243,7 +247,7 @@ output$rand_estimation <- renderUI({
   
   if (input$fixed_norm == "FE") {                                                   ####fixed_norm in ui_meta_norm.R
     selectInput("fixed_est", "Estimation method", choices=c("Inverse-variance"), selected="Inverse-variance")
-  }else if (input$fixed_norm == "RE") {                                             ####fixed_norm in ui_meta_norm.R
+  } else if (input$fixed_norm == "RE") {                                             ####fixed_norm in ui_meta_norm.R
     selectInput("rand_est", "Estimation method", choices=c(`DerSimonian Laird`="DL", `Maximum likelihood`="ML", `Restricted ML`="REML"), selected="REML")
   }
 })
