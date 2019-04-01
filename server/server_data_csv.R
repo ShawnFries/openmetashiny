@@ -2,6 +2,8 @@
 #####           Upload csv           #####
 ##########################################
 
+library(rhandsontable)
+
 # reactiveValues object for storing current data set.
 vals <- reactiveValues(data=NULL, datar=NULL, dataescalc=NULL)                                          ####vals
 
@@ -66,17 +68,19 @@ observeEvent(input$okcsv, {                                                     
 })
 
 # Display selected data
-output$dat_csv <- renderTable({                                                         ####dat_csv in ui_data.R
-  if (is.null(vals$data)) {                                                              ####vals 1st line #### upload csv #### this file
-    #helpText("No data selected")
-  } else{
+output$hot <- renderRHandsontable({####dat_csv in ui_data.R
+  DF <- data.frame()
+  if (!is.null(vals$data)) {                                                       ####vals 1st line #### upload csv #### this file
     if (input$disp == "head") {
-      return(head(vals$data))#DT::datatable(head(vals$data), editable=T))
+      DF <- head(vals$data)
+      #DT::datatable(data.frame(Numbers=integer()), editable=T) # TODO: Fix this (add columns etc)
+    } else {
+      DF <- vals$data #DT::datatable(vals$data, editable=T))
     }
-    else {
-      return(vals$data)#DT::datatable(vals$data, editable=T))
-    }
+  } else {
+    DF <- data.frame(names="Study A", year=as.integer(format(Sys.Date(), "%Y")), count=5, ni=10, stringsAsFactors=F)
   }
+  rhandsontable(DF, stretchH="all")
 })
 
 
@@ -115,11 +119,11 @@ observeEvent(input$data_rename, {
   showModal(dataModal0())
 })
 
-observeEvent(input$ok_data_rename,{
+observeEvent(input$ok_data_rename, {
   
-  names(vals$datar)[names(vals$datar)==input$var1]=input$var1to
+  names(vals$datar)[names(vals$datar) == input$var1]=input$var1to
 
-  output$dat_csv_renamed<-renderTable({
+  output$dat_csv_renamed <- renderTable({
     vals$datar
   })
   

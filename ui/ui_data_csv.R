@@ -1,11 +1,11 @@
+library(rhandsontable)
+
 fluidPage(
   fluidRow(
     actionButton("upcsv", "Upload csv")
   ),
   fluidRow(
-    tableOutput("dat_csv"),
-    actionButton("data_rename", "Rename variables"),
-    tableOutput("dat_csv_renamed")
+    rHandsontableOutput("hot")
   )
 )
    

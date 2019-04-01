@@ -64,7 +64,7 @@ observeEvent(input$effect_norm, {
 observeEvent(input$oknorm_escalc, {                                                              ####oknorm_escalc
   if(!is.null(vals$datar) & input$type == "One proportion"){
     vals$dataescalc <- tryCatch({
-      escalc(measure=input$metric1, xi=vals$datar$count, ni=vals$datar$ni, data=vals$datar)},
+      escalc(measure=input$metric1, xi=output$hot$count, ni=output$hot$ni, data=output$hot)},
       error=function(err) {
         #error handler picks up where error was generated
         print(paste("ERROR:  ", err)
