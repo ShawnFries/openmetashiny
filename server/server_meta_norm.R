@@ -68,24 +68,24 @@ observeEvent(input$effect_norm, {
 })
 
 observeEvent(input$oknorm_escalc, {                                                              ####oknorm_escalc
-  if(!is.null(output$hot) & input$type == "One proportion"){
+  if(!is.null(hot$data) & input$type == "One proportion"){
     vals$dataescalc <- tryCatch({
       escalc(
         measure=input$metric1,
-        xi=if (!is.null(output$hot$count)) output$hot$count
-        else if (!is.null(output$hot$counts)) output$hot$counts
-        else if (!is.null(output$hot$xi)) output$hot$xi
-        else if (!is.null(output$hot$x)) output$hot$x
-        else if (!is.null(output$hot$x_i)) output$hot$x_i
-        else if (!is.null(output$hot$x_is)) output$hot$x_is
-        else output$hot$xis,
-        ni=if (!is.null(output$hot$ni)) output$hot$ni
-        else if (!is.null(output$hot$nis)) output$hot$nis
-        else if (!is.null(output$hot$n_i)) output$hot$n_i
-        else if (!is.null(output$hot$n_is)) output$hot$n_is
-        else if (!is.null(output$hot$n)) output$hot$n
-        else output$hot$ns,
-        data=output$hot)},
+        xi=if (!is.null(hot$data$count)) hot$data$count
+        else if (!is.null(hot$data$counts)) hot$data$counts
+        else if (!is.null(hot$data$xi)) hot$data$xi
+        else if (!is.null(hot$data$x)) hot$data$x
+        else if (!is.null(hot$data$x_i)) hot$data$x_i
+        else if (!is.null(hot$data$x_is)) hot$data$x_is
+        else hot$data$xis,
+        ni=if (!is.null(hot$data$ni)) hot$data$ni
+        else if (!is.null(hot$data$nis)) hot$data$nis
+        else if (!is.null(hot$data$n_i)) hot$data$n_i
+        else if (!is.null(hot$data$n_is)) hot$data$n_is
+        else if (!is.null(hot$data$n)) hot$data$n
+        else hot$data$ns,
+        data=hot$data)},
       error=function(err) {
         #error handler picks up where error was generated
         print(paste("ERROR:  There must be at least one column named \"count\" or \"xi\" and one named \"ni\""))
@@ -93,39 +93,67 @@ observeEvent(input$oknorm_escalc, {                                             
     )#ends tryCatch
     removeModal()
   
-  } else if(!is.null(output$hot) & input$type == "One mean"){
+  } else if(!is.null(hot$data) & input$type == "One mean"){
     vals$dataescalc <- tryCatch({
       escalc(measure=input$metric2, 
-             mi=output$hot$mi,
-             sdi=output$hot$sdi, 
-             ni=output$hot$ni, 
-             data=output$hot
+             mi=if (!is.null(hot$data$mi)) hot$data$mi
+             else if (!is.null(hot$data$m)) hot$data$m
+             else if (!is.null(hot$data$m_i)) hot$data$m_i
+             else if (!is.null(hot$data$m_is)) hot$data$m_is
+             else if (!is.null(hot$data$mis)) hot$data$mis
+             else if (!is.null(hot$data$u)) hot$data$u
+             else if (!is.null(hot$data$ui)) hot$data$ui
+             else if (!is.null(hot$data$u_i)) hot$data$u_i
+             else if (!is.null(hot$data$u_is)) hot$data$u_is
+             else if (!is.null(hot$data$uis)) hot$data$uis
+             else if (!is.null(hot$data$mu)) hot$data$mu
+             else if (!is.null(hot$data$mui)) hot$data$mui
+             else if (!is.null(hot$data$mu_i)) hot$data$mu_i
+             else if (!is.null(hot$data$mu_is)) hot$data$mu_is
+             else hot$data$muis,
+             sdi=if (!is.null(hot$data$sdi)) hot$data$sdi
+             else if (!is.null(hot$data$sd)) hot$data$sd
+             else if (!is.null(hot$data$sd_i)) hot$data$sd_i
+             else if (!is.null(hot$data$sd_is)) hot$data$sd_is
+             else if (!is.null(hot$data$sdis)) hot$data$sdis
+             else if (!is.null(hot$data$sigma)) hot$data$sigma
+             else if (!is.null(hot$data$sigmai)) hot$data$sigmai
+             else if (!is.null(hot$data$sigma_i)) hot$data$sigma_i
+             else if (!is.null(hot$data$sigma_is)) hot$data$sigma_is
+             else hot$data$sigmais, 
+             ni=if (!is.null(hot$data$ni)) hot$data$ni
+             else if (!is.null(hot$data$nis)) hot$data$nis
+             else if (!is.null(hot$data$n_i)) hot$data$n_i
+             else if (!is.null(hot$data$n_is)) hot$data$n_is
+             else if (!is.null(hot$data$n)) hot$data$n
+             else hot$data$ns,
+             data=hot$data
              )
       },
       error=function(err) {
-        print(paste("ERROR:  ", err))
+        print(paste("ERROR:  There must be at least one column each named \"mi\", \"sdi\" and \"ni\""))
         }
     )#ends tryCatch
     removeModal()
     
-  } else if(!is.null(output$hot) & input$type == "Two proportions"){
+  } else if(!is.null(hot$data) & input$type == "Two proportions"){
     vals$dataescalc<-tryCatch({
-      escalc(measure=input$metric3, ai=output$hot$ai, n1i=output$hot$n1i, ci=output$hot$ci, n2i=output$hot$n2i, data=output$hot)},
+      escalc(measure=input$metric3, ai=hot$data$ai, n1i=hot$data$n1i, ci=hot$data$ci, n2i=hot$data$n2i, data=hot$data)},
       error=function(err){
         print(paste("ERROR:  ",err))}
     )#ends tryCatch
     removeModal()
     
-  } else if(!is.null(output$hot) & input$type=="Two means"){
+  } else if(!is.null(hot$data) & input$type=="Two means"){
     vals$dataescalc<-tryCatch({
       escalc(measure=input$metric4, 
-             m1i=output$hot$m1i,
-             sd1i=output$hot$sd1i,
-             n1i=output$hot$n1i,
-             m2i=output$hot$m2i,
-             sd2i=output$hot$sd2i,
-             n2i=output$hot$n2i, 
-             data=output$hot)},
+             m1i=hot$data$m1i,
+             sd1i=hot$data$sd1i,
+             n1i=hot$data$n1i,
+             m2i=hot$data$m2i,
+             sd2i=hot$data$sd2i,
+             n2i=hot$data$n2i, 
+             data=hot$data)},
       error=function(err){
         print(paste("ERROR:  ",err))}
     )#ends tryCatch
@@ -183,9 +211,9 @@ output$forest_norm <- renderPlot({
   
   ##display forest plot
   if (input$metric1 == "PLO"){
-    forest(res, transf=transf.ilogit, targs=list(ni=output$hot$ni), refline=NA, level=conflevel, digits=input$digits)
+    forest(res, transf=transf.ilogit, targs=list(ni=hot$data$ni), refline=NA, level=conflevel, digits=input$digits)
   } else if(input$metric1 == "PAS") {
-    forest(res, transf=transf.isqrt, targs=list(ni=output$hot$ni), refline=NA, level=conflevel, digits=input$digits)
+    forest(res, transf=transf.isqrt, targs=list(ni=hot$data$ni), refline=NA, level=conflevel, digits=input$digits)
   } else if(input$metric1 == "PR") {
     forest(res, refline=NA, level=conflevel, digits=input$digits)
   }
@@ -235,9 +263,9 @@ observeEvent(input$ok_save_fplot,{
   png(filename=input$fplot_path, width=as.numeric(input$fplot_w), height=as.numeric(input$fplot_h), units=input$fplot_unit, res=as.numeric(input$fplot_resolution))
   
   if(input$metric1 == "PLO") {
-    forest(res, transf=transf.ilogit, targs=list(ni=output$hot$ni), refline=NA, digits=input$digits, level=conflevel)
+    forest(res, transf=transf.ilogit, targs=list(ni=hot$data$ni), refline=NA, digits=input$digits, level=conflevel)
   } else if(input$metric1 == "PAS") {
-    forest(res, transf=transf.isqrt, targs=list(ni=output$hot$ni), refline=NA, digits=input$digits, level=conflevel)
+    forest(res, transf=transf.isqrt, targs=list(ni=hot$data$ni), refline=NA, digits=input$digits, level=conflevel)
   } else if(input$metric1 == "PR") {
     forest(res, refline=NA, digits=input$digits, level=conflevel)
   }

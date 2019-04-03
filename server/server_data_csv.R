@@ -5,6 +5,8 @@
 library(rhandsontable)
 library(stringr)
 
+csv_button_pressed <- F
+
 # reactiveValues object for storing current data set.
 vals <- reactiveValues(data=NULL, datar=NULL, dataescalc=NULL)                                          ####vals
 
@@ -66,19 +68,30 @@ observeEvent(input$okcsv, {                                                     
   } else {
     showModal(dataModal(failed=T))
   }
+  csv_button_pressed <<- T
+})
+
+hot <- reactiveValues()
+
+observe({
+  if (!is.null(input$hot)) hot$data <- hot_to_r(input$hot)
 })
 
 # Display selected data
+
 output$hot <- renderRHandsontable({####dat_csv in ui_data.R
   DF <- data.frame()
-  if (!is.null(vals$data)) {                                                       ####vals 1st line #### upload csv #### this file
+ # print(csv_button_pressed)
+  if (!is.null(vals$data) & csv_button_pressed) {                                                       ####vals 1st line #### upload csv #### this file
     if (input$disp == "head") {
-      DF <- head(vals$data)
+      DF <- head(vals$datar)
       #DT::datatable(data.frame(Numbers=integer()), editable=T) # TODO: Fix this (add columns etc)
     } else {
-      DF <- vals$data #DT::datatable(vals$data, editable=T))
+      DF <- vals$datar #DT::datatable(vals$data, editable=T))
     }
-  } else {
+    #print(csv_button_pressed)
+   # print(DF)
+  } else if (is.null(input$hot)) {
     if (input$dataType == "proportion") {
       DF <- data.frame(names="Study A", year=as.integer(format(Sys.Date(), "%Y")), count=5, ni=10, stringsAsFactors=F)
     } else if (input$dataType == "mean") {
@@ -88,11 +101,27 @@ output$hot <- renderRHandsontable({####dat_csv in ui_data.R
     } else if (input$dataType == "means") {
       DF <- data.frame(X=1, study=1, source="Location A")#, n1i=10, m1i=5, sd1i=1, n2i=30, m2i=7, sd2i=2, stringsAsFactors=F)
     }
+  } else {
+    DF <- hot$data
   }
-  rhandsontable(DF, colHeaders=if (input$columnNames != "") str_trim(unlist(strsplit(input$columnNames,","))) else colnames(DF), stretchH="all", useTypes=F)
+  if (input$columnNames != "") {
+    new_column_names <- str_trim(unlist(strsplit(input$columnNames,",")))
+    new_column_names_length <- length(new_column_names)
+    for (i in 1:new_column_names_length) {
+      if (new_column_names[i] != "") colnames(DF)[i] <- new_column_names[i]
+    }
+  }
+  hot$table <- rhandsontable(DF, stretchH="all", useTypes=F)
+  if (!is.null(input$hot) & !csv_button_pressed) {
+    hot$data <- hot_to_r(input$hot)
+    #print(hot$data)
+    vals$data <- hot$data
+  } else {
+    csv_button_pressed <<- F
+  }
+  #print(hot$data)
+  hot$table
 })
-
-
 
 
 ######################################
