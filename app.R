@@ -5,6 +5,7 @@ library(DT)
 library(rhandsontable)
 library(metafor)
 library(dplyr)
+library(stringr)
 library(devtools)
 library(grDevices) #png()
 
@@ -44,7 +45,7 @@ ui <- function(request) {
                                                   c("proportion ( \\( \\frac{x}{N} \\) )" = "proportion",
                                                     "mean ( \\( \\mu \\) )" = "mean",
                                                     "regression coefficient ( \\( \\beta \\) )" = "regression coefficient",
-                                                    "generic effect size ( \\(\\theta, se \\) )" = "generic effect size")),iiiii
+                                                    "generic effect size ( \\(\\theta, se \\) )" = "generic effect size")),
                                      radioButtons("dataType", "Data on two or more groups per study",
                                                   c("proportions ( \\( \\frac{x_1}{N_1} \\text{ vs } \\frac{x_2}{N_2} \\) )" = "proportions",
                                                     "means ( \\( \\mu_1 \\text{ vs } \\mu_2 \\) )" = "means",

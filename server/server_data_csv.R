@@ -3,6 +3,7 @@
 ##########################################
 
 library(rhandsontable)
+library(stringr)
 
 # reactiveValues object for storing current data set.
 vals <- reactiveValues(data=NULL, datar=NULL, dataescalc=NULL)                                          ####vals
@@ -88,7 +89,7 @@ output$hot <- renderRHandsontable({####dat_csv in ui_data.R
       DF <- data.frame(X=1, study=1, source="Location A")#, n1i=10, m1i=5, sd1i=1, n2i=30, m2i=7, sd2i=2, stringsAsFactors=F)
     }
   }
-  rhandsontable(DF, stretchH="all", useTypes=F)
+  rhandsontable(DF, colHeaders=if (input$columnNames != "") str_trim(unlist(strsplit(input$columnNames,","))) else colnames(DF), stretchH="all", useTypes=F)
 })
 
 
