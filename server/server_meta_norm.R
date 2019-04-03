@@ -4,7 +4,13 @@
 
 dataModal2 <- function(failed=F) {
   modalDialog(
-    selectInput("type", "Type of data", choices=c("One proportion", "One mean", "Two proportions", "Two means"), selected="One proportion"),
+    selectInput("type", "Type of data", choices=c("One proportion", "One mean", "Two proportions", "Two means"), selected=switch(input$dataType,
+                                                                                                                                 "proportion" = "One proportion",
+                                                                                                                                 "mean" = "One mean",
+                                                                                                                                 "proportions" = "Two proportions",
+                                                                                                                                 "means" = "Two means"
+                                                                                                                                 )
+                ),
     conditionalPanel(
       condition="input.type == 'One proportion'",
       selectInput("metric1",
@@ -62,13 +68,27 @@ observeEvent(input$effect_norm, {
 })
 
 observeEvent(input$oknorm_escalc, {                                                              ####oknorm_escalc
-  if(!is.null(vals$datar) & input$type == "One proportion"){
+  if(!is.null(output$hot) & input$type == "One proportion"){
     vals$dataescalc <- tryCatch({
-      escalc(measure=input$metric1, xi=output$hot$count, ni=output$hot$ni, data=output$hot)},
+      escalc(
+        measure=input$metric1,
+        xi=if (!is.null(output$hot$count)) output$hot$count
+        else if (!is.null(output$hot$counts)) output$hot$counts
+        else if (!is.null(output$hot$xi)) output$hot$xi
+        else if (!is.null(output$hot$x)) output$hot$x
+        else if (!is.null(output$hot$x_i)) output$hot$x_i
+        else if (!is.null(output$hot$x_is)) output$hot$x_is
+        else output$hot$xis,
+        ni=if (!is.null(output$hot$ni)) output$hot$ni
+        else if (!is.null(output$hot$nis)) output$hot$nis
+        else if (!is.null(output$hot$n_i)) output$hot$n_i
+        else if (!is.null(output$hot$n_is)) output$hot$n_is
+        else if (!is.null(output$hot$n)) output$hot$n
+        else output$hot$ns,
+        data=output$hot)},
       error=function(err) {
         #error handler picks up where error was generated
-        print(paste("ERROR:  ", err)
-        )
+        print(paste("ERROR:  There must be at least one column named \"count\" or \"xi\" and one named \"ni\""))
     }
     )#ends tryCatch
     removeModal()
