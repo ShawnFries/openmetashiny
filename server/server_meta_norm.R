@@ -8,7 +8,7 @@ dataModal2 <- function(failed=F) {
     conditionalPanel(
       condition="input.type == 'One proportion'",
       selectInput("metric1",
-                  "Metric", 
+                  "Metric",
                   choices=c(`PR - raw proportion`="PR", `PAS - arcsine transformed proportion`="PAS", `PLO - logit transformed proportion`="PLO"),
                   selected="PR"
                  )

@@ -78,14 +78,13 @@ output$hot <- renderRHandsontable({####dat_csv in ui_data.R
       DF <- vals$data #DT::datatable(vals$data, editable=T))
     }
   } else {
-    print(input$dataType)
-    if (input$dataTypeSingle == "proportion") {
+    if (input$dataType == "proportion") {
       DF <- data.frame(names="Study A", year=as.integer(format(Sys.Date(), "%Y")), count=5, ni=10, stringsAsFactors=F)
-    } else if (input$dataTypeSingle == "mean") {
+    } else if (input$dataType == "mean") {
       DF <- data.frame(X=1, study=1, source="Location A", ni=10, mi=5, sdi=1, stringsAsFactors=F)
-    } else if (input$dataTypeMultiple == "proportions") {
+    } else if (input$dataType == "proportions") {
       DF <- data.frame(X=1, study=1, author="Author A", year=as.integer(format(Sys.Date(), "%Y")), ai=5, n1i=10, ci=3, n2i=15, stringsAsFactors=F)
-    } else if (input$dataTypeMultiple == "means") {
+    } else if (input$dataType == "means") {
       DF <- data.frame(X=1, study=1, source="Location A")#, n1i=10, m1i=5, sd1i=1, n2i=30, m2i=7, sd2i=2, stringsAsFactors=F)
     }
   }
