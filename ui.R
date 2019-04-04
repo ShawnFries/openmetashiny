@@ -66,10 +66,8 @@ ui <- function(session) {
                        ),#navbarMenu "Data"
                        bsTooltip("data_div", "Data", "right", options=list(container="body")),
                        
-                       navbarMenu(div(id="meta_analysis_div", img(src="meta_analysis.png")),
-                                  tabPanel("Normal approximation", source("ui/ui_meta_norm.R", local=T)$value),
-                                  tabPanel("Exact likelihood", source("ui/ui_meta_exact.R", local=T)$value)
-                       ), #tabPanel "Meta-analysis"
+                       tabPanel(div(id="meta_analysis_div", img(src="meta_analysis.png")), source("ui/ui_meta_analysis.R", local=T)$value),
+                        #tabPanel "Meta-analysis"
                        #https://stackoverflow.com/questions/44953873/add-tooltip-to-tabs-in-shiny
                        #add tooltip to the Meta-analysis tabPanel
                        bsTooltip("meta_analysis_div", "Meta-analysis", "right", options=list(container="body")),

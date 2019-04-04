@@ -57,9 +57,7 @@ server <- function(input, output, session) {withMathJax()
   
   source("server/server_data_csv.R", local = TRUE)$value
   
-  source("server/server_meta_norm.R", local = TRUE)$value
-  
-  source("server/server_meta_exact.R", local = TRUE)$value
+  source("server/server_meta_analysis.R", local = TRUE)$value
   
   source("server/server_cum_data.R", local = TRUE)$value
   

@@ -34,9 +34,9 @@ dataModal2 <- function(failed=F) {
       selectInput("metric3",
                   "Metric", 
                   choices=c(`RR - log risk ratio`="RR", 
-                            `OR - log odds ratio`="OR", 
-                            `RD - risk difference`="RD", 
-                            `AS - arcsine square root transformed risk difference`="AS", 
+                            `OR - log odds ratio`="OR",
+                            `RD - risk difference`="RD",
+                            `AS - arcsine square root transformed risk difference`="AS",
                             `PETO - log odds ratio estimated with Peto's method`="PETO"
                            ),
                   selected="RR"
@@ -46,14 +46,28 @@ dataModal2 <- function(failed=F) {
       condition="input.type == 'Two means'",
       selectInput("metric4",
                   "Metric", 
-                  choices=c(`MD - raw mean difference`="MD", 
-                            `SMD - standardized mean difference`="SMD", 
-                            `SMDH - standardized mean difference with heteroscedastic population variances in the two groups`="SMDH", 
+                  choices=c(`MD - raw mean difference`="MD",
+                            `SMD - standardized mean difference`="SMD",
+                            `SMDH - standardized mean difference with heteroscedastic population variances in the two groups`="SMDH",
                             `ROM - log transformed ratio of means`="ROM"
                            ),
                   selected="MD"
-                 )
-    ),
+                 ),
+    
+      conditionalPanel(
+        condition="input.metric4 == 'MD'",
+        checkboxInput("use_homoscedasticity",
+                      "Assume homoscedasticity of sampling variances? (i.e. true variance of measurements is the same in sample 1 and sample 2)"
+                     )
+        ),
+      conditionalPanel(
+        condition="input.metric4 == 'SMD'",
+        checkboxInput("variance_is_approximate",
+                      "Use the large-sample approximation for the sampling variances? If not, the exact unbiased sampling variances will be used.", 
+                      T
+                     )
+      )
+  ),
     
     footer=tagList(
       modalButton("Cancel"),
@@ -138,31 +152,72 @@ observeEvent(input$oknorm_escalc, {                                             
              )
       },
       error=function(err) {
-        print(paste("ERROR:  There must be at least one column each named \"mi\", \"sdi\" and \"ni\""))
+        print("ERROR:  There must be at least one column each named \"mi\", \"sdi\" and \"ni\"")
         }
     )#ends tryCatch
     removeModal()
     
   } else if(!is.null(hot$data) & input$type == "Two proportions"){
-    vals$dataescalc<-tryCatch({
-      escalc(measure=input$metric3, ai=hot$data$ai, n1i=hot$data$n1i, ci=hot$data$ci, n2i=hot$data$n2i, data=hot$data)},
+    vals$dataescalc<-tryCatch({ # TODO: Add error handling for other column names/check similar names
+      escalc(measure=input$metric3,
+             ai=hot$data$ai,
+             n1i=hot$data$n1i,
+             ci=hot$data$ci,
+             n2i=hot$data$n2i,
+             data=hot$data)},
       error=function(err){
-        print(paste("ERROR:  ",err))}
+        print("ERROR:  There must be at least one column each named \"ai\", \"ci\", \"n1i\", and \"n2i\"")
+      }
     )#ends tryCatch
     removeModal()
     
-  } else if(!is.null(hot$data) & input$type=="Two means"){
+  } else if(!is.null(hot$data) & input$type=="Two means"){  # TODO: Add error handling for other column names/check similar names
     vals$dataescalc<-tryCatch({
       escalc(measure=input$metric4, 
-             m1i=hot$data$m1i,
+             m1i=if (!is.null(hot$data$m1i)) hot$data$m1i
+             else if (!is.null(hot$data$m1)) hot$data$m1
+             else if (!is.null(hot$data$m1_i)) hot$data$m1_i
+             else if (!is.null(hot$data$m1_is)) hot$data$m1_is
+             else if (!is.null(hot$data$m1is)) hot$data$m1is
+             else if (!is.null(hot$data$u1)) hot$data$u1
+             else if (!is.null(hot$data$u1i)) hot$data$u1i
+             else if (!is.null(hot$data$u1_i)) hot$data$u1_i
+             else if (!is.null(hot$data$u1_is)) hot$data$u_is
+             else if (!is.null(hot$data$u1is)) hot$data$uis
+             else if (!is.null(hot$data$mu1)) hot$data$mu1
+             else if (!is.null(hot$data$mu1i)) hot$data$mu1i
+             else if (!is.null(hot$data$mu1_i)) hot$data$mu1_i
+             else if (!is.null(hot$data$mu1_is)) hot$data$mu1_is
+             else hot$data$mu1is,
              sd1i=hot$data$sd1i,
              n1i=hot$data$n1i,
-             m2i=hot$data$m2i,
+             m2i=if (!is.null(hot$data$m2i)) hot$data$m2i
+             else if (!is.null(hot$data$m2)) hot$data$m2
+             else if (!is.null(hot$data$m2_i)) hot$data$m2_i
+             else if (!is.null(hot$data$m2_is)) hot$data$m2_is
+             else if (!is.null(hot$data$m2is)) hot$data$m2is
+             else if (!is.null(hot$data$u2)) hot$data$u2
+             else if (!is.null(hot$data$u2i)) hot$data$u2i
+             else if (!is.null(hot$data$u2_i)) hot$data$u2_i
+             else if (!is.null(hot$data$u2_is)) hot$data$u_is
+             else if (!is.null(hot$data$u2is)) hot$data$uis
+             else if (!is.null(hot$data$mu2)) hot$data$mu2
+             else if (!is.null(hot$data$mu2i)) hot$data$mu2i
+             else if (!is.null(hot$data$mu2_i)) hot$data$mu2_i
+             else if (!is.null(hot$data$mu2_is)) hot$data$mu2_is
+             else hot$data$mu2is,
              sd2i=hot$data$sd2i,
-             n2i=hot$data$n2i, 
-             data=hot$data)},
+             n2i=hot$data$n2i,
+             
+             # LS is the default (large-sample approximation if using SMD). UB is unbiased (only an option for measure == "SMD")
+             vtype=if (input$metric4 == "SMD" & !input$variance_is_approximate) "UB"
+                   else if (input$metric4 == "MD" & input$use_homoscedasticity) "HO"
+                   else "LS",
+             data=hot$data)
+      },
       error=function(err){
-        print(paste("ERROR:  ",err))}
+        print("ERROR:  There must be at least one column each named \"m1i\", \"m2i\", \"sd1i\", \"sd2i\", \"n1i\", and \"n2i\"")
+      }
     )#ends tryCatch
     removeModal()
     
