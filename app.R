@@ -36,8 +36,7 @@ library(grDevices) #png()
 # )
 
 ui <- function(request) {
-  bootstrapPage(withMathJax(),
-                conditionalPanel('output.page == 1',
+  bootstrapPage(conditionalPanel('output.page == 1',
                                  titlePanel("What type of data do you have?"),
                                  sidebarLayout(
                                    sidebarPanel(

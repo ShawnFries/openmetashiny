@@ -33,11 +33,7 @@ library(dplyr)
 # )
 
 ui <- function(session) {
-  fluidPage( #MathJax is for displaying Greek symbols etc.
-    tags$head(
-      tags$link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css", integrity="sha384-9tPv11A+glH/on/wEu99NVwDPwkMQESOocs/ZGXPoIiLE8MU/qkqUcZ3zzL+6DuH", crossorigin="anonymous"),
-      tags$script(src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.js", integrity="sha384-U8Vrjwb8fuHMt6ewaCy8uqeUXv4oitYACKdB0VziCerzt011iQ/0TqlSlv8MReCm", crossorigin="anonymous")
-    ),
+  fluidPage(withMathJax(), #MathJax is for displaying Greek symbols etc.
     useShinyjs(),
     conditionalPanel('output.page == 1',
                        titlePanel("What type of data do you have?"),
@@ -46,15 +42,15 @@ ui <- function(session) {
                                                      "Data Type",
                                                      list("One piece of data from each study or studies within one group"=
                                                             c("proportion ( \\( \\frac{x}{N} \\) )"="proportion",
-                                                              "mean ( \\\\\\mu ) )"="mean",
-                                                              "regression coefficient ( \\( \\beta \\) )"="regression coefficient",
-                                                              "generic effect size ( \\(\\theta, se \\) )"="generic effect size"),
+                                                              "mean (μ)"="mean",
+                                                              "regression coefficient (β)"="regression coefficient",
+                                                              "generic effect size (θ, se)"="generic effect size"),
                                                           "Data on two or more groups per study"=
                                                             c("proportions ( \\( \\frac{x_1}{N_1} \\text{ vs } \\frac{x_2}{N_2} \\) )"="proportions",
-                                                              "means ( \\( \\mu_1 \\text{ vs } \\mu_2 \\) )"="means",
-                                                              "SMD ( \\( g \\) )"="SMD"),
+                                                              "means (μ₁ vs μ₂)"="means",
+                                                              "SMD (g)"="SMD"),
                                                           "Data on test performance"=
-                                                            c("diagnostic (TP/FP/FN/TN)"="diagnostic"))
+                                                            c("diagnostic (┼TP/FP/FN/TN)"="diagnostic"))
                          )),
                          mainPanel(
                          )),

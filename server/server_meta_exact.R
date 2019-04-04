@@ -1,21 +1,21 @@
-observeEvent(input$okexact_res,{
+observeEvent(input$okexact_res, {
   
   tryCatch({
     if (input$type2 == "Mean") {
-      print(1)
-      res <- rma.glmm(mi=vals$datar$mi,
+      #print(1)
+      res <- rma.glmm(mi=hot$data$mi,
                       #ti=vals$datar$sdi, 
-                      ni=vals$datar$ni,
+                      ni=hot$data$ni,
                       method=if (input$fixed_exact == "FE") input$fixed_exact else input$rand_est2,
-                      data=vals$datar,
+                      data=hot$data,
                       measure=input$metric_mean_exact  # TODO: Expand/fix this
                       )
     } else {  # Assumed to be proportion data
-      print(2)
-      res <- rma.glmm(xi=vals$datar$count,
-                      ni=vals$datar$ni,
+      #print(2)
+      res <- rma.glmm(xi=hot$data$count,
+                      ni=hot$data$ni,
                       method=if (input$fixed_exact == "FE") input$fixed_exact else input$rand_est2,
-                      data=vals$datar,
+                      data=hot$data,
                       measure=input$metric_prop_exact  # TODO: Expand/fix this
       )
     }

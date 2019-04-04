@@ -72,6 +72,7 @@ observeEvent(input$oknorm_escalc, {                                             
     vals$dataescalc <- tryCatch({
       escalc(
         measure=input$metric1,
+        
         xi=if (!is.null(hot$data$count)) hot$data$count
         else if (!is.null(hot$data$counts)) hot$data$counts
         else if (!is.null(hot$data$xi)) hot$data$xi
@@ -79,12 +80,14 @@ observeEvent(input$oknorm_escalc, {                                             
         else if (!is.null(hot$data$x_i)) hot$data$x_i
         else if (!is.null(hot$data$x_is)) hot$data$x_is
         else hot$data$xis,
+        
         ni=if (!is.null(hot$data$ni)) hot$data$ni
         else if (!is.null(hot$data$nis)) hot$data$nis
         else if (!is.null(hot$data$n_i)) hot$data$n_i
         else if (!is.null(hot$data$n_is)) hot$data$n_is
         else if (!is.null(hot$data$n)) hot$data$n
         else hot$data$ns,
+        
         data=hot$data)},
       error=function(err) {
         #error handler picks up where error was generated
@@ -95,7 +98,8 @@ observeEvent(input$oknorm_escalc, {                                             
   
   } else if(!is.null(hot$data) & input$type == "One mean"){
     vals$dataescalc <- tryCatch({
-      escalc(measure=input$metric2, 
+      escalc(measure=input$metric2,
+             
              mi=if (!is.null(hot$data$mi)) hot$data$mi
              else if (!is.null(hot$data$m)) hot$data$m
              else if (!is.null(hot$data$m_i)) hot$data$m_i
@@ -111,6 +115,7 @@ observeEvent(input$oknorm_escalc, {                                             
              else if (!is.null(hot$data$mu_i)) hot$data$mu_i
              else if (!is.null(hot$data$mu_is)) hot$data$mu_is
              else hot$data$muis,
+             
              sdi=if (!is.null(hot$data$sdi)) hot$data$sdi
              else if (!is.null(hot$data$sd)) hot$data$sd
              else if (!is.null(hot$data$sd_i)) hot$data$sd_i
@@ -120,13 +125,15 @@ observeEvent(input$oknorm_escalc, {                                             
              else if (!is.null(hot$data$sigmai)) hot$data$sigmai
              else if (!is.null(hot$data$sigma_i)) hot$data$sigma_i
              else if (!is.null(hot$data$sigma_is)) hot$data$sigma_is
-             else hot$data$sigmais, 
+             else hot$data$sigmais,
+             
              ni=if (!is.null(hot$data$ni)) hot$data$ni
              else if (!is.null(hot$data$nis)) hot$data$nis
              else if (!is.null(hot$data$n_i)) hot$data$n_i
              else if (!is.null(hot$data$n_is)) hot$data$n_is
              else if (!is.null(hot$data$n)) hot$data$n
              else hot$data$ns,
+             
              data=hot$data
              )
       },
@@ -181,10 +188,19 @@ observeEvent(input$oknorm_escalc, {                                             
 #################################
 
 res <- eventReactive(input$oknorm_res, {
+  conflevel <- as.numeric(as.character(input$conflevel))
   cc <- as.numeric(as.character(input$cc))
   
     tryCatch({
-    rma(yi, vi, method=if (input$fixed_norm == "FE") input$fixed_norm else input$rand_est, data=vals$dataescalc, weighted=F, add=cc, to=input$addto)
+    rma(yi,
+        vi,
+        method=if (input$fixed_norm == "FE") input$fixed_norm else input$rand_est,
+        data=vals$dataescalc,
+        weighted=F,
+        add=cc,
+        to=input$addto,
+        level=conflevel,
+        digits=input$digits)
     },
     error=function(err) {
     print(paste("ERROR:  ", err))
@@ -205,7 +221,7 @@ observeEvent(input$oknorm_res, {
 res <- res()
 
 #####################NEEDS TO BE GENERALIZED############################
-conflevel <- as.numeric(as.character(input$conflevel))
+
 output$forest_norm <- renderPlot({
   conflevel <- as.numeric(as.character(input$conflevel))
   
