@@ -41,7 +41,7 @@ ui <- function(session) {
                          sidebarPanel(selectizeInput("dataType",
                                                      "Data Type",
                                                      list("One piece of data from each study or studies within one group"=
-                                                            c("proportion ( ˣ ⁄ N )"="proportion",
+                                                            c("proportion ( x ⁄ N )"="proportion",
                                                               "mean (μ)"="mean",
                                                               "regression coefficient (β)"="regression coefficient",
                                                               "generic effect size (θ, se)"="generic effect size"),
