@@ -5,7 +5,7 @@ fluidPage(
     actionButton("upcsv", "Upload csv")
   ),
   fluidRow(
-    textInput("columnNames", "Enter Column Names (separated by commas) to change", value="", placeholder="A, B")
+    textInput("columnNames", "To edit column names enter new values here (separated by commas)", value="", placeholder="A, B")
   ),
   fluidRow(
     rHandsontableOutput("hot")
