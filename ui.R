@@ -41,16 +41,16 @@ ui <- function(session) {
                          sidebarPanel(selectizeInput("dataType",
                                                      "Data Type",
                                                      list("One piece of data from each study or studies within one group"=
-                                                            c("proportion ( \\( \\frac{x}{N} \\) )"="proportion",
+                                                            c("proportion ( ˣ ⁄ N )"="proportion",
                                                               "mean (μ)"="mean",
                                                               "regression coefficient (β)"="regression coefficient",
                                                               "generic effect size (θ, se)"="generic effect size"),
                                                           "Data on two or more groups per study"=
-                                                            c("proportions ( \\( \\frac{x_1}{N_1} \\text{ vs } \\frac{x_2}{N_2} \\) )"="proportions",
+                                                            c("proportions ( x₁ ⁄ N₁ vs x₂ ⁄ N₂ )"="proportions",
                                                               "means (μ₁ vs μ₂)"="means",
                                                               "SMD (g)"="SMD"),
                                                           "Data on test performance"=
-                                                            c("diagnostic (┼TP/FP/FN/TN)"="diagnostic"))
+                                                            c("diagnostic (TP┼FP┼FN┼TN)"="diagnostic"))
                          )),
                          mainPanel(
                          )),
