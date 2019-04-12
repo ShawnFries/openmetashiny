@@ -118,13 +118,11 @@ output$hot <- renderRHandsontable({####dat_csv in ui_data.R
                              }, stretchH="all", useTypes=F)
   if (!(is.null(input$hot) | csv_button_pressed)) {
     hot$data <- hot_to_r(input$hot)
-    vals$data <- hot$data
     # if (!is.null(hot$data_cache) && !identical(hot$data_cache, hot$data)) {
     #   print(hot$data)
     #   if (hot$data_cache$proportion != hot$data$proportion) { # TODO: Check if any proportion-like column name not only "proportion"
     #     #print(2)
     #     hot$data$count <- hot$data$proportion * hot$data$ni
-    #     input$hot$data <- hot$data
     #   } else if (hot$data_cache$count != hot$data$count) {
     #     #print(3)
     #     hot$data$proportion <- hot$data$count / hot$data$ni
@@ -136,6 +134,7 @@ output$hot <- renderRHandsontable({####dat_csv in ui_data.R
     # print(hot$data)
     # 
     # print(vals$data)
+    vals$data <- hot$data
   } else {
     csv_button_pressed <<- F
   }
@@ -152,9 +151,7 @@ output$hot <- renderRHandsontable({####dat_csv in ui_data.R
 
 dataModal0 <- function(failed=F) {
   modalDialog(
-    selectInput("type_rename", "Type of data",
-                choices=c("One proportion", "One mean", "Two proportions", "Two means"),
-                selected="One proportion"),
+    selectInput("type_rename", "Type of data", c("One proportion", "One mean", "Two proportions", "Two means")),
     conditionalPanel(
       condition="input.type_rename == 'One proportion'",
       helpText("Measures for Dichotomous Variables: A meta-analysis may be conducted to aggregate studies that provide data for individual groups with respect to a dichotomous dependent variable. Here, one needs to specify xi and ni, denoting the number of individuals experiencing the event of interest and the total number of individuals, respectively.")),
@@ -162,9 +159,7 @@ dataModal0 <- function(failed=F) {
       condition="input.type_rename == 'One mean'",
       helpText("Measures for Quantitative Variables: The goal of a meta-analysis may also be to characterize individual groups, where the response, characteristic, or dependent variable assessed in the individual studies is measured on some quantitative scale. In the simplest case, the raw mean for the quantitative variable is reported for each group, which then becomes the observed outcome for the meta-analysis. Here, one needs to specify mi, sdi, and ni for the observed means, the observed standard deviations, and the sample sizes, respectively.")),
     
-    selectInput("var1", "Variable to rename",
-                choices=names(vals$datar),
-                selected=names(vals$datar)[1]),
+    selectInput("var1", "Variable to rename", names(vals$datar)),
     textInput("var1to", "Rename variable to:", "xi"),
     
     footer = tagList(
@@ -181,7 +176,7 @@ observeEvent(input$data_rename, {
 
 observeEvent(input$ok_data_rename, {
   
-  names(vals$datar)[names(vals$datar) == input$var1]=input$var1to
+  names(vals$datar)[names(vals$datar) == input$var1] = input$var1to
 
   output$dat_csv_renamed <- renderTable({
     vals$datar
@@ -189,13 +184,6 @@ observeEvent(input$ok_data_rename, {
   
   removeModal()
 })
-
-
-
-
-
-
-
 
 
 ##################################

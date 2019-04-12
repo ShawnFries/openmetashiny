@@ -3,6 +3,7 @@
 #############################
 
 #TODO: (lower priority) Support entering proportions as decimal from 0 to 1 (possibly + sample size)
+# (Is part of backcalc)
 
 dataModal2 <- function(failed=F) {
   modalDialog(
@@ -83,26 +84,26 @@ observeEvent(input$effect_norm, {
   showModal(dataModal2())
 })
 
-observeEvent(input$oknorm_escalc, {                                                              ####oknorm_escalc
+observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
   if(!is.null(hot$data) & input$type == "One proportion"){
     vals$dataescalc <- tryCatch({
       escalc(
         measure=input$metric1,
         
-        xi=if (!is.null(hot$data$count)) hot$data$count
-        else if (!is.null(hot$data$counts)) hot$data$counts
-        else if (!is.null(hot$data$xi)) hot$data$xi
-        else if (!is.null(hot$data$x)) hot$data$x
-        else if (!is.null(hot$data$x_i)) hot$data$x_i
-        else if (!is.null(hot$data$x_is)) hot$data$x_is
-        else hot$data$xis,
+        xi=if (!is.null(hot$data$count)) count
+        else if (!is.null(hot$data$counts)) counts
+        else if (!is.null(hot$data$xi)) xi
+        else if (!is.null(hot$data$x)) x
+        else if (!is.null(hot$data$x_i)) x_i
+        else if (!is.null(hot$data$x_is)) x_is
+        else xis,
         
-        ni=if (!is.null(hot$data$ni)) hot$data$ni
-        else if (!is.null(hot$data$nis)) hot$data$nis
-        else if (!is.null(hot$data$n_i)) hot$data$n_i
-        else if (!is.null(hot$data$n_is)) hot$data$n_is
-        else if (!is.null(hot$data$n)) hot$data$n
-        else hot$data$ns,
+        ni=if (!is.null(hot$data$ni)) ni
+        else if (!is.null(hot$data$nis)) nis
+        else if (!is.null(hot$data$n_i)) n_i
+        else if (!is.null(hot$data$n_is)) n_is
+        else if (!is.null(hot$data$n)) n
+        else ns,
         
         data=hot$data)},
       error=function(err) {
@@ -116,39 +117,39 @@ observeEvent(input$oknorm_escalc, {                                             
     vals$dataescalc <- tryCatch({
       escalc(measure=input$metric2,
              
-             mi=if (!is.null(hot$data$mi)) hot$data$mi
-             else if (!is.null(hot$data$m)) hot$data$m
-             else if (!is.null(hot$data$m_i)) hot$data$m_i
-             else if (!is.null(hot$data$m_is)) hot$data$m_is
-             else if (!is.null(hot$data$mis)) hot$data$mis
-             else if (!is.null(hot$data$u)) hot$data$u
-             else if (!is.null(hot$data$ui)) hot$data$ui
-             else if (!is.null(hot$data$u_i)) hot$data$u_i
-             else if (!is.null(hot$data$u_is)) hot$data$u_is
-             else if (!is.null(hot$data$uis)) hot$data$uis
-             else if (!is.null(hot$data$mu)) hot$data$mu
-             else if (!is.null(hot$data$mui)) hot$data$mui
-             else if (!is.null(hot$data$mu_i)) hot$data$mu_i
-             else if (!is.null(hot$data$mu_is)) hot$data$mu_is
-             else hot$data$muis,
+             mi=if (!is.null(hot$data$mi)) mi
+             else if (!is.null(hot$data$m)) m
+             else if (!is.null(hot$data$m_i)) m_i
+             else if (!is.null(hot$data$m_is)) m_is
+             else if (!is.null(hot$data$mis)) mis
+             else if (!is.null(hot$data$u)) u
+             else if (!is.null(hot$data$ui)) ui
+             else if (!is.null(hot$data$u_i)) u_i
+             else if (!is.null(hot$data$u_is)) u_is
+             else if (!is.null(hot$data$uis)) uis
+             else if (!is.null(hot$data$mu)) mu
+             else if (!is.null(hot$data$mui)) mui
+             else if (!is.null(hot$data$mu_i)) mu_i
+             else if (!is.null(hot$data$mu_is)) mu_is
+             else muis,
              
-             sdi=if (!is.null(hot$data$sdi)) hot$data$sdi
-             else if (!is.null(hot$data$sd)) hot$data$sd
-             else if (!is.null(hot$data$sd_i)) hot$data$sd_i
-             else if (!is.null(hot$data$sd_is)) hot$data$sd_is
-             else if (!is.null(hot$data$sdis)) hot$data$sdis
-             else if (!is.null(hot$data$sigma)) hot$data$sigma
-             else if (!is.null(hot$data$sigmai)) hot$data$sigmai
-             else if (!is.null(hot$data$sigma_i)) hot$data$sigma_i
-             else if (!is.null(hot$data$sigma_is)) hot$data$sigma_is
-             else hot$data$sigmais,
+             sdi=if (!is.null(hot$data$sdi)) sdi
+             else if (!is.null(hot$data$sd)) sd
+             else if (!is.null(hot$data$sd_i)) sd_i
+             else if (!is.null(hot$data$sd_is)) sd_is
+             else if (!is.null(hot$data$sdis)) sdis
+             else if (!is.null(hot$data$sigma)) sigma
+             else if (!is.null(hot$data$sigmai)) sigmai
+             else if (!is.null(hot$data$sigma_i)) sigma_i
+             else if (!is.null(hot$data$sigma_is)) sigma_is
+             else sigmais,
              
-             ni=if (!is.null(hot$data$ni)) hot$data$ni
-             else if (!is.null(hot$data$nis)) hot$data$nis
-             else if (!is.null(hot$data$n_i)) hot$data$n_i
-             else if (!is.null(hot$data$n_is)) hot$data$n_is
-             else if (!is.null(hot$data$n)) hot$data$n
-             else hot$data$ns,
+             ni=if (!is.null(hot$data$ni)) ni
+             else if (!is.null(hot$data$nis)) nis
+             else if (!is.null(hot$data$n_i)) n_i
+             else if (!is.null(hot$data$n_is)) n_is
+             else if (!is.null(hot$data$n)) n
+             else ns,
              
              data=hot$data
              )
@@ -162,10 +163,10 @@ observeEvent(input$oknorm_escalc, {                                             
   } else if(!is.null(hot$data) & input$type == "Two proportions"){
     vals$dataescalc<-tryCatch({ # TODO: Add error handling for other column names/check similar names
       escalc(measure=input$metric3,
-             ai=hot$data$ai,
-             n1i=hot$data$n1i,
-             ci=hot$data$ci,
-             n2i=hot$data$n2i,
+             ai=ai,
+             n1i=n1i,
+             ci=ci,
+             n2i=n2i,
              data=hot$data)},
       error=function(err){
         print("ERROR:  There must be at least one column each named \"ai\", \"ci\", \"n1i\", and \"n2i\"")
@@ -208,8 +209,8 @@ observeEvent(input$oknorm_escalc, {                                             
              else if (!is.null(hot$data$mu2_i)) hot$data$mu2_i
              else if (!is.null(hot$data$mu2_is)) hot$data$mu2_is
              else hot$data$mu2is,
-             sd2i=hot$data$sd2i,
-             n2i=hot$data$n2i,
+             sd2i=sd2i,
+             n2i=n2i,
              
              # LS is the default (large-sample approximation if using SMD). UB is unbiased (only an option for measure == "SMD")
              vtype=if (input$metric4 == "SMD" & !input$variance_is_approximate) "UB"
@@ -251,7 +252,7 @@ res <- eventReactive(input$oknorm_res, {
     tryCatch({
     rma(yi,
         vi,
-        method=if (input$fixed_norm == "FE") input$fixed_norm else input$rand_est,
+        method=input$est,
         data=vals$dataescalc,
         weighted=F,
         add=cc,
@@ -283,13 +284,7 @@ output$forest_norm <- renderPlot({
   conflevel <- as.numeric(as.character(input$conflevel))
   
   ##display forest plot
-  if (input$metric1 == "PLO"){
-    forest(res, transf=transf.ilogit, targs=list(ni=hot$data$ni), refline=NA, level=conflevel, digits=input$digits)
-  } else if(input$metric1 == "PAS") {
-    forest(res, transf=transf.isqrt, targs=list(ni=hot$data$ni), refline=NA, level=conflevel, digits=input$digits)
-  } else if(input$metric1 == "PR") {
-    forest(res, refline=NA, level=conflevel, digits=input$digits)
-  }
+  forest(res, refline=NA, level=conflevel, digits=input$digits)
 
   })
 
@@ -298,11 +293,6 @@ output$msummary_norm <- renderPrint({
 })
 
 })
-
-
-
-
-
 
 #################################
 ##         save_fplot          ##
@@ -314,7 +304,7 @@ dataModal3 <- function(failed=F) {
                 "~/openmeta/plot1.png"),
     textInput("fplot_w", "Width of forest plot:", "8"),
     textInput("fplot_h", "Height of forest plot:", "6"),
-    selectInput("fplot_unit", "Unit of saved plot dimensions", choices=c(`pixels`="px", `inches`="in", "cm", "mm"), selected="in"),
+    selectInput("fplot_unit", "Unit of saved plot dimensions", c(`pixels`="px", `inches`="in", "cm", "mm"), "in"),
     textInput("fplot_resolution", "Resolution of forest plot:", "210"),
     
     footer = tagList(modalButton("Cancel"), actionButton("ok_save_fplot", "OK")
@@ -335,13 +325,7 @@ observeEvent(input$ok_save_fplot,{
   ##save a png of the plot
   png(filename=input$fplot_path, width=as.numeric(input$fplot_w), height=as.numeric(input$fplot_h), units=input$fplot_unit, res=as.numeric(input$fplot_resolution))
   
-  if(input$metric1 == "PLO") {
-    forest(res, transf=transf.ilogit, targs=list(ni=hot$data$ni), refline=NA, digits=input$digits, level=conflevel)
-  } else if(input$metric1 == "PAS") {
-    forest(res, transf=transf.isqrt, targs=list(ni=hot$data$ni), refline=NA, digits=input$digits, level=conflevel)
-  } else if(input$metric1 == "PR") {
-    forest(res, refline=NA, digits=input$digits, level=conflevel)
-  }
+  forest(res, refline=NA, digits=input$digits, level=conflevel)
   
   dev.off()
   
@@ -349,26 +333,19 @@ observeEvent(input$ok_save_fplot,{
 })
 
 
-
-
-
-
-
-
-
-
 ##########################
 ##     dynamic UI       ##
 ##########################
-
-output$rand_estimation <- renderUI({
-  # if(input$type=="."){
-  #   NULL
-  # }else 
+observe({
+  fixed_norm <- input$fixed_norm
   
-  if (input$fixed_norm == "FE") {                                                   ####fixed_norm in ui_meta_norm.R
-    selectInput("fixed_est", "Estimation method", choices=c("Inverse-variance"), selected="Inverse-variance")
-  } else if (input$fixed_norm == "RE") {                                             ####fixed_norm in ui_meta_norm.R
-    selectInput("rand_est", "Estimation method", choices=c(`DerSimonian Laird`="DL", `Maximum likelihood`="ML", `Restricted ML`="REML"), selected="REML")
-  }
+  updateSelectInput(session,
+                           "est",
+                           "Estimation method",
+                           
+                           if (fixed_norm == "RE") c(`DerSimonian Laird`="DL", `Maximum likelihood`="ML", `Restricted ML`="REML")
+                           else c(`Inverse-variance`="FE"),
+                           
+                           if (fixed_norm == "RE") "REML"
+                          )
 })

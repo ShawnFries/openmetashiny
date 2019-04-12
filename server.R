@@ -29,8 +29,6 @@ server <- function(input, output, session) {withMathJax()
   
   outputOptions(output, "page", suspendWhenHidden=F)
   
-  
-  
   source("support/helpers.R", local=T)$value
   
   source("server/server_data_csv.R", local=T)$value

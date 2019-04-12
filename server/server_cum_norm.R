@@ -100,12 +100,13 @@ observeEvent(input$oknorm_cum_escalc, {                                         
 #################################
 
 observeEvent(input$oknorm_cum_res, {
+  conflevel <- as.numeric(as.character(input$conflevel_cum))
   cc <- as.numeric(as.character(input$cc_cum))  # continuity correction
 
   res <- if (input$fixed_cum_norm == "FE") {
-    rma(yi, vi, method=input$fixed_cum_norm, data=hot$dataescalc_cum, weighted=F, add=cc, to=input$addto_cum)
+    rma(yi, vi, method=input$fixed_cum_norm, data=hot$dataescalc_cum, weighted=F, add=cc, to=input$addto_cum, digits=input$digits_cum, level=conflevel)
   } else if (input$fixed_cum_norm == "RE") {
-    rma(yi, vi, method=input$rand_cum_est, data=hot$dataescalc_cum, weighted=F, add=cc, to=input$addto_cum)
+    rma(yi, vi, method=input$rand_cum_est, data=hot$dataescalc_cum, weighted=F, add=cc, to=input$addto_cum, digits=input$digits_cum, level=conflevel)
   }
 
   #####################NEEDS TO BE GENERALIZED############################
