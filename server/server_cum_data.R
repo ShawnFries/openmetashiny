@@ -1,20 +1,26 @@
-output$cum_data<-renderTable({
+output$cum_data <- renderTable({
   
-  cum_data<-
-  if(!is.null(vals$data) & input$type_cum_data=="Proportion"){
+  cum_data <-
+  if (!is.null(hot$data)) {
     
-    cbind(vals$data[,!colnames(vals$data)%in%c("xi", "ni")],
-          lapply(vals$data[,colnames(vals$data)%in%c("xi", "ni")], cumfunc))
-    
-  }else if(!is.null(vals$data) & input$type_cum_data=="Mean"){
-    
-    cbind(vals$data[,!colnames(vals$data)%in%c("m1i", "m2i", "sd1i", "sd2i", "n1i", "n2i")],
-          lapply(vals$data[,colnames(vals$data)%in%c("m1i", "m2i", "sd1i", "sd2i", "n1i", "n2i")], cumfunc))
-    
-  }else if(!is.null(vals$data) & input$type_cum_data=="Two proportions (2X2)"){
-    
-    cbind(vals$data[,!colnames(vals$data)%in%c("ai", "ci", "n1i", "n2i")],
-          lapply(vals$data[,colnames(vals$data)%in%c("ai", "ci", "n1i", "n2i")], cumfunc))
+    if (input$type_cum_data == "Proportion") {
+  
+      cbind(hot$data[, !colnames(hot$data) %in% c("xi", "ni", "count")],
+            lapply(hot$data[ , colnames(hot$data) %in% c("xi", "ni", "count")], cumfunc)
+           )
+  
+    } else if (input$type_cum_data == "Mean") {
+      
+      cbind(hot$data[, !colnames(hot$data) %in% c("m1i", "m2i", "sd1i", "sd2i", "n1i", "n2i")],
+            lapply(hot$data[ , colnames(hot$data) %in% c("m1i", "m2i", "sd1i", "sd2i", "n1i", "n2i")], cumfunc)
+           )
+  
+    } else if (input$type_cum_data == "Two proportions (2X2)") {
+  
+      cbind(hot$data[, !colnames(hot$data) %in% c("ai", "ci", "n1i", "n2i")],
+            lapply(hot$data[ , colnames(hot$data) %in% c("ai", "ci", "n1i", "n2i")], cumfunc)
+           )
+    }
   }
   
   cum_data

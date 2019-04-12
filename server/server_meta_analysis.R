@@ -2,21 +2,23 @@
 ##       effect_norm       ##
 #############################
 
+#TODO: (lower priority) Support entering proportions as decimal from 0 to 1 (possibly + sample size)
+
 dataModal2 <- function(failed=F) {
   modalDialog(
-    selectInput("type", "Type of data", choices=c("One proportion", "One mean", "Two proportions", "Two means"), selected=switch(input$dataType,
-                                                                                                                                 "proportion" = "One proportion",
-                                                                                                                                 "mean" = "One mean",
-                                                                                                                                 "proportions" = "Two proportions",
-                                                                                                                                 "means" = "Two means"
-                                                                                                                                 )
+    selectInput("type", "Type of data", c("One proportion", "One mean", "Two proportions", "Two means"), switch(input$dataType,
+                                                                                                                "proportion" = "One proportion",
+                                                                                                                "mean" = "One mean",
+                                                                                                                "proportions" = "Two proportions",
+                                                                                                                "means" = "Two means"
+                                                                                                               )
                 ),
     conditionalPanel(
       condition="input.type == 'One proportion'",
       selectInput("metric1",
                   "Metric",
-                  choices=c(`PR - raw proportion`="PR", `PAS - arcsine transformed proportion`="PAS", `PLO - logit transformed proportion`="PLO"),
-                  selected="PR"
+                  c(`PR - raw proportion`="PR", `PAS - arcsine transformed proportion`="PAS", `PLO - logit transformed proportion`="PLO"),
+                  "PR"
                  )
     ),
     conditionalPanel(

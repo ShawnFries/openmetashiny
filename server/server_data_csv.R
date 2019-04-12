@@ -93,7 +93,7 @@ output$hot <- renderRHandsontable({####dat_csv in ui_data.R
    # print(DF)
   } else if (is.null(input$hot)) {
     if (input$dataType == "proportion") {
-      DF <- data.frame(names="Study A", year=as.integer(format(Sys.Date(), "%Y")), count=5, ni=10, stringsAsFactors=F)
+      DF <- data.frame(names="Study A", year=as.integer(format(Sys.Date(), "%Y")), count=5, ni=10, proportion=0.5, stringsAsFactors=F)
     } else if (input$dataType == "mean") {
       DF <- data.frame(X=1, study=1, source="Location A", ni=10, mi=5, sdi=1, stringsAsFactors=F)
     } else if (input$dataType == "proportions") {
@@ -111,15 +111,37 @@ output$hot <- renderRHandsontable({####dat_csv in ui_data.R
       if (new_column_names[i] != "") colnames(DF)[i] <- new_column_names[i]
     }
   }
-  hot$table <- rhandsontable(DF, stretchH="all", useTypes=F)
-  if (!is.null(input$hot) & !csv_button_pressed) {
+  hot$table <- rhandsontable(if (input$dataType != "proportion" | any(c("proportion", "proportions", "prop", "props") %in% colnames(DF))) DF
+                             else {
+                               DF$proportion <- DF$count / DF$ni
+                               DF
+                             }, stretchH="all", useTypes=F)
+  if (!(is.null(input$hot) | csv_button_pressed)) {
     hot$data <- hot_to_r(input$hot)
-    #print(hot$data)
     vals$data <- hot$data
+    # if (!is.null(hot$data_cache) && !identical(hot$data_cache, hot$data)) {
+    #   print(hot$data)
+    #   if (hot$data_cache$proportion != hot$data$proportion) { # TODO: Check if any proportion-like column name not only "proportion"
+    #     #print(2)
+    #     hot$data$count <- hot$data$proportion * hot$data$ni
+    #     input$hot$data <- hot$data
+    #   } else if (hot$data_cache$count != hot$data$count) {
+    #     #print(3)
+    #     hot$data$proportion <- hot$data$count / hot$data$ni
+    #   } else if (hot$data_cache$ni != hot$data$ni) {
+    #    # print(4)
+    #     hot$data$proportion <- hot$data$count / hot$data$ni
+    #   }
+    # } 
+    # print(hot$data)
+    # 
+    # print(vals$data)
   } else {
     csv_button_pressed <<- F
   }
-  #print(hot$data)
+  if (input$dataType == "proportion" & !is.null(hot$data)) {
+    hot$data_cache <- hot$data  # Currently unused but attempting to use autocomplete columns
+  }
   hot$table
 })
 

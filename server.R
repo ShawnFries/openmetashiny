@@ -29,40 +29,18 @@ server <- function(input, output, session) {withMathJax()
   
   outputOptions(output, "page", suspendWhenHidden=F)
   
-  updateSelectizeInput(session, "select", choices=list("One piece of data from each study or studies within one group"=
-                                                         c("proportion ( \\( \\frac{x}{N} \\) )"="proportion",
-                                                           "mean ( \\\\\\mu ) )"="mean",
-                                                           "regression coefficient ( \\( \\beta \\) )"="regression coefficient",
-                                                           "generic effect size ( \\(\\theta, se \\) )"="generic effect size"),
-                                                       "Data on two or more groups per study"=
-                                                         c("proportions ( \\( \\frac{x_1}{N_1} \\text{ vs } \\frac{x_2}{N_2} \\) )"="proportions",
-                                                           "means ( \\( \\mu_1 \\text{ vs } \\mu_2 \\) )"="means",
-                                                           "SMD ( \\( g \\) )"="SMD"),
-                                                       "Data on test performance"=
-                                                         c("diagnostic (TP/FP/FN/TN)"="diagnostic")),
-                       options = list(render = I("
-    {
-                                                 item:   function(item, escape) { 
-                                                 var html = katex.renderToString(item.label);
-                                                 return '<div>' + html + '</div>'; 
-                                                 },
-                                                 option: function(item, escape) { 
-                                                 var html = katex.renderToString(item.label);
-                                                 return '<div>' + html + '</div>'; 
-                                                 }
-}
-")))
   
-  source("support/helpers.R", local = TRUE)$value
   
-  source("server/server_data_csv.R", local = TRUE)$value
+  source("support/helpers.R", local=T)$value
   
-  source("server/server_meta_analysis.R", local = TRUE)$value
+  source("server/server_data_csv.R", local=T)$value
   
-  source("server/server_cum_data.R", local = TRUE)$value
+  source("server/server_meta_analysis.R", local=T)$value
   
-  source("server/server_cum_norm.R", local = TRUE)$value
+  source("server/server_cum_data.R", local=T)$value
   
-  source("server/server_report.R", local = TRUE)$value
+  source("server/server_cum_norm.R", local=T)$value
+  
+  source("server/server_report.R", local=T)$value
   
 }
