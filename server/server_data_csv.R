@@ -111,11 +111,7 @@ output$hot <- renderRHandsontable({####dat_csv in ui_data.R
       if (new_column_names[i] != "") colnames(DF)[i] <- new_column_names[i]
     }
   }
-  hot$table <- rhandsontable(if (input$dataType != "proportion" | any(c("proportion", "proportions", "prop", "props") %in% colnames(DF))) DF
-                             else {
-                               DF$proportion <- DF$count / DF$ni
-                               DF
-                             }, stretchH="all", useTypes=F)
+  hot$table <- rhandsontable(DF, stretchH="all", useTypes=F)
   if (!(is.null(input$hot) | csv_button_pressed)) {
     hot$data <- hot_to_r(input$hot)
     # if (!is.null(hot$data_cache) && !identical(hot$data_cache, hot$data)) {

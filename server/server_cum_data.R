@@ -11,19 +11,22 @@ output$cum_data <- renderTable({
   
     } else if (input$type_cum_data == "Mean") {
       
-      cbind(hot$data[, !colnames(hot$data) %in% c("m1i", "m2i", "sd1i", "sd2i", "n1i", "n2i")],
-            lapply(hot$data[ , colnames(hot$data) %in% c("m1i", "m2i", "sd1i", "sd2i", "n1i", "n2i")], cumfunc)
-           )
-  
+      cbind(hot$data[, !colnames(hot$data) %in% c("mi", "sdi", "ni")],
+            lapply(hot$data[ , colnames(hot$data) %in% c("mi", "sdi", "ni")], cumfunc)
+      )
+      
     } else if (input$type_cum_data == "Two proportions (2X2)") {
   
       cbind(hot$data[, !colnames(hot$data) %in% c("ai", "ci", "n1i", "n2i")],
             lapply(hot$data[ , colnames(hot$data) %in% c("ai", "ci", "n1i", "n2i")], cumfunc)
            )
+    } else if (input$type_cum_data == "Two means") {
+      
+      cbind(hot$data[, !colnames(hot$data) %in% c("m1i", "m2i", "sd1i", "sd2i", "n1i", "n2i")],
+            lapply(hot$data[ , colnames(hot$data) %in% c("m1i", "m2i", "sd1i", "sd2i", "n1i", "n2i")], cumfunc)
+      )
     }
   }
-  
   cum_data
   
 })
-

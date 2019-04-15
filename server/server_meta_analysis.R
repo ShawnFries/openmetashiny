@@ -2,6 +2,7 @@
 ##       effect_norm       ##
 #############################
 
+#TODO: Add rma.glmm() for exact calculations as an option
 #TODO: (lower priority) Support entering proportions as decimal from 0 to 1 (possibly + sample size)
 # (Is part of backcalc)
 
@@ -85,7 +86,7 @@ observeEvent(input$effect_norm, {
 })
 
 observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
-  if(!is.null(hot$data) & input$type == "One proportion"){
+  if (!is.null(hot$data) & input$type == "One proportion") {
     vals$dataescalc <- tryCatch({
       escalc(
         measure=input$metric1,
@@ -109,11 +110,11 @@ observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
       error=function(err) {
         #error handler picks up where error was generated
         print(paste("ERROR:  There must be at least one column named \"count\" or \"xi\" and one named \"ni\""))
-    }
+      }
     )#ends tryCatch
     removeModal()
   
-  } else if(!is.null(hot$data) & input$type == "One mean"){
+  } else if (!is.null(hot$data) & input$type == "One mean") {
     vals$dataescalc <- tryCatch({
       escalc(measure=input$metric2,
              
@@ -156,11 +157,11 @@ observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
       },
       error=function(err) {
         print("ERROR:  There must be at least one column each named \"mi\", \"sdi\" and \"ni\"")
-        }
+      }
     )#ends tryCatch
     removeModal()
     
-  } else if(!is.null(hot$data) & input$type == "Two proportions"){
+  } else if(!is.null(hot$data) & input$type == "Two proportions") {
     vals$dataescalc<-tryCatch({ # TODO: Add error handling for other column names/check similar names
       escalc(measure=input$metric3,
              ai=ai,
@@ -174,8 +175,8 @@ observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
     )#ends tryCatch
     removeModal()
     
-  } else if(!is.null(hot$data) & input$type=="Two means"){  # TODO: Add error handling for other column names/check similar names
-    vals$dataescalc<-tryCatch({
+  } else if (!is.null(hot$data) & input$type=="Two means") {  # TODO: Add error handling for other column names/check similar names
+    vals$dataescalc <- tryCatch({
       escalc(measure=input$metric4, 
              m1i=if (!is.null(hot$data$m1i)) hot$data$m1i
              else if (!is.null(hot$data$m1)) hot$data$m1
@@ -224,21 +225,17 @@ observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
     )#ends tryCatch
     removeModal()
     
-  }else{
+  } else{
     showModal(dataModal(failed=T))
   }
   
   
   output$escalcdat<-renderTable({
-    if(!is.null(vals$dataescalc)){
+    if (!is.null(vals$dataescalc)) {
       vals$dataescalc
     }
   })
 })
-
-
-
-
 
 
 #################################
@@ -261,7 +258,7 @@ res <- eventReactive(input$oknorm_res, {
         digits=input$digits)
     },
     error=function(err) {
-    print(paste("ERROR:  ", err))
+      print(paste("ERROR:  ", err))
     }
     )
 }

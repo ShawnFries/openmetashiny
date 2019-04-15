@@ -3,8 +3,9 @@ sidebarLayout(
     actionButton("effect_cum_norm", "Choose effect measure"),                              ####effect_norm in server_data_csv.R
     selectInput("fixed_cum_norm",                                                         ####fixed_norm in server_meta_norm.R
                 "Fixed or random effect",
-                choices=c(`Fixed effect`="FE", Random_effects="RE"),
-                selected="FE"),
+                c(`Fixed effect`="FE", Random_effects="RE"),
+                "RE"
+               ),
     uiOutput("rand_cum_estimation"),
     sliderInput("digits_cum", "Number of digits to display",
                 min=1, max=10, value=3, step=1),

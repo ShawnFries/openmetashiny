@@ -2,14 +2,18 @@
 ##    effect_cum_norm      ##
 #############################
 
+# TODO: Split UI into 3 tabs like for server_meta_analysis (may be in UI page)
+# TODO: Combine exact and normal methods in one tab (use rma.glmm for exact) and give options like for server_meta_analysis
+# TODO: Fix for 2 proportions/2 means
+
 dataModal2_cum <- function(failed=F) {
   modalDialog(
-    selectInput("type_cum", "Type of data", c("Proportion", "Mean", "Two proportions (2X2)"), switch(input$dataType,
-                                                                                                     "proportion" = "Proportion",
-                                                                                                     "mean" = "Mean",
-                                                                                                     "proportions" = "Two proportions (2X2)"#,
-                                                                                                     #"means" = "Two means"
-                                                                                                    )
+    selectInput("type_cum", "Type of data", c("Proportion", "Mean", "Two proportions (2X2)", "Two means"), switch(input$dataType,
+                                                                                                                  "proportion" = "Proportion",
+                                                                                                                  "mean" = "Mean",
+                                                                                                                  "proportions" = "Two proportions (2X2)",
+                                                                                                                  "means" = "Two means"
+                                                                                                                 )
                ),
     conditionalPanel(
       condition="input.type_cum == 'Proportion'",
@@ -17,11 +21,20 @@ dataModal2_cum <- function(failed=F) {
     ),
     conditionalPanel(
       condition="input.type_cum == 'Mean'",
-      selectInput("metric2_cum", "Metric", c("MD", "SMD", "SMDH", "ROM"))
+      selectInput("metric2_cum", "Metric", c(`MN - raw mean`="MN", 
+                                             `MNLN - log transformed mean`="MNLN", 
+                                             `CVLN - log transformed coefficient of variation`="CVLN",
+                                             `SDLN - log transformed standard deviation`="SDLN"
+                                            )
+                 )
     ),
     conditionalPanel(
       condition="input.type_cum == 'Two proportions (2X2)'",
       selectInput("metric3_cum", "Metric", c("RR", "OR", "RD", "AS", "PETO"))
+    ),
+    conditionalPanel(
+      condition="input.type_cum == 'Two means'",
+      selectInput("metric4_cum", "Metric", c("MD", "SMD", "SMDH", "ROM"))
     ),
     footer=tagList(
       modalButton("Cancel"),
@@ -64,10 +77,53 @@ observeEvent(input$oknorm_cum_escalc, {                                         
     
   } else if (!is.null(hot$data) & input$type_cum == "Mean") {
     hot$dataescalc_cum <- tryCatch({
-      escalc(measure=input$metric2_cum, 
-             m1i=hot$data$m1i, sd1i=hot$data$sd1i, n1i=hot$data$n1i,
-             m2i=hot$data$m2i, sd2i=hot$data$sd2i, n2i=hot$data$n2i, 
-             data=hot$data)
+      cum_data <- hot$data
+      
+             cum_data$mi <- if (!is.null(cum_data$mi)) cumfunc(cum_data$mi)
+             else if (!is.null(cum_data$m)) cumfunc(cum_data$m)
+             else if (!is.null(cum_data$m_i)) cumfunc(cum_data$m_i)
+             else if (!is.null(cum_data$m_is)) cumfunc(cum_data$m_is)
+             else if (!is.null(cum_data$mis)) cumfunc(cum_data$mis)
+             else if (!is.null(cum_data$u)) cumfunc(cum_data$u)
+             else if (!is.null(cum_data$ui)) cumfunc(cum_data$ui)
+             else if (!is.null(cum_data$u_i)) cumfunc(cum_data$u_i)
+             else if (!is.null(cum_data$u_is)) cumfunc(cum_data$u_is)
+             else if (!is.null(cum_data$uis)) cumfunc(cum_data$uis)
+             else if (!is.null(cum_data$mu)) cumfunc(cum_data$mu)
+             else if (!is.null(cum_data$mui)) cumfunc(cum_data$mui)
+             else if (!is.null(cum_data$mu_i)) cumfunc(cum_data$mu_i)
+             else if (!is.null(cum_data$mu_is)) cumfunc(cum_data$mu_is)
+             else cumfunc(cum_data$muis)
+             
+             cum_data$sdi <- if (!is.null(cum_data$sdi)) cumfunc(cum_data$sdi)
+             else if (!is.null(cum_data$sd)) cumfunc(cum_data$sd)
+             else if (!is.null(cum_data$sd_i)) cumfunc(cum_data$sd_i)
+             else if (!is.null(cum_data$sd_is)) cumfunc(cum_data$sd_is)
+             else if (!is.null(cum_data$sdis)) cumfunc(cum_data$sdis)
+             else if (!is.null(cum_data$sigma)) cumfunc(cum_data$sigma)
+             else if (!is.null(cum_data$sigmai)) cumfunc(cum_data$sigmai)
+             else if (!is.null(cum_data$sigma_i)) cumfunc(cum_data$sigma_i)
+             else if (!is.null(cum_data$sigma_is)) cumfunc(cum_data$sigma_is)
+             else cumfunc(cum_data$sigmais)
+             
+             cum_data$ni <- if (!is.null(cum_data$ni)) cumfunc(cum_data$ni)
+             else if (!is.null(cum_data$nis)) cumfunc(cum_data$nis)
+             else if (!is.null(cum_data$n_i)) cumfunc(cum_data$n_i)
+             else if (!is.null(cum_data$n_is)) cumfunc(cum_data$n_is)
+             else if (!is.null(cum_data$n)) cumfunc(cum_data$n)
+             else cumfunc(cum_data$ns)
+             escalc(measure=input$metric2_cum, mi=mi, sdi=sdi, ni=ni, data=cum_data)
+    },
+    error=function(err) {
+      print("ERROR:  There must be at least one column each named \"mi\", \"sdi\" and \"ni\"")
+    }
+    )#ends tryCatch
+    removeModal()
+    
+  } else if (!is.null(hot$data) & input$type_cum == "Two means") {
+    cum_data <- hot$data
+    hot$dataescalc_cum <- tryCatch({
+      escalc(measure=input$metric2_cum, m1i=cumfunc(m1i), sd1i=cumfunc(sd1i), n1i=cumfunc(n1i), m2i=cumfunc(m2i), sd2i=cumfunc(sd2i), n2i=cumfunc(n2i), data=cum_data)
       },
       error=function(err) {
         print(paste("ERROR:  ", err))
@@ -76,8 +132,9 @@ observeEvent(input$oknorm_cum_escalc, {                                         
     removeModal()
     
   } else if (!is.null(hot$data) & input$type_cum == "Two proportions (2X2)") {
+    cum_data <- hot$data
     hot$dataescalc_cum <- tryCatch({
-      escalc(measure=input$metric3_cum, ai=hot$data$ai, n1i=hot$data$n1i, ci=hot$data$ci, n2i=hot$data$n2i, data=hot$data)
+        escalc(measure=input$metric3_cum, ai=cumfunc(ai), n1i=cumfunc(n1i), ci=cumfunc(ci), n2i=cumfunc(n2i), data=cum_data)
       },
       error=function(err) {
         print(paste("ERROR:  ", err))
@@ -85,7 +142,7 @@ observeEvent(input$oknorm_cum_escalc, {                                         
     )#ends tryCatch
     removeModal()
   } else {
-    showModal(dataModal(failed=T))
+    showModal(dataModal2_cum(failed=T))
   }
   
   output$escalcdat_cum <- renderTable({
@@ -112,13 +169,8 @@ observeEvent(input$oknorm_cum_res, {
   #####################NEEDS TO BE GENERALIZED############################
   output$forest_cum_norm <- renderPlot({
     conflevel <- as.numeric(as.character(input$conflevel_cum))
-    if (input$metric1_cum == "PLO") {
-      forest(res, transf=transf.ilogit, targs=list(ni=cum_data$ni), refline=NA, digits=input$digits_cum, level=conflevel)
-    } else if (input$metric1_cum == "PAS") {
-      forest(res, transf=transf.isqrt, targs=list(ni=cum_data$ni), refline=NA, digits=input$digits_cum, level=conflevel)
-    } else if (input$metric1_cum == "PR") {
-      forest(res, refline=NA, digits=input$digits_cum, level=conflevel)
-    }
+    
+    forest(res, refline=NA, digits=input$digits_cum, level=conflevel)
   })
 
   output$msummary_cum_norm <- renderPrint({
@@ -132,7 +184,7 @@ observeEvent(input$oknorm_cum_res, {
 ##     dynamic UI       ##
 ##########################
 
-output$rand_estimation <- renderUI({
+output$rand_cum_estimation <- renderUI({
   # if(input$type=="."){
   #   NULL
   # }else
@@ -145,7 +197,8 @@ output$rand_estimation <- renderUI({
   } else if (input$fixed_cum_norm == "RE"){                                             ####fixed_norm in ui_meta_norm.R
     selectInput("rand_cum_est",
                 "Estimation method",
-                c(DerSimonian_Laird="DL", Maximum_likelihood="ML", Restricted_ML="REML")
+                c(DerSimonian_Laird="DL", Maximum_likelihood="ML", Restricted_ML="REML"),
+                "REML"
                )
   }
 })

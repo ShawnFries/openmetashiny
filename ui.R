@@ -33,7 +33,7 @@ library(dplyr)
 # )
 
 ui <- function(session) {
-  fluidPage(withMathJax(), #MathJax is for displaying Greek symbols etc.
+  fluidPage(
     useShinyjs(),
     conditionalPanel('output.page == 1',
                        titlePanel("What type of data do you have?"),
