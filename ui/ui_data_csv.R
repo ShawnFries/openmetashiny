@@ -11,8 +11,3 @@ fluidPage(
     rHandsontableOutput("hot")
   )
 )
-   
-
-  
-### EXCEL-like data entry
-### https://jrowen.github.io/rhandsontable/#shiny  

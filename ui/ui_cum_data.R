@@ -10,6 +10,14 @@ sidebarLayout(
                )
   ),
   mainPanel(
-    tableOutput("cum_data")
+    #TODO: Think this needs to be moved to server to clean up the error display..
+    tryCatch({
+      tableOutput("cum_data")
+    },
+    error=function(err) {
+      #error handler picks up where error was generated
+      print(paste("ERROR:  ", err))
+    }
+    )
   )
 )

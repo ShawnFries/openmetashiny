@@ -1,3 +1,5 @@
+#TODO: Re-label accumulated columns etc (including in forest plot and data table) to make clear that it's an accumulated column, not the value for each
+
 output$cum_data <- renderTable({
   
   cum_data <-
