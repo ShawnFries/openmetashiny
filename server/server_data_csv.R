@@ -64,10 +64,11 @@ observeEvent(input$okcsv, {                                                     
                           sep=input$sep,
                           quote=input$quote)
     vals$datar <- vals$data
-    if (input$dataType == "proportion" & length(intersect(c("count", "xi", "counts", "x_i", "x_is", "xis", "x", "xs", "prop", "props", "proportions", "proportion", "x/n", "x / n", "X / N", "x / n"),
-                                                          colnames(vals$data)
-                                                         )
-                                               ) == 2) {  # Exactly 2 matches so we can simply calculate the other one (count, N, proportion)
+    if (input$dataType == "proportion" & length(
+                                    intersect(c("count", "xi", "counts", "x_i", "x_is", "xis", "x", "xs", "prop", "props", "proportions", "proportion", "x/n", "x / n", "X / N", "x / n"),
+                                    colnames(vals$data
+                                    )
+      )) == 2) {  # Exactly 2 matches so we can simply calculate the other one (count, N, proportion)
        # TODO: Finish this (actually do back-calc)
     }
     removeModal()

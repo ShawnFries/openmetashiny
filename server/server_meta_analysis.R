@@ -19,45 +19,42 @@ dataModal2 <- function(failed=F) {
       condition="input.type == 'One proportion'",
       selectInput("metric1",
                   "Metric",
-                  c(`PR - raw proportion`="PR", `PAS - arcsine transformed proportion`="PAS", `PLO - logit transformed proportion`="PLO"),
-                  "PR"
+                  c(`PR - raw proportion`="PR", `PAS - arcsine transformed proportion`="PAS", `PLO - logit transformed proportion`="PLO")
                  )
     ),
     conditionalPanel(
       condition="input.type == 'One mean'",
       selectInput("metric2",
                   "Metric", 
-                  choices=c(`MN - raw mean`="MN", 
+                  c(`MN - raw mean`="MN", 
                             `MNLN - log transformed mean`="MNLN", 
                             `CVLN - log transformed coefficient of variation`="CVLN",
-                            `SDLN - log transformed standard deviation`="SDLN"),
-                  selected="MN")
+                            `SDLN - log transformed standard deviation`="SDLN")
+                  )
     ),
     conditionalPanel(
       condition="input.type == 'Two proportions'",
       selectInput("metric3",
                   "Metric", 
-                  choices=c(`RR - log risk ratio`="RR", 
+                  c(`RR - log risk ratio`="RR", 
                             `OR - log odds ratio`="OR",
                             `RD - risk difference`="RD",
                             `AS - arcsine square root transformed risk difference`="AS",
                             `PETO - log odds ratio estimated with Peto's method`="PETO"
-                           ),
-                  selected="RR"
+                           )
                  )
     ),
     conditionalPanel(
       condition="input.type == 'Two means'",
       selectInput("metric4",
                   "Metric", 
-                  choices=c(`MD - raw mean difference`="MD",
+                  c(`MD - raw mean difference`="MD",
                             `SMD - standardized mean difference`="SMD",
                             `SMDH - standardized mean difference with heteroscedastic population variances in the two groups`="SMDH",
                             `ROM - log transformed ratio of means`="ROM"
-                           ),
-                  selected="MD"
-                 ),
-    
+                           )
+                 )
+),
       conditionalPanel(
         condition="input.metric4 == 'MD'",
         checkboxInput("use_homoscedasticity",
@@ -70,8 +67,7 @@ dataModal2 <- function(failed=F) {
                       "Use the large-sample approximation for the sampling variances? If not, the exact unbiased sampling variances will be used.", 
                       T
                      )
-      )
-  ),
+      ),
     
     footer=tagList(
       modalButton("Cancel"),
@@ -230,7 +226,7 @@ observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
   }
   
   
-  output$escalcdat<-renderTable({
+  output$escalcdat <- renderTable({
     if (!is.null(vals$dataescalc)) {
       vals$dataescalc
     }
@@ -249,7 +245,7 @@ res <- eventReactive(input$oknorm_res, {
     tryCatch({
     rma(yi,
         vi,
-        method=input$est,
+        method=if (input$fixed_norm == "RE") input$est else "FE",
         data=vals$dataescalc,
         weighted=F,
         add=cc,
@@ -281,7 +277,15 @@ output$forest_norm <- renderPlot({
   conflevel <- as.numeric(as.character(input$conflevel))
   
   ##display forest plot
-  forest(res, refline=NA, level=conflevel, digits=input$digits)
+  forest(res, refline=NA, level=conflevel, digits=input$digits, slab=paste(if (!is.null(hot$data$author)) hot$data$author
+                                                                           else if (!is.null(hot$data$authors)) hot$data$authors,
+
+                                                                           if (!is.null(hot$data$year)) hot$data$year
+                                                                           else if (!is.null(hot$data$years)) hot$data$years,
+
+                                                                           sep=", "
+                                                                          )
+  )
 
   })
 
@@ -314,7 +318,7 @@ observeEvent(input$save_fplot, {
   showModal(dataModal3())
 })
 
-observeEvent(input$ok_save_fplot,{
+observeEvent(input$ok_save_fplot, {
   conflevel<-as.numeric(as.character(input$conflevel))
   
   res<-res()
@@ -322,8 +326,15 @@ observeEvent(input$ok_save_fplot,{
   ##save a png of the plot
   png(filename=input$fplot_path, width=as.numeric(input$fplot_w), height=as.numeric(input$fplot_h), units=input$fplot_unit, res=as.numeric(input$fplot_resolution))
   
-  forest(res, refline=NA, digits=input$digits, level=conflevel)
-  
+  forest(res, refline=NA, digits=input$digits, level=conflevel, slab=paste(if (!is.null(hot$data$author)) hot$data$author
+                                                                           else if (!is.null(hot$data$authors)) hot$data$authors,
+                                                                           
+                                                                           if (!is.null(hot$data$year)) hot$data$year
+                                                                           else if (!is.null(hot$data$years)) hot$data$years,
+                                                                           
+                                                                           sep=", "
+                                                                          )
+        )
   dev.off()
   
   removeModal()

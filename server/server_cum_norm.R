@@ -50,69 +50,74 @@ observeEvent(input$effect_cum_norm, {
 
 
 observeEvent(input$oknorm_cum_escalc, {                                                              ####oknorm_cum_escalc
-  
   if (!is.null(hot$data) & input$type_cum == "Proportion") {
-    hot$dataescalc_cum <- tryCatch({
-      cum_data <- hot$data
-      cum_data$xi <- if (!is.null(cum_data$count)) cumfunc(cum_data$count)
-      else if (!is.null(cum_data$counts)) cumfunc(cum_data$counts)
-      else if (!is.null(cum_data$xi)) cumfunc(cum_data$xi)
-      else if (!is.null(cum_data$x)) cumfunc(cum_data$x)
-      else if (!is.null(cum_data$x_i)) cumfunc(cum_data$x_i)
-      else if (!is.null(cum_data$x_is)) cumfunc(cum_data$x_is)
-      else cumfunc(cum_data$xis)
-      cum_data$ni <- cumfunc(cum_data$ni)
-      escalc(measure=input$metric1_cum,
-             xi=cum_data$xi,
-             ni=cum_data$ni,
-             data=cum_data
-            )
-      },
+    vals$dataescalc_cum <- tryCatch({
+      escalc(
+        measure=input$metric1_cum,
+        
+        xi=if (!is.null(hot$data$count)) count
+        else if (!is.null(hot$data$counts)) counts
+        else if (!is.null(hot$data$xi)) xi
+        else if (!is.null(hot$data$x)) x
+        else if (!is.null(hot$data$x_i)) x_i
+        else if (!is.null(hot$data$x_is)) x_is
+        else xis,
+        
+        ni=if (!is.null(hot$data$ni)) ni
+        else if (!is.null(hot$data$nis)) nis
+        else if (!is.null(hot$data$n_i)) n_i
+        else if (!is.null(hot$data$n_is)) n_is
+        else if (!is.null(hot$data$n)) n
+        else ns,
+        
+        data=hot$data)},
       error=function(err) {
         #error handler picks up where error was generated
-        print(paste("ERROR:  ", err))
+        print(paste("ERROR:  There must be at least one column named \"count\" or \"xi\" and one named \"ni\""))
       }
     )#ends tryCatch
     removeModal()
     
   } else if (!is.null(hot$data) & input$type_cum == "Mean") {
-    hot$dataescalc_cum <- tryCatch({
-      cum_data <- hot$data
-      
-             cum_data$mi <- if (!is.null(cum_data$mi)) cumfunc(cum_data$mi)
-             else if (!is.null(cum_data$m)) cumfunc(cum_data$m)
-             else if (!is.null(cum_data$m_i)) cumfunc(cum_data$m_i)
-             else if (!is.null(cum_data$m_is)) cumfunc(cum_data$m_is)
-             else if (!is.null(cum_data$mis)) cumfunc(cum_data$mis)
-             else if (!is.null(cum_data$u)) cumfunc(cum_data$u)
-             else if (!is.null(cum_data$ui)) cumfunc(cum_data$ui)
-             else if (!is.null(cum_data$u_i)) cumfunc(cum_data$u_i)
-             else if (!is.null(cum_data$u_is)) cumfunc(cum_data$u_is)
-             else if (!is.null(cum_data$uis)) cumfunc(cum_data$uis)
-             else if (!is.null(cum_data$mu)) cumfunc(cum_data$mu)
-             else if (!is.null(cum_data$mui)) cumfunc(cum_data$mui)
-             else if (!is.null(cum_data$mu_i)) cumfunc(cum_data$mu_i)
-             else if (!is.null(cum_data$mu_is)) cumfunc(cum_data$mu_is)
-             else cumfunc(cum_data$muis)
+    vals$dataescalc_cum <- tryCatch({
+      escalc(measure=input$metric2_cum,
              
-             cum_data$sdi <- if (!is.null(cum_data$sdi)) cumfunc(cum_data$sdi)
-             else if (!is.null(cum_data$sd)) cumfunc(cum_data$sd)
-             else if (!is.null(cum_data$sd_i)) cumfunc(cum_data$sd_i)
-             else if (!is.null(cum_data$sd_is)) cumfunc(cum_data$sd_is)
-             else if (!is.null(cum_data$sdis)) cumfunc(cum_data$sdis)
-             else if (!is.null(cum_data$sigma)) cumfunc(cum_data$sigma)
-             else if (!is.null(cum_data$sigmai)) cumfunc(cum_data$sigmai)
-             else if (!is.null(cum_data$sigma_i)) cumfunc(cum_data$sigma_i)
-             else if (!is.null(cum_data$sigma_is)) cumfunc(cum_data$sigma_is)
-             else cumfunc(cum_data$sigmais)
+             mi=if (!is.null(hot$data$mi)) mi
+             else if (!is.null(hot$data$m)) m
+             else if (!is.null(hot$data$m_i)) m_i
+             else if (!is.null(hot$data$m_is)) m_is
+             else if (!is.null(hot$data$mis)) mis
+             else if (!is.null(hot$data$u)) u
+             else if (!is.null(hot$data$ui)) ui
+             else if (!is.null(hot$data$u_i)) u_i
+             else if (!is.null(hot$data$u_is)) u_is
+             else if (!is.null(hot$data$uis)) uis
+             else if (!is.null(hot$data$mu)) mu
+             else if (!is.null(hot$data$mui)) mui
+             else if (!is.null(hot$data$mu_i)) mu_i
+             else if (!is.null(hot$data$mu_is)) mu_is
+             else muis,
              
-             cum_data$ni <- if (!is.null(cum_data$ni)) cumfunc(cum_data$ni)
-             else if (!is.null(cum_data$nis)) cumfunc(cum_data$nis)
-             else if (!is.null(cum_data$n_i)) cumfunc(cum_data$n_i)
-             else if (!is.null(cum_data$n_is)) cumfunc(cum_data$n_is)
-             else if (!is.null(cum_data$n)) cumfunc(cum_data$n)
-             else cumfunc(cum_data$ns)
-             escalc(measure=input$metric2_cum, mi=mi, sdi=sdi, ni=ni, data=cum_data)
+             sdi=if (!is.null(hot$data$sdi)) sdi
+             else if (!is.null(hot$data$sd)) sd
+             else if (!is.null(hot$data$sd_i)) sd_i
+             else if (!is.null(hot$data$sd_is)) sd_is
+             else if (!is.null(hot$data$sdis)) sdis
+             else if (!is.null(hot$data$sigma)) sigma
+             else if (!is.null(hot$data$sigmai)) sigmai
+             else if (!is.null(hot$data$sigma_i)) sigma_i
+             else if (!is.null(hot$data$sigma_is)) sigma_is
+             else sigmais,
+             
+             ni=if (!is.null(hot$data$ni)) ni
+             else if (!is.null(hot$data$nis)) nis
+             else if (!is.null(hot$data$n_i)) n_i
+             else if (!is.null(hot$data$n_is)) n_is
+             else if (!is.null(hot$data$n)) n
+             else ns,
+             
+             data=hot$data
+      )
     },
     error=function(err) {
       print("ERROR:  There must be at least one column each named \"mi\", \"sdi\" and \"ni\"")
@@ -120,34 +125,78 @@ observeEvent(input$oknorm_cum_escalc, {                                         
     )#ends tryCatch
     removeModal()
     
-  } else if (!is.null(hot$data) & input$type_cum == "Two means") {
-    cum_data <- hot$data
-    hot$dataescalc_cum <- tryCatch({
-      escalc(measure=input$metric2_cum, m1i=cumfunc(m1i), sd1i=cumfunc(sd1i), n1i=cumfunc(n1i), m2i=cumfunc(m2i), sd2i=cumfunc(sd2i), n2i=cumfunc(n2i), data=cum_data)
-      },
-      error=function(err) {
-        print(paste("ERROR:  ", err))
+  } else if(!is.null(hot$data) & input$type_cum == "Two proportions (2X2)") {
+    vals$dataescalc_cum <- tryCatch({ # TODO: Add error handling for other column names/check similar names
+      escalc(measure=input$metric3_cum,
+             ai=ai,
+             n1i=n1i,
+             ci=ci,
+             n2i=n2i,
+             data=hot$data)},
+      error=function(err){
+        print("ERROR:  There must be at least one column each named \"ai\", \"ci\", \"n1i\", and \"n2i\"")
       }
     )#ends tryCatch
     removeModal()
     
-  } else if (!is.null(hot$data) & input$type_cum == "Two proportions (2X2)") {
-    cum_data <- hot$data
-    hot$dataescalc_cum <- tryCatch({
-        escalc(measure=input$metric3_cum, ai=cumfunc(ai), n1i=cumfunc(n1i), ci=cumfunc(ci), n2i=cumfunc(n2i), data=cum_data)
-      },
-      error=function(err) {
-        print(paste("ERROR:  ", err))
-      }
+  } else if (!is.null(hot$data) & input$type_cum=="Two means") {  # TODO: Add error handling for other column names/check similar names
+    vals$dataescalc_cum <- tryCatch({
+      escalc(measure=input$metric4_cum, 
+             m1i=if (!is.null(hot$data$m1i)) hot$data$m1i
+             else if (!is.null(hot$data$m1)) hot$data$m1
+             else if (!is.null(hot$data$m1_i)) hot$data$m1_i
+             else if (!is.null(hot$data$m1_is)) hot$data$m1_is
+             else if (!is.null(hot$data$m1is)) hot$data$m1is
+             else if (!is.null(hot$data$u1)) hot$data$u1
+             else if (!is.null(hot$data$u1i)) hot$data$u1i
+             else if (!is.null(hot$data$u1_i)) hot$data$u1_i
+             else if (!is.null(hot$data$u1_is)) hot$data$u_is
+             else if (!is.null(hot$data$u1is)) hot$data$uis
+             else if (!is.null(hot$data$mu1)) hot$data$mu1
+             else if (!is.null(hot$data$mu1i)) hot$data$mu1i
+             else if (!is.null(hot$data$mu1_i)) hot$data$mu1_i
+             else if (!is.null(hot$data$mu1_is)) hot$data$mu1_is
+             else hot$data$mu1is,
+             sd1i=hot$data$sd1i,
+             n1i=hot$data$n1i,
+             m2i=if (!is.null(hot$data$m2i)) hot$data$m2i
+             else if (!is.null(hot$data$m2)) hot$data$m2
+             else if (!is.null(hot$data$m2_i)) hot$data$m2_i
+             else if (!is.null(hot$data$m2_is)) hot$data$m2_is
+             else if (!is.null(hot$data$m2is)) hot$data$m2is
+             else if (!is.null(hot$data$u2)) hot$data$u2
+             else if (!is.null(hot$data$u2i)) hot$data$u2i
+             else if (!is.null(hot$data$u2_i)) hot$data$u2_i
+             else if (!is.null(hot$data$u2_is)) hot$data$u_is
+             else if (!is.null(hot$data$u2is)) hot$data$uis
+             else if (!is.null(hot$data$mu2)) hot$data$mu2
+             else if (!is.null(hot$data$mu2i)) hot$data$mu2i
+             else if (!is.null(hot$data$mu2_i)) hot$data$mu2_i
+             else if (!is.null(hot$data$mu2_is)) hot$data$mu2_is
+             else hot$data$mu2is,
+             sd2i=sd2i,
+             n2i=n2i,
+             
+             # LS is the default (large-sample approximation if using SMD). UB is unbiased (only an option for measure == "SMD")
+             vtype=if (input$metric4_cum == "SMD" & !input$variance_is_approximate_cum) "UB"
+             else if (input$metric4_cum == "MD" & input$use_homoscedasticity_cum) "HO"
+             else "LS",
+             data=hot$data)
+    },
+    error=function(err){
+      print("ERROR:  There must be at least one column each named \"m1i\", \"m2i\", \"sd1i\", \"sd2i\", \"n1i\", and \"n2i\"")
+    }
     )#ends tryCatch
     removeModal()
-  } else {
+    
+  } else{
     showModal(dataModal2_cum(failed=T))
   }
   
+  
   output$escalcdat_cum <- renderTable({
-    if (!is.null(hot$dataescalc_cum)) {
-      hot$dataescalc_cum
+    if (!is.null(vals$dataescalc_cum)) {
+      vals$dataescalc_cum
     }
   })
 })
@@ -160,17 +209,30 @@ observeEvent(input$oknorm_cum_res, {
   conflevel <- as.numeric(as.character(input$conflevel_cum))
   cc <- as.numeric(as.character(input$cc_cum))  # continuity correction
 
-  res <- if (input$fixed_cum_norm == "FE") {
-    rma(yi, vi, method=input$fixed_cum_norm, data=hot$dataescalc_cum, weighted=F, add=cc, to=input$addto_cum, digits=input$digits_cum, level=conflevel)
-  } else if (input$fixed_cum_norm == "RE") {
-    rma(yi, vi, method=input$rand_cum_est, data=hot$dataescalc_cum, weighted=F, add=cc, to=input$addto_cum, digits=input$digits_cum, level=conflevel)
-  }
+  res <- rma(yi,
+             vi,
+             method=if (input$fixed_cum_norm == "RE") input$rand_cum_est else "FE",
+             data=vals$dataescalc_cum,
+             weighted=F,
+             add=cc,
+             to=input$addto_cum,
+             digits=input$digits_cum,
+             level=conflevel,
+             slab=paste(if (!is.null(hot$data$author)) hot$data$author
+                        else if (!is.null(hot$data$authors)) hot$data$authors,
+                        
+                        if (!is.null(hot$data$year)) hot$data$year
+                        else if (!is.null(hot$data$years)) hot$data$years,
+                        
+                        sep=", "
+             )
+            )
 
   #####################NEEDS TO BE GENERALIZED############################
   output$forest_cum_norm <- renderPlot({
     conflevel <- as.numeric(as.character(input$conflevel_cum))
     
-    forest(res, refline=NA, digits=input$digits_cum, level=conflevel)
+    forest(cumul(res, order(hot$data$year)), refline=NA, digits=input$digits_cum, level=conflevel)
   })
 
   output$msummary_cum_norm <- renderPrint({
