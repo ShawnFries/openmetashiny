@@ -12,8 +12,8 @@ sidebarLayout(
     textInput("conflevel_cum", "Confidence level", value="95"),
     textInput("cc_cum", "Continuity correction", value="0.5"),
     selectInput("addto_cum", "Add continuity correction to", 
-                choices=c("all", "only0", "if0all", "none"),
-                selected="only0"),
+                c("all", "only0", "if0all", "none"),
+                "only0"),
     actionButton("oknorm_cum_res", "Show results")
   ),
   mainPanel(

@@ -62,9 +62,8 @@ ui <- function(session) {
                        #"OpenMetaAnalyst", #just the words
                        title=HTML("<a style=font-size:150%;color:black;href=\"http://www.cebm.brown.edu/openmeta\">OpenMeta[Analyst]</a>"),
                        
-                       navbarMenu(div(id="data_div", img(src="data-512.png")), tabPanel("View Data", source("ui/ui_data_csv.R", local=T)$value)
-                       ),#navbarMenu "Data"
-                       bsTooltip("data_div", "Data", "right", options=list(container="body")),
+                       tabPanel(div(id="data_div", img(src="data-512.png")), source("ui/ui_data_csv.R", local=T)$value), #navbarMenu "Data"
+                       bsTooltip("data_div", "View Data", "right", options=list(container="body")),
                        
                        tabPanel(div(id="meta_analysis_div", img(src="meta_analysis.png")), source("ui/ui_meta_analysis.R", local=T)$value),
                         #tabPanel "Meta-analysis"

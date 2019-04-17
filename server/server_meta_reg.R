@@ -11,12 +11,12 @@
 dataModal2_reg <- function(failed=F) {
   modalDialog(
     selectInput("type_reg", "Type of data", c("One proportion", "One mean", "Two proportions", "Two means"), switch(input$dataType,
-                                                                                                                "proportion" = "One proportion",
-                                                                                                                "mean" = "One mean",
-                                                                                                                "proportions" = "Two proportions",
-                                                                                                                "means" = "Two means"
-    )
-    ),
+                                                                                                                    "proportion" = "One proportion",
+                                                                                                                    "mean" = "One mean",
+                                                                                                                    "proportions" = "Two proportions",
+                                                                                                                    "means" = "Two means"
+                                                                                                                   )
+    ), selectInput("moderators_reg", "Moderators", colnames(hot$data), multiple=T),
     conditionalPanel(
       condition="input.type_reg == 'One proportion'",
       selectInput("metric1_reg",
@@ -55,6 +55,7 @@ dataModal2_reg <- function(failed=F) {
                             `SMDH - standardized mean difference with heteroscedastic population variances in the two groups`="SMDH",
                             `ROM - log transformed ratio of means`="ROM"
                   )
+      )
       ),
 
       conditionalPanel(
@@ -69,8 +70,7 @@ dataModal2_reg <- function(failed=F) {
                       "Use the large-sample approximation for the sampling variances? If not, the exact unbiased sampling variances will be used.",
                       T
         )
-      )
-    ),
+      ),
 
     footer=tagList(
       modalButton("Cancel"),
@@ -81,7 +81,7 @@ dataModal2_reg <- function(failed=F) {
 
 # Show modal when button is clicked.
 observeEvent(input$effect_norm_reg, {
-  showModal(dataModal_reg())
+  showModal(dataModal2_reg())
 })
 
 observeEvent(input$oknorm_escalc_reg, {                         ####oknorm_escalc
@@ -225,7 +225,7 @@ observeEvent(input$oknorm_escalc_reg, {                         ####oknorm_escal
     removeModal()
 
   } else{
-    showModal(dataModal_reg(failed=T))
+    showModal(dataModal(failed=T))
   }
 
 
@@ -244,13 +244,14 @@ observeEvent(input$oknorm_escalc_reg, {                         ####oknorm_escal
 res <- eventReactive(input$oknorm_res_reg, {
   conflevel <- as.numeric(as.character(input$conflevel_reg))
   cc <- as.numeric(as.character(input$cc_reg))
-
+  
   tryCatch({
     rma(yi,
         vi,
         method=input$est_reg,
         data=vals$dataescalc_reg,
         weighted=F,
+        mods=reformulate(input$moderators_reg, intercept=F),
         add=cc,
         to=input$addto_reg,
         level=conflevel,
@@ -280,7 +281,15 @@ observeEvent(input$oknorm_res_reg, {
     conflevel <- as.numeric(as.character(input$conflevel_reg))
 
     ##display forest plot
-    forest(res, refline=NA, level=conflevel, digits=input$digits_reg)
+    forest(res, refline=NA, level=conflevel, digits=input$digits_reg, slab=paste(if (!is.null(hot$data$author)) hot$data$author
+                                                                                 else if (!is.null(hot$data$authors)) hot$data$authors,
+                                                                                 
+                                                                                 if (!is.null(hot$data$year)) hot$data$year
+                                                                                 else if (!is.null(hot$data$years)) hot$data$years,
+                                                                                 
+                                                                                 sep=", "
+    )
+    )
 
   })
 
@@ -339,9 +348,18 @@ observe({
                     "est_reg",
                     "Estimation method",
 
-                    if (fixed_norm_reg == "RE") c(`DerSimonian Laird`="DL", `Maximum likelihood`="ML", `Restricted ML`="REML")
+                    if (fixed_norm == "RE") c(`DerSimonian Laird`="DL",
+                                              `Hedges`="HE",
+                                              `Hunter-Schmidt`="HS",
+                                              `Sidik-Jonkman`="SJ",
+                                              `Maximum likelihood`="ML",
+                                              `Restricted ML`="REML",
+                                              `Empirical Bayes`="EB",
+                                              `Paule-Mandel`="PM",
+                                              `Generalized Q-statistic`="GENQ"
+                                             )
                     else c(`Inverse-variance`="FE"),
 
-                    if (fixed_norm_reg == "RE") "REML"
+                    if (fixed_norm == "RE") "REML"  # Default to REML if Random-Effects
   )
 })

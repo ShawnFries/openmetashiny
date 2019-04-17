@@ -1,11 +1,23 @@
 sidebarLayout(
   sidebarPanel(
-    actionButton("effect_norm_reg", "Choose effect measure"),                              ####effect_norm in server_meta_norm.R
-    selectInput("fixed_norm_reg",                                                         ####fixed_norm in server_meta_norm.R
+    actionButton("effect_norm_reg", "Choose effect measure and moderators"),                              ####effect_norm_reg in server_meta_reg.R
+    selectInput("fixed_norm_reg",                                                         ####fixed_norm_reg in server_meta_reg.R
                 "Fixed or random effect",
                 c(`Fixed effect`="FE", Random_effects="RE"),
                 "RE"),
-    selectInput("est_reg", "Estimation method", c(`DerSimonian Laird`="DL", `Maximum likelihood`="ML", `Restricted ML`="REML"), "REML"),
+    selectInput("est_reg",
+                "Estimation method",
+                c(`DerSimonian Laird`="DL",
+                  `Hedges`="HE",
+                  `Hunter-Schmidt`="HS",
+                  `Sidik-Jonkman`="SJ",
+                  `Maximum likelihood`="ML",
+                  `Restricted ML`="REML",
+                  `Empirical Bayes`="EB",
+                  `Paule-Mandel`="PM",
+                  `Generalized Q-statistic`="GENQ"
+                 ),
+                "REML"),
     sliderInput("digits_reg", "Number of digits to display", min=1, max=10, value=3, step=1),
     textInput("conflevel_reg", "Confidence level", value="95"),
     textInput("cc_reg", "Continuity correction", value="0.5"),

@@ -259,7 +259,16 @@ output$rand_cum_estimation <- renderUI({
   } else if (input$fixed_cum_norm == "RE"){                                             ####fixed_norm in ui_meta_norm.R
     selectInput("rand_cum_est",
                 "Estimation method",
-                c(DerSimonian_Laird="DL", Maximum_likelihood="ML", Restricted_ML="REML"),
+                c(`DerSimonian Laird`="DL",
+                  `Hedges`="HE",
+                  `Hunter-Schmidt`="HS",
+                  `Sidik-Jonkman`="SJ",
+                  `Maximum likelihood`="ML",
+                  `Restricted ML`="REML",
+                  `Empirical Bayes`="EB",
+                  `Paule-Mandel`="PM",
+                  `Generalized Q-statistic`="GENQ"
+                ),
                 "REML"
                )
   }

@@ -351,7 +351,16 @@ observe({
                            "est",
                            "Estimation method",
                            
-                           if (fixed_norm == "RE") c(`DerSimonian Laird`="DL", `Maximum likelihood`="ML", `Restricted ML`="REML")
+                           if (fixed_norm == "RE") c(`DerSimonian Laird`="DL",
+                                                     `Hedges`="HE",
+                                                     `Hunter-Schmidt`="HS",
+                                                     `Sidik-Jonkman`="SJ",
+                                                     `Maximum likelihood`="ML",
+                                                     `Restricted ML`="REML",
+                                                     `Empirical Bayes`="EB",
+                                                     `Paule-Mandel`="PM",
+                                                     `Generalized Q-statistic`="GENQ"
+                                                    )
                            else c(`Inverse-variance`="FE"),
                            
                            if (fixed_norm == "RE") "REML"
