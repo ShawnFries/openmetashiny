@@ -8,25 +8,25 @@
 #TODO: (lower priority) Support entering proportions as decimal from 0 to 1 (possibly + sample size)
 # (Is part of backcalc)
 
-dataModal2_reg <- function(failed=F) {
+dataModal2_subgroup <- function(failed=F) {
   modalDialog(
-    selectInput("type_reg", "Type of data", c("One proportion", "One mean", "Two proportions", "Two means"), switch(input$dataType,
+    selectInput("type_subgroup", "Type of data", c("One proportion", "One mean", "Two proportions", "Two means"), switch(input$dataType,
                                                                                                                     "proportion" = "One proportion",
                                                                                                                     "mean" = "One mean",
                                                                                                                     "proportions" = "Two proportions",
                                                                                                                     "means" = "Two means"
                                                                                                                    )
-    ), selectInput("moderators_reg", "Moderators", colnames(hot$data), multiple=T),
+    ), selectInput("moderators_subgroup", "Moderators", colnames(hot$data), multiple=T),
     conditionalPanel(
-      condition="input.type_reg == 'One proportion'",
-      selectInput("metric1_reg",
+      condition="input.type_subgroup == 'One proportion'",
+      selectInput("metric1_subgroup",
                   "Metric",
                   c(`PR - raw proportion`="PR", `PAS - arcsine transformed proportion`="PAS", `PLO - logit transformed proportion`="PLO")
       )
     ),
     conditionalPanel(
-      condition="input.type_reg == 'One mean'",
-      selectInput("metric2_reg",
+      condition="input.type_subgroup == 'One mean'",
+      selectInput("metric2_subgroup",
                   "Metric",
                   c(`MN - raw mean`="MN",
                             `MNLN - log transformed mean`="MNLN",
@@ -35,8 +35,8 @@ dataModal2_reg <- function(failed=F) {
       )
     ),
     conditionalPanel(
-      condition="input.type_reg == 'Two proportions'",
-      selectInput("metric3_reg",
+      condition="input.type_subgroup == 'Two proportions'",
+      selectInput("metric3_subgroup",
                   "Metric",
                   c(`RR - log risk ratio`="RR",
                             `OR - log odds ratio`="OR",
@@ -47,8 +47,8 @@ dataModal2_reg <- function(failed=F) {
       )
     ),
     conditionalPanel(
-      condition="input.type_reg == 'Two means'",
-      selectInput("metric4_reg",
+      condition="input.type_subgroup == 'Two means'",
+      selectInput("metric4_subgroup",
                   "Metric",
                   c(`MD - raw mean difference`="MD",
                             `SMD - standardized mean difference`="SMD",
@@ -59,14 +59,14 @@ dataModal2_reg <- function(failed=F) {
       ),
 
       conditionalPanel(
-        condition="input.metric4_reg == 'MD'",
-        checkboxInput("use_homoscedasticity_reg",
+        condition="input.metric4_subgroup == 'MD'",
+        checkboxInput("use_homoscedasticity_subgroup",
                       "Assume homoscedasticity of sampling variances? (i.e. true variance of measurements is the same in sample 1 and sample 2)"
         )
       ),
       conditionalPanel(
-        condition="input.metric4_reg == 'SMD'",
-        checkboxInput("variance_is_approximate_reg",
+        condition="input.metric4_subgroup == 'SMD'",
+        checkboxInput("variance_is_approximate_subgroup",
                       "Use the large-sample approximation for the sampling variances? If not, the exact unbiased sampling variances will be used.",
                       T
         )
@@ -74,21 +74,21 @@ dataModal2_reg <- function(failed=F) {
 
     footer=tagList(
       modalButton("Cancel"),
-      actionButton("oknorm_escalc_reg", "OK")                                     ####oknorm_escalc rendered later in this file
+      actionButton("oknorm_escalc_subgroup", "OK")                                     ####oknorm_escalc rendered later in this file
     )
   )
 }
 
 # Show modal when button is clicked.
-observeEvent(input$effect_norm_reg, {
-  showModal(dataModal2_reg())
+observeEvent(input$effect_norm_subgroup, {
+  showModal(dataModal2_subgroup())
 })
 
-observeEvent(input$oknorm_escalc_reg, {                         ####oknorm_escalc
-  if (!is.null(hot$data) & input$type_reg == "One proportion") {
-    vals$dataescalc_reg <- tryCatch({
+observeEvent(input$oknorm_escalc_subgroup, {                         ####oknorm_escalc
+  if (!is.null(hot$data) & input$type_subgroup == "One proportion") {
+    vals$dataescalc_subgroup <- tryCatch({
       escalc(
-        measure=input$metric1_reg,
+        measure=input$metric1_subgroup,
 
         xi=if (!is.null(hot$data$count)) count
         else if (!is.null(hot$data$counts)) counts
@@ -113,9 +113,9 @@ observeEvent(input$oknorm_escalc_reg, {                         ####oknorm_escal
     )#ends tryCatch
     removeModal()
 
-  } else if (!is.null(hot$data) & input$type_reg == "One mean") {
-    vals$dataescalc_reg <- tryCatch({
-      escalc(measure=input$metric2_reg,
+  } else if (!is.null(hot$data) & input$type_subgroup == "One mean") {
+    vals$dataescalc_subgroup <- tryCatch({
+      escalc(measure=input$metric2_subgroup,
 
              mi=if (!is.null(hot$data$mi)) mi
              else if (!is.null(hot$data$m)) m
@@ -160,9 +160,9 @@ observeEvent(input$oknorm_escalc_reg, {                         ####oknorm_escal
     )#ends tryCatch
     removeModal()
 
-  } else if(!is.null(hot$data) & input$type_reg == "Two proportions") {
-    vals$dataescalc_reg <- tryCatch({ # TODO: Add error handling for other column names/check similar names
-      escalc(measure=input$metric3_reg,
+  } else if(!is.null(hot$data) & input$type_subgroup == "Two proportions") {
+    vals$dataescalc_subgroup <- tryCatch({ # TODO: Add error handling for other column names/check similar names
+      escalc(measure=input$metric3_subgroup,
              ai=ai,
              n1i=n1i,
              ci=ci,
@@ -174,9 +174,9 @@ observeEvent(input$oknorm_escalc_reg, {                         ####oknorm_escal
     )#ends tryCatch
     removeModal()
 
-  } else if (!is.null(hot$data) & input$type_reg == "Two means") {  # TODO: Add error handling for other column names/check similar names
-    vals$dataescalc_reg <- tryCatch({
-      escalc(measure=input$metric4_reg,
+  } else if (!is.null(hot$data) & input$type_subgroup == "Two means") {  # TODO: Add error handling for other column names/check similar names
+    vals$dataescalc_subgroup <- tryCatch({
+      escalc(measure=input$metric4_subgroup,
              m1i=if (!is.null(hot$data$m1i)) hot$data$m1i
              else if (!is.null(hot$data$m1)) hot$data$m1
              else if (!is.null(hot$data$m1_i)) hot$data$m1_i
@@ -213,8 +213,8 @@ observeEvent(input$oknorm_escalc_reg, {                         ####oknorm_escal
              n2i=n2i,
 
              # LS is the default (large-sample approximation if using SMD). UB is unbiased (only an option for measure == "SMD")
-             vtype=if (input$metric4_reg == "SMD" & !input$variance_is_approximate_reg) "UB"
-             else if (input$metric4_reg == "MD" & input$use_homoscedasticity_reg) "HO"
+             vtype=if (input$metric4_subgroup == "SMD" & !input$variance_is_approximate_subgroup) "UB"
+             else if (input$metric4_subgroup == "MD" & input$use_homoscedasticity_subgroup) "HO"
              else "LS",
              data=hot$data)
     },
@@ -229,9 +229,9 @@ observeEvent(input$oknorm_escalc_reg, {                         ####oknorm_escal
   }
 
 
-  output$escalcdat_reg <- renderTable({
-    if (!is.null(vals$dataescalc_reg)) {
-      vals$dataescalc_reg
+  output$escalcdat_subgroup <- renderTable({
+    if (!is.null(vals$dataescalc_subgroup)) {
+      vals$dataescalc_subgroup
     }
   })
 })
@@ -241,21 +241,21 @@ observeEvent(input$oknorm_escalc_reg, {                         ####oknorm_escal
 ##         oknorm_res          ##
 #################################
 
-res <- eventReactive(input$oknorm_res_reg, {
-  conflevel <- as.numeric(as.character(input$conflevel_reg))
-  cc <- as.numeric(as.character(input$cc_reg))
+res <- eventReactive(input$oknorm_res_subgroup, {
+  conflevel <- as.numeric(as.character(input$conflevel_subgroup))
+  cc <- as.numeric(as.character(input$cc_subgroup))
   
   tryCatch({
     rma(yi,
         vi,
-        method=input$est_reg,
-        data=vals$dataescalc_reg,
+        method=input$est_subgroup,
+        data=vals$dataescalc_subgroup,
         weighted=F,
-        mods=reformulate(input$moderators_reg, intercept=F),
+        mods=reformulate(input$moderators_subgroup, intercept=F),
         add=cc,
-        to=input$addto_reg,
+        to=input$addto_subgroup,
         level=conflevel,
-        digits=input$digits_reg)
+        digits=input$digits_subgroup)
   },
   error=function(err) {
     print(paste("ERROR:  ", err))
@@ -264,24 +264,24 @@ res <- eventReactive(input$oknorm_res_reg, {
 }
 )
 
-observeEvent(input$oknorm_res_reg, {
-  # cc<-as.numeric(as.character(input$cc_reg))
+observeEvent(input$oknorm_res_subgroup, {
+  # cc<-as.numeric(as.character(input$cc_subgroup))
   #
-  # res<-if (input$fixed_norm_reg == "FE") {
-  #   rma(yi, vi, method=input$fixed_norm_reg, data=vals$dataescalc_reg, weighted=F, add=cc, to=input$addto_reg)
+  # res<-if (input$fixed_norm_subgroup == "FE") {
+  #   rma(yi, vi, method=input$fixed_norm_subgroup, data=vals$dataescalc_subgroup, weighted=F, add=cc, to=input$addto_subgroup)
   # } else if(input$fixed_norm=="RE"){
-  #   rma(yi, vi, method=input$rand_est_reg, data=vals$dataescalc_reg, weighted=F, add=cc, to=input$addto_reg)
+  #   rma(yi, vi, method=input$rand_est_subgroup, data=vals$dataescalc_subgroup, weighted=F, add=cc, to=input$addto_subgroup)
   # }
 
   res <- res()
 
   #####################NEEDS TO BE GENERALIZED############################
 
-  output$forest_norm_reg <- renderPlot({
-    conflevel <- as.numeric(as.character(input$conflevel_reg))
+  output$forest_norm_subgroup <- renderPlot({
+    conflevel <- as.numeric(as.character(input$conflevel_subgroup))
 
     ##display forest plot
-    forest(res, refline=NA, level=conflevel, digits=input$digits_reg, slab=paste(if (!is.null(hot$data$author)) hot$data$author
+    forest(res, refline=NA, level=conflevel, digits=input$digits_subgroup, slab=paste(if (!is.null(hot$data$author)) hot$data$author
                                                                                  else if (!is.null(hot$data$authors)) hot$data$authors,
                                                                                  
                                                                                  if (!is.null(hot$data$year)) hot$data$year
@@ -293,7 +293,7 @@ observeEvent(input$oknorm_res_reg, {
 
   })
 
-  output$msummary_norm_reg <- renderPrint({
+  output$msummary_norm_subgroup <- renderPrint({
     print(res)
   })
 
@@ -302,35 +302,40 @@ observeEvent(input$oknorm_res_reg, {
 #################################
 ##         save_fplot          ##
 #################################
-dataModal3_reg <- function(failed=F) {
+dataModal3_subgroup <- function(failed=F) {
   modalDialog(
 
-    textInput("fplot_path_reg", "Type a path to save your forest plot:",
+    textInput("fplot_path_subgroup", "Type a path to save your forest plot:",
               "~/openmeta/plot1.png"),
-    textInput("fplot_w_reg", "Width of forest plot:", "8"),
-    textInput("fplot_h_reg", "Height of forest plot:", "6"),
-    selectInput("fplot_unit_reg", "Unit of saved plot dimensions", c(`pixels`="px", `inches`="in", "cm", "mm"), "in"),
-    textInput("fplot_resolution_reg", "Resolution of forest plot:", "210"),
+    textInput("fplot_w_subgroup", "Width of forest plot:", "8"),
+    textInput("fplot_h_subgroup", "Height of forest plot:", "6"),
+    selectInput("fplot_unit_subgroup", "Unit of saved plot dimensions", c(`pixels`="px", `inches`="in", "cm", "mm"), "in"),
+    textInput("fplot_resolution_subgroup", "Resolution of forest plot:", "210"),
 
-    footer = tagList(modalButton("Cancel"), actionButton("ok_save_fplot_reg", "OK")
+    footer = tagList(modalButton("Cancel"), actionButton("ok_save_fplot_subgroup", "OK")
     )
   )
 }
 
 # Show modal when button is clicked.
-observeEvent(input$save_fplot_reg, {
-  showModal(dataModal3_reg())
+observeEvent(input$save_fplot_subgroup, {
+  showModal(dataModal3_subgroup())
 })
 
-observeEvent(input$ok_save_fplot_reg,{
-  conflevel<-as.numeric(as.character(input$conflevel_reg))
+observeEvent(input$ok_save_fplot_subgroup,{
+  conflevel <- as.numeric(as.character(input$conflevel_subgroup))
 
-  res<-res()
+  res <- res()
 
   ##save a png of the plot
-  png(filename=input$fplot_path_reg, width=as.numeric(input$fplot_w_reg), height=as.numeric(input$fplot_h_reg), units=input$fplot_unit_reg, res=as.numeric(input$fplot_resolution_reg))
+  png(filename=input$fplot_path_subgroup,
+      width=as.numeric(input$fplot_w_subgroup),
+      height=as.numeric(input$fplot_h_subgroup),
+      units=input$fplot_unit_subgroup,
+      res=as.numeric(input$fplot_resolution_subgroup)
+     )
 
-  forest(res, refline=NA, digits=input$digits_reg, level=conflevel)
+  forest(res, refline=NA, digits=input$digits_subgroup, level=conflevel)
 
   dev.off()
 
@@ -342,10 +347,10 @@ observeEvent(input$ok_save_fplot_reg,{
 ##     dynamic UI       ##
 ##########################
 observe({
-  fixed_norm <- input$fixed_norm_reg
+  fixed_norm <- input$fixed_norm_subgroup
 
   updateSelectInput(session,
-                    "est_reg",
+                    "est_subgroup",
                     "Estimation method",
 
                     if (fixed_norm == "RE") c(`DerSimonian Laird`="DL",

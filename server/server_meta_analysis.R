@@ -27,9 +27,10 @@ dataModal2 <- function(failed=F) {
       selectInput("metric2",
                   "Metric", 
                   c(`MN - raw mean`="MN", 
-                            `MNLN - log transformed mean`="MNLN", 
-                            `CVLN - log transformed coefficient of variation`="CVLN",
-                            `SDLN - log transformed standard deviation`="SDLN")
+                    `MNLN - log transformed mean`="MNLN", 
+                    `CVLN - log transformed coefficient of variation`="CVLN",
+                    `SDLN - log transformed standard deviation`="SDLN"
+                   )
                   )
     ),
     conditionalPanel(
@@ -37,11 +38,14 @@ dataModal2 <- function(failed=F) {
       selectInput("metric3",
                   "Metric", 
                   c(`RR - log risk ratio`="RR", 
-                            `OR - log odds ratio`="OR",
-                            `RD - risk difference`="RD",
-                            `AS - arcsine square root transformed risk difference`="AS",
-                            `PETO - log odds ratio estimated with Peto's method`="PETO"
-                           )
+                    `OR - log odds ratio`="OR",
+                    `RD - risk difference`="RD",
+                    `AS - arcsine square root transformed risk difference`="AS",
+                    `PETO - log odds ratio estimated with Peto's method`="PETO",
+                    `PBIT - probit transformed risk difference`="PBIT",
+                    `OR2DN - Transformed odds ratio for normal distributions`="OR2DN",
+                    `OR2DL - Transformed odds ratio for logistic distributions`="OR2DL"
+                   )
                  )
     ),
     conditionalPanel(
@@ -49,10 +53,10 @@ dataModal2 <- function(failed=F) {
       selectInput("metric4",
                   "Metric", 
                   c(`MD - raw mean difference`="MD",
-                            `SMD - standardized mean difference`="SMD",
-                            `SMDH - standardized mean difference with heteroscedastic population variances in the two groups`="SMDH",
-                            `ROM - log transformed ratio of means`="ROM"
-                           )
+                    `SMD - standardized mean difference`="SMD",
+                    `SMDH - standardized mean difference with heteroscedastic population variances in the two groups`="SMDH",
+                    `ROM - log transformed ratio of means`="ROM"
+                   )
                  )
 ),
       conditionalPanel(

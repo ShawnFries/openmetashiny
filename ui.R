@@ -78,7 +78,7 @@ ui <- function(session) {
                        ),#tabPanel "Cumulative meta-analysis"
                        bsTooltip("cum_meta_analysis_div", "Cumulative meta-analysis", "right", options=list(container="body")),
                        
-                       tabPanel(div(id="subgroup_meta_analysis_div", img(src="subgroup_ma.png"))
+                       tabPanel(div(id="subgroup_meta_analysis_div", img(src="subgroup_ma.png")), source("ui/ui_meta_subgroup.R", local=T)$value
                        ),#tabPanel "Subgroup meta-analysis"
                        bsTooltip("subgroup_meta_analysis_div", "Subgroup meta-analysis", "right", options=list(container="body")),
                        

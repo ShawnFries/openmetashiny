@@ -39,7 +39,11 @@ server <- function(input, output, session) {withMathJax()
   
   source("server/server_cum_norm.R", local=T)$value
   
+  source("server/server_meta_subgroup.R", local=T)$value
+  
   source("server/server_meta_reg.R", local=T)$value
+  
+  source("server/server_meta_leave_one_out.R", local=T)$value
   
   source("server/server_report.R", local=T)$value
   
