@@ -14,7 +14,11 @@ sidebarLayout(
     actionButton("oknorm_cum_res", "Show results")
   ),
   mainPanel(
-    fluidRow(column(width=6, tableOutput("escalcdat_cum")), column(width=6, verbatimTextOutput("msummary_cum_norm"))), ####msummary_norm in server_meta_norm.R
-    fluidRow(plotOutput("forest_cum_norm"))
+    tabBox(width=12,
+           tabPanel("Transformed data", tableOutput("escalcdat_cum")),
+           tabPanel("Meta-analysis summary", verbatimTextOutput("msummary_cum_norm")),                                   ####msummary_norm in server_meta_norm.R
+           tabPanel("Forest plot", plotOutput("forest_cum_norm"), actionButton("save_fplot", "Save forest plot"))
+           
+    )
   )#ends mainPanel
 )

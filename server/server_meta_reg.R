@@ -10,11 +10,12 @@
 
 dataModal2_reg <- function(failed=F) {
   modalDialog(
-    selectInput("type_reg", "Type of data", c("One proportion", "One mean", "Two proportions", "Two means"), switch(input$dataType,
+    selectInput("type_reg", "Type of data", c("One proportion", "One mean", "Two proportions", "Two means", "Regression coefficient"), switch(input$dataType,
                                                                                                                     "proportion" = "One proportion",
                                                                                                                     "mean" = "One mean",
                                                                                                                     "proportions" = "Two proportions",
-                                                                                                                    "means" = "Two means"
+                                                                                                                    "means" = "Two means",
+                                                                                                                    "regression coefficient" = "Regression coefficient"
                                                                                                                    )
     ), selectInput("moderators_reg", "Moderators", colnames(hot$data), multiple=T),
     conditionalPanel(

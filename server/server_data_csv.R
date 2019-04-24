@@ -63,14 +63,29 @@ observeEvent(input$okcsv, {                                                     
                           header=input$header,
                           sep=input$sep,
                           quote=input$quote)
-    vals$datar <- vals$data
     if (input$dataType == "proportion" & length(
-                                    intersect(c("count", "xi", "counts", "x_i", "x_is", "xis", "x", "xs", "prop", "props", "proportions", "proportion", "x/n", "x / n", "X / N", "x / n"),
+                                    intersect(c("count", "xi", "counts", "x_i", "x_is", "xis", "x", "xs", "prop", "props", "proportions", "proportion", "x/n", "x / n", "X / N", "x / n", "n", "ns", "ni", "nis", "n_is", "n_i", "sample size", "sample sizes"),
                                     colnames(vals$data
                                     )
       )) == 2) {  # Exactly 2 matches so we can simply calculate the other one (count, N, proportion)
        # TODO: Finish this (actually do back-calc)
+      if (length(intersect(c("count", "xi", "counts", "x_i", "x_is", "xis", "x", "xs", "n", "ns", "ni", "nis", "n_is", "n_i", "sample size", "sample sizes"),
+                    colnames(vals$data
+                    ))) == 2) {  # missing proportion column
+        vals$data$proportion <- vals$data[[intersect(c("count", "xi", "counts", "x_i", "x_is", "xis", "x", "xs"), colnames(vals$data))]] /
+                                vals$data[[intersect(c("n", "ns", "ni", "nis", "n_is", "n_i", "sample size", "sample sizes"), colnames(vals$data))]]
+        
+      } else if (length(intersect(c("prop", "props", "proportions", "proportion", "x/n", "x / n", "X / N", "x / n", "n", "ns", "ni", "nis", "n_is", "n_i", "sample size", "sample sizes"),
+                                  colnames(vals$data
+                                  ))) == 2) {  # missing count column
+        vals$data$count <- vals$data[[intersect(c("prop", "props", "proportions", "proportion", "x/n", "x / n", "X / N", "x / n"), colnames(vals$data))]] *
+                           vals$data[[intersect(c("n", "ns", "ni", "nis", "n_is", "n_i", "sample size", "sample sizes"), colnames(vals$data))]]
+      } else {  # missing sample size
+        vals$data$ni <- vals$data[[intersect(c("count", "xi", "counts", "x_i", "x_is", "xis", "x", "xs"), colnames(vals$data))]]  /
+                        vals$data[[intersect(c("prop", "props", "proportions", "proportion", "x/n", "x / n", "X / N", "x / n"), colnames(vals$data))]]
+      }
     }
+    vals$datar <- vals$data
     removeModal()
   } else {
     showModal(dataModal(failed=T))

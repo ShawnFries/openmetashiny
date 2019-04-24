@@ -17,13 +17,11 @@ sidebarLayout(
     actionButton("oknorm_leave_res", "Show results")
   ),
   mainPanel(
-    fluidRow(
-      column(width=6, 
-             tableOutput("escalcdat_leave")),
-      column(width=6, 
-             verbatimTextOutput("msummary_leave_norm"))),                                   ####msummary_norm in server_meta_norm.R
-    fluidRow(
-      plotOutput("plot_leave_norm")
+    tabBox(width=12,
+      tabPanel("Transformed data", tableOutput("escalcdat_leave")),
+      tabPanel("Meta-analysis summary", verbatimTextOutput("msummary_leave_norm")),                                   ####msummary_norm in server_meta_norm.R
+      tabPanel("Forest plot", plotOutput("plot_leave_norm"), actionButton("save_fplot", "Save forest plot"))
+      
     )
   )#ends mainPanel
 )

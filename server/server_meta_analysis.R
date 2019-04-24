@@ -3,18 +3,20 @@
 #############################
 
 #TODO: Add rma.glmm() for exact calculations as an option
+#TODO: Support regression coefficient in forest/escalc/rma calculations! (And the other data types e.g. generic effect size, diagnostic i.e. TP/FP...)
 #TODO: (lower priority) Support entering proportions as decimal from 0 to 1 (possibly + sample size)
 # (Is part of backcalc)
 
 dataModal2 <- function(failed=F) {
   modalDialog(
-    selectInput("type", "Type of data", c("One proportion", "One mean", "Two proportions", "Two means"), switch(input$dataType,
-                                                                                                                "proportion" = "One proportion",
-                                                                                                                "mean" = "One mean",
-                                                                                                                "proportions" = "Two proportions",
-                                                                                                                "means" = "Two means"
-                                                                                                               )
-                ),
+    selectInput("type_reg", "Type of data", c("One proportion", "One mean", "Two proportions", "Two means", "Regression coefficient"), switch(input$dataType,
+                                                                                                                                              "proportion" = "One proportion",
+                                                                                                                                              "mean" = "One mean",
+                                                                                                                                              "proportions" = "Two proportions",
+                                                                                                                                              "means" = "Two means",
+                                                                                                                                              "regression coefficient" = "Regression coefficient"
+    )
+    ), selectInput("moderators_reg", "Moderators", colnames(hot$data), multiple=T),
     conditionalPanel(
       condition="input.type == 'One proportion'",
       selectInput("metric1",
@@ -59,6 +61,16 @@ dataModal2 <- function(failed=F) {
                    )
                  )
 ),
+conditionalPanel(
+  condition="input.type == 'Regression Coefficient'",
+  selectInput("metric5",
+              "Metric", 
+              c(`COR - raw correlation coefficient`="COR",
+                `UCOR - unbiased raw correlation coefficient`="UCOR",
+                `ZCOR - Fisher's r-to-z transformed correlation coefficient`="ZCOR"
+              )
+  )
+),
       conditionalPanel(
         condition="input.metric4 == 'MD'",
         checkboxInput("use_homoscedasticity",
@@ -66,9 +78,9 @@ dataModal2 <- function(failed=F) {
                      )
         ),
       conditionalPanel(
-        condition="input.metric4 == 'SMD'",
+        condition="input.metric4 == 'SMD' || input.metric5 == 'UCOR'",
         checkboxInput("variance_is_approximate",
-                      "Use the large-sample approximation for the sampling variances? If not, the exact unbiased sampling variances will be used.", 
+                      "Use the large-sample approximation for the sampling variances? If not, the exact unbiased sampling variances will be used", 
                       T
                      )
       ),
@@ -221,6 +233,18 @@ observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
       },
       error=function(err){
         print("ERROR:  There must be at least one column each named \"m1i\", \"m2i\", \"sd1i\", \"sd2i\", \"n1i\", and \"n2i\"")
+      }
+    )#ends tryCatch
+    removeModal()
+    
+  } else if(!is.null(hot$data) & input$type == "Regression coefficient") {
+    vals$dataescalc<-tryCatch({ # TODO: Add error handling for other column names/check similar names
+      escalc(measure=input$metric5,
+             ri=ri,
+             ni=ni,
+             data=hot$data)},
+      error=function(err){
+        print("ERROR:  There must be at least one column each named \"ri\" and \"ni\"")
       }
     )#ends tryCatch
     removeModal()
