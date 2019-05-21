@@ -241,7 +241,7 @@ observeEvent(input$oknorm_escalc_subgroup, {                         ####oknorm_
 ##         oknorm_res          ##
 #################################
 
-res <- eventReactive(input$oknorm_res_subgroup, {
+res_subgroup <- eventReactive(input$oknorm_res_subgroup, {
   conflevel <- as.numeric(as.character(input$conflevel_subgroup))
   cc <- as.numeric(as.character(input$cc_subgroup))
   
@@ -273,7 +273,7 @@ observeEvent(input$oknorm_res_subgroup, {
   #   rma(yi, vi, method=input$rand_est_subgroup, data=vals$dataescalc_subgroup, weighted=F, add=cc, to=input$addto_subgroup)
   # }
 
-  res <- res()
+  res_subgroup <- res_subgroup()
 
   #####################NEEDS TO BE GENERALIZED############################
 
@@ -281,7 +281,7 @@ observeEvent(input$oknorm_res_subgroup, {
     conflevel <- as.numeric(as.character(input$conflevel_subgroup))
 
     ##display forest plot
-    forest(res, refline=NA, level=conflevel, digits=input$digits_subgroup, slab=paste(if (!is.null(hot$data$author)) hot$data$author
+    forest(res_subgroup, refline=NA, level=conflevel, digits=input$digits_subgroup, slab=paste(if (!is.null(hot$data$author)) hot$data$author
                                                                                  else if (!is.null(hot$data$authors)) hot$data$authors,
                                                                                  
                                                                                  if (!is.null(hot$data$year)) hot$data$year
@@ -294,7 +294,7 @@ observeEvent(input$oknorm_res_subgroup, {
   })
 
   output$msummary_norm_subgroup <- renderPrint({
-    print(res)
+    print(res_subgroup)
   })
 
 })
@@ -325,7 +325,7 @@ observeEvent(input$save_fplot_subgroup, {
 observeEvent(input$ok_save_fplot_subgroup,{
   conflevel <- as.numeric(as.character(input$conflevel_subgroup))
 
-  res <- res()
+  res_subgroup <- res_subgroup()
 
   ##save a png of the plot
   png(filename=input$fplot_path_subgroup,

@@ -242,7 +242,7 @@ observeEvent(input$oknorm_escalc_reg, {                         ####oknorm_escal
 ##         oknorm_res          ##
 #################################
 
-res <- eventReactive(input$oknorm_res_reg, {
+res_reg <- eventReactive(input$oknorm_res_reg, {
   conflevel <- as.numeric(as.character(input$conflevel_reg))
   cc <- as.numeric(as.character(input$cc_reg))
   
@@ -274,7 +274,7 @@ observeEvent(input$oknorm_res_reg, {
   #   rma(yi, vi, method=input$rand_est_reg, data=vals$dataescalc_reg, weighted=F, add=cc, to=input$addto_reg)
   # }
 
-  res <- res()
+  res_reg <- res_reg()
 
   #####################NEEDS TO BE GENERALIZED############################
 
@@ -282,7 +282,7 @@ observeEvent(input$oknorm_res_reg, {
     conflevel <- as.numeric(as.character(input$conflevel_reg))
 
     ##display forest plot
-    forest(res, refline=NA, level=conflevel, digits=input$digits_reg, slab=paste(if (!is.null(hot$data$author)) hot$data$author
+    forest(res_reg, refline=NA, level=conflevel, digits=input$digits_reg, slab=paste(if (!is.null(hot$data$author)) hot$data$author
                                                                                  else if (!is.null(hot$data$authors)) hot$data$authors,
                                                                                  
                                                                                  if (!is.null(hot$data$year)) hot$data$year
@@ -295,7 +295,7 @@ observeEvent(input$oknorm_res_reg, {
   })
 
   output$msummary_norm_reg <- renderPrint({
-    print(res)
+    print(res_reg)
   })
 
 })
@@ -326,12 +326,12 @@ observeEvent(input$save_fplot_reg, {
 observeEvent(input$ok_save_fplot_reg,{
   conflevel<-as.numeric(as.character(input$conflevel_reg))
 
-  res<-res()
+  res_reg <- res_reg()
 
   ##save a png of the plot
   png(filename=input$fplot_path_reg, width=as.numeric(input$fplot_w_reg), height=as.numeric(input$fplot_h_reg), units=input$fplot_unit_reg, res=as.numeric(input$fplot_resolution_reg))
 
-  forest(res, refline=NA, digits=input$digits_reg, level=conflevel)
+  forest(res_reg, refline=NA, digits=input$digits_reg, level=conflevel)
 
   dev.off()
 

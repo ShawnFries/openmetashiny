@@ -6,17 +6,18 @@
 #TODO: Support regression coefficient in forest/escalc/rma calculations! (And the other data types e.g. generic effect size, diagnostic i.e. TP/FP...)
 #TODO: (lower priority) Support entering proportions as decimal from 0 to 1 (possibly + sample size)
 # (Is part of backcalc)
-
 dataModal2 <- function(failed=F) {
   modalDialog(
-    selectInput("type_reg", "Type of data", c("One proportion", "One mean", "Two proportions", "Two means", "Regression coefficient"), switch(input$dataType,
+    selectInput("type", "Type of data", c("One proportion", "One mean", "Two proportions", "Two means", "Regression coefficient", "Generic effect size", "Diagnostic"), switch(input$dataType,
                                                                                                                                               "proportion" = "One proportion",
                                                                                                                                               "mean" = "One mean",
                                                                                                                                               "proportions" = "Two proportions",
                                                                                                                                               "means" = "Two means",
-                                                                                                                                              "regression coefficient" = "Regression coefficient"
+                                                                                                                                              "regression coefficient" = "Regression coefficient",
+                                                                                                                                              "generic effect size" = "Generic effect size",
+                                                                                                                                              "diagnostic" = "Diagnostic"
     )
-    ), selectInput("moderators_reg", "Moderators", colnames(hot$data), multiple=T),
+    ),
     conditionalPanel(
       condition="input.type == 'One proportion'",
       selectInput("metric1",
@@ -71,6 +72,22 @@ conditionalPanel(
               )
   )
 ),
+conditionalPanel(
+  condition="input.type == 'Diagnostic'",
+  selectInput("metric6",
+              "Metric", 
+              c(`RR - log risk ratio`="RR", 
+                `OR - log odds ratio`="OR",
+                `RD - risk difference`="RD",
+                `AS - arcsine square root transformed risk difference`="AS",
+                `PETO - log odds ratio estimated with Peto's method`="PETO",
+                `PBIT - probit transformed risk difference`="PBIT",
+                `OR2DN - Transformed odds ratio for normal distributions`="OR2DN",
+                `OR2DL - Transformed odds ratio for logistic distributions`="OR2DL"
+              )
+  )
+),
+
       conditionalPanel(
         condition="input.metric4 == 'MD'",
         checkboxInput("use_homoscedasticity",
@@ -174,7 +191,7 @@ observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
     removeModal()
     
   } else if(!is.null(hot$data) & input$type == "Two proportions") {
-    vals$dataescalc<-tryCatch({ # TODO: Add error handling for other column names/check similar names
+    vals$dataescalc <- tryCatch({ # TODO: Add error handling for other column names/check similar names
       escalc(measure=input$metric3,
              ai=ai,
              n1i=n1i,
@@ -237,22 +254,51 @@ observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
     )#ends tryCatch
     removeModal()
     
-  } else if(!is.null(hot$data) & input$type == "Regression coefficient") {
-    vals$dataescalc<-tryCatch({ # TODO: Add error handling for other column names/check similar names
+  } else if (!is.null(hot$data) & input$type == "Regression coefficient") {
+    vals$dataescalc <- tryCatch({ # TODO: Add error handling for other column names/check similar names
       escalc(measure=input$metric5,
              ri=ri,
              ni=ni,
              data=hot$data)},
-      error=function(err){
+      error=function(err){ 
         print("ERROR:  There must be at least one column each named \"ri\" and \"ni\"")
+      }
+    ) #ends tryCatch
+    removeModal()
+  } else if (!is.null(hot$data) & input$type == "Generic effect size") {
+    vals$dataescalc <- tryCatch({ # TODO: Add error handling for other column names/check similar names
+      if ((!is.null(hot$data$sei))) {
+        escalc(measure="GEN",
+               yi=yi,
+               sei=sei,
+               data=hot$data)
+      } else {
+        escalc(measure="GEN",
+               yi=yi,
+               vi=vi,
+               data=hot$data)
+      }
+      },
+      error=function(err){
+        print("ERROR:  There must be at least one column named \"yi\" and either \"vi\" or \"sei\"")
+      })
+    removeModal()
+  } else if (!is.null(hot$data) & input$type == "Diagnostic") {
+    vals$dataescalc <- tryCatch({ # TODO: Add error handling for other column names/check similar names
+      escalc(measure=input$metric6,
+             ai=ai,
+             bi=bi,
+             ci=ci,
+             di=di,
+             data=hot$data)},
+      error=function(err){
+        print("ERROR:  There must be at least one column each named \"ai\", \"bi\", \"ci\", and \"di\"")
       }
     )#ends tryCatch
     removeModal()
-    
-  } else{
+  } else {
     showModal(dataModal(failed=T))
   }
-  
   
   output$escalcdat <- renderTable({
     if (!is.null(vals$dataescalc)) {
@@ -296,7 +342,6 @@ observeEvent(input$oknorm_res, {
 # }else if(input$fixed_norm=="RE"){
 #   rma(yi, vi, method=input$rand_est, data=vals$dataescalc, weighted=FALSE, add=cc, to=input$addto)
 # }
-
 res <- res()
 
 #####################NEEDS TO BE GENERALIZED############################
@@ -349,7 +394,7 @@ observeEvent(input$save_fplot, {
 observeEvent(input$ok_save_fplot, {
   conflevel<-as.numeric(as.character(input$conflevel))
   
-  res<-res()
+  res <- res()
   
   ##save a png of the plot
   png(filename=input$fplot_path, width=as.numeric(input$fplot_w), height=as.numeric(input$fplot_h), units=input$fplot_unit, res=as.numeric(input$fplot_resolution))

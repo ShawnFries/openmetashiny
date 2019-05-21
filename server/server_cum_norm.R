@@ -12,7 +12,10 @@ dataModal2_cum <- function(failed=F) {
                                                                                                                   "proportion" = "Proportion",
                                                                                                                   "mean" = "Mean",
                                                                                                                   "proportions" = "Two proportions (2X2)",
-                                                                                                                  "means" = "Two means"
+                                                                                                                  "means" = "Two means",
+                                                                                                                  "regression coefficient" = "Regression coefficient",
+                                                                                                                  "generic effect size" = "Generic effect size",
+                                                                                                                  "diagnostic" = "Diagnostic"
                                                                                                                  )
                ),
     conditionalPanel(
@@ -35,6 +38,43 @@ dataModal2_cum <- function(failed=F) {
     conditionalPanel(
       condition="input.type_cum == 'Two means'",
       selectInput("metric4_cum", "Metric", c("MD", "SMD", "SMDH", "ROM"))
+    ),conditionalPanel(
+      condition="input.type_cum == 'Regression Coefficient'",
+      selectInput("metric5_cum",
+                  "Metric", 
+                  c(`COR - raw correlation coefficient`="COR",
+                    `UCOR - unbiased raw correlation coefficient`="UCOR",
+                    `ZCOR - Fisher's r-to-z transformed correlation coefficient`="ZCOR"
+                  )
+      )
+    ),
+    conditionalPanel(
+      condition="input.type_cum == 'Diagnostic'",
+      selectInput("metric6_cum",
+                  "Metric", 
+                  c(`RR - log risk ratio`="RR", 
+                    `OR - log odds ratio`="OR",
+                    `RD - risk difference`="RD",
+                    `AS - arcsine square root transformed risk difference`="AS",
+                    `PETO - log odds ratio estimated with Peto's method`="PETO",
+                    `PBIT - probit transformed risk difference`="PBIT",
+                    `OR2DN - Transformed odds ratio for normal distributions`="OR2DN",
+                    `OR2DL - Transformed odds ratio for logistic distributions`="OR2DL"
+                  )
+      )
+    ),
+    conditionalPanel(
+      condition="input.metric4_cum == 'MD'",
+      checkboxInput("use_homoscedasticity_cum",
+                    "Assume homoscedasticity of sampling variances? (i.e. true variance of measurements is the same in sample 1 and sample 2)"
+      )
+    ),
+    conditionalPanel(
+      condition="input.metric4_cum == 'SMD' || input.metric5_cum == 'UCOR'",
+      checkboxInput("variance_is_approximate_cum",
+                    "Use the large-sample approximation for the sampling variances? If not, the exact unbiased sampling variances will be used", 
+                    T
+      )
     ),
     footer=tagList(
       modalButton("Cancel"),
