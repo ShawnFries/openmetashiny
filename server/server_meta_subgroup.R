@@ -247,20 +247,24 @@ res_subgroup <- eventReactive(input$oknorm_res_subgroup, {
   
   tryCatch({
     unique_subgroups <- unique(hot$data[[input$moderators_subgroup]])
-    number_of_subgroups <- length(unique_subgroups)
+    rmas <- list()
     for (subgroup in unique_subgroups) {
-      rma(yi,
+      #print(subgroup)
+     # print(vals$dataescalc_subgroup)
+     # print(input$moderators_subgroup)
+     # print(subset(vals$dataescalc_subgroup, vals$dataescalc_subgroup[[input$moderators_subgroup]] == subgroup))
+      rmas[[paste("subgroup", subgroup)]] <- rma(yi,
           vi,
           method=input$est_subgroup,
           data=vals$dataescalc_subgroup,
           weighted=F,
-          mods=reformulate(input$moderators_subgroup, intercept=F),
           add=cc,
           to=input$addto_subgroup,
           level=conflevel,
-          subgroup=ifelse(number_of_subgroups > 1, input$moderators_subgroup[subgroup], input$moderators_subgroup),
+          subset=vals$dataescalc_subgroup[[input$moderators_subgroup]] == subgroup,  # Really awful line actually, but needed to subset by variable column directly in metafor
           digits=input$digits_subgroup)
     }
+    rmas
   },
   error=function(err) {
     print(paste("ERROR:  ", err))
@@ -299,7 +303,9 @@ observeEvent(input$oknorm_res_subgroup, {
   })
 
   output$msummary_norm_subgroup <- renderPrint({
-    print(res_subgroup)
+    for (subgroup_analysis in res_subgroup) {
+      print(subgroup_analysis)
+    }
   })
 
 })
