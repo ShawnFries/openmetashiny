@@ -246,16 +246,21 @@ res_subgroup <- eventReactive(input$oknorm_res_subgroup, {
   cc <- as.numeric(as.character(input$cc_subgroup))
   
   tryCatch({
-    rma(yi,
-        vi,
-        method=input$est_subgroup,
-        data=vals$dataescalc_subgroup,
-        weighted=F,
-        mods=reformulate(input$moderators_subgroup, intercept=F),
-        add=cc,
-        to=input$addto_subgroup,
-        level=conflevel,
-        digits=input$digits_subgroup)
+    unique_subgroups <- unique(hot$data[[input$moderators_subgroup]])
+    number_of_subgroups <- length(unique_subgroups)
+    for (subgroup in unique_subgroups) {
+      rma(yi,
+          vi,
+          method=input$est_subgroup,
+          data=vals$dataescalc_subgroup,
+          weighted=F,
+          mods=reformulate(input$moderators_subgroup, intercept=F),
+          add=cc,
+          to=input$addto_subgroup,
+          level=conflevel,
+          subgroup=ifelse(number_of_subgroups > 1, input$moderators_subgroup[subgroup], input$moderators_subgroup),
+          digits=input$digits_subgroup)
+    }
   },
   error=function(err) {
     print(paste("ERROR:  ", err))

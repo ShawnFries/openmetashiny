@@ -68,7 +68,6 @@ observeEvent(input$okcsv, {                                                     
                                     colnames(vals$data
                                     )
       )) == 2) {  # Exactly 2 matches so we can simply calculate the other one (count, N, proportion)
-       # TODO: Finish this (actually do back-calc)
       if (length(intersect(c("count", "xi", "counts", "x_i", "x_is", "xis", "x", "xs", "n", "ns", "ni", "nis", "n_is", "n_i", "sample size", "sample sizes"),
                     colnames(vals$data
                     ))) == 2) {  # missing proportion column
@@ -84,7 +83,26 @@ observeEvent(input$okcsv, {                                                     
         vals$data$ni <- vals$data[[intersect(c("count", "xi", "counts", "x_i", "x_is", "xis", "x", "xs"), colnames(vals$data))]]  /
                         vals$data[[intersect(c("prop", "props", "proportions", "proportion", "x/n", "x / n", "X / N", "x / n"), colnames(vals$data))]]
       }
-    }
+      error <- mapply(function(x, y) qt(0.975, x - 1) * sqrt(y * (1 - y) / x), vals$data$ni, vals$data$proportion)
+      vals$data$lower <- pmax(0, vals$data$proportion - error)
+      vals$data$upper <- pmin(1, vals$data$proportion + error)
+    } else if (input$dataType == "mean" & length(intersect(c("ni", "sdi"), colnames(vals$data))) == 2) {# TODO: Add checks for proper columns being there...
+      error <- mapply(function(x, y) qt(0.975, x - 1) * y / sqrt(x), vals$data$ni, vals$data$sdi)
+      vals$data$lower <- vals$data$mi - error
+      vals$data$upper <- vals$data$mi + error
+    } else if (input$dataType == "proportions" & length(intersect(c("ai", "n1i", "ci", "n2i"), colnames(vals$data))) == 4) {# TODO: Add checks for proper columns being there...
+      vals$data$odds_ratio <- vals$data$ai / vals$data$n1i / (vals$data$ci / vals$data$n2i)
+      sds <- sqrt(1 / vals$data$ai + 1 / vals$data$ci + 1 / (vals$data$n1i - vals$data$ai) + 1 / (vals$data$n2i - vals$data$ci))  # Asymptotic approximation..
+      error <- mapply(function(x, y) qt(0.975, x - 1) * y, vals$data$n1i + vals$data$n2i, sds)
+      vals$data$lower <- vals$data$odds_ratio - error
+      vals$data$upper <- vals$data$odds_ratio + error
+    } else if (input$dataType == "means" & length(intersect(c("m1i", "m2i", "sd1i", "sd2i", "n1i", "n2i"), colnames(vals$data))) == 6) {# TODO: Add checks for proper columns being there...
+      vals$data$mean_difference <- vals$data$m2i - vals$data$m1i
+      sds <- vals$data$sd1i / sqrt(vals$data$n1i) + vals$data$sd2i / sqrt(vals$data$n2i)
+      error <- mapply(function(x, y) qt(0.975, x - 1) * y, vals$data$n1i + vals$data$n2i, sds)
+      vals$data$lower <- vals$data$mean_difference - error
+      vals$data$upper <- vals$data$mean_difference + error
+    }  # TODO: Add for SMD (lower/upper for SMD) and for diagnostic (lower/upper for each of sensitivity and specificity)
     vals$datar <- vals$data
     removeModal()
   } else {
@@ -113,7 +131,7 @@ output$hot <- renderRHandsontable({####dat_csv in ui_data.R
     }
     #print(csv_button_pressed)
    # print(DF)
-  } else if (is.null(input$hot)) {
+  } else if (is.null(vals$datar)) {
       if (input$dataType == "proportion") {
         DF <- data.frame(names="Study A", year=as.integer(format(Sys.Date(), "%Y")), count=5, ni=10, proportion=0.5, stringsAsFactors=F)
       } else if (input$dataType == "mean") {
