@@ -32,3 +32,17 @@ output$cum_data <- renderTable({
   cum_data
   
 })
+
+observe({
+  
+  updateSelectInput(session,
+                    "type_cum_data",
+                    "Type of data",
+                    c("Proportion", "Mean", "Two proportions (2X2)", "Two means"),
+                    switch(input$dataType,
+                           "mean" = "Mean",
+                           "proportions" = "Two proportions (2X2)",
+                           "means" = "Two means"
+                    )
+  )
+})

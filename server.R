@@ -33,7 +33,9 @@ server <- function(input, output, session) {withMathJax()
   
   source("server/server_data_csv.R", local=T)$value
   
-  source("server/server_meta_analysis.R", local=T)$value
+  source("server/server_meta_norm.R", local=T)$value
+  
+  source("server/server_meta_exact.R", local=T)$value
   
   source("server/server_cum_data.R", local=T)$value
   
