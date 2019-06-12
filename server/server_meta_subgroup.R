@@ -285,25 +285,42 @@ observeEvent(input$oknorm_res_subgroup, {
   res_subgroup <- res_subgroup()
 
   #####################NEEDS TO BE GENERALIZED############################
-
-  output$forest_norm_subgroup <- renderPlot({
-    conflevel <- as.numeric(as.character(input$conflevel_subgroup))
-
-    ##display forest plot
-    forest(res_subgroup, refline=NA, level=conflevel, digits=input$digits_subgroup, slab=paste(if (!is.null(hot$data$author)) hot$data$author
-                                                                                 else if (!is.null(hot$data$authors)) hot$data$authors,
-                                                                                 
-                                                                                 if (!is.null(hot$data$year)) hot$data$year
-                                                                                 else if (!is.null(hot$data$years)) hot$data$years,
-                                                                                 
-                                                                                 sep=", "
-    )
-    )
-
+  #TODO: Fix this.. support multiple subgroups don't just show the last
+  conflevel <- as.numeric(as.character(input$conflevel_subgroup))
+  output$forest_plots <- renderUI({
+    subgroup_forest_plots <- list()
+    i <- 1
+    for (subgroup in res_subgroup) {
+      plot_name <- paste("forest_norm_subgroup", i, sep="_")
+      subgroup_forest_plots[[plot_name]] <- plotOutput(plot_name)
+      
+      i <- i + 1
+    }
+  
+    do.call(tagList, subgroup_forest_plots)
   })
+  
+  number_of_plots <- length(res_subgroup)
+  #flattened_subgroups <- unlist(res_subgroup, recursive=F, use=F)
+  #print(flattened_subgroups)
+  print(res_subgroup[[1]])
+  for (i in 1:number_of_plots) {
+    local({
+      local_i <- i
+      plot_name <- paste("forest_norm_subgroup", local_i, sep="_")
+      output[[plot_name]] <- renderPlot({
+        forest(res_subgroup[[local_i]], refline=NA, level=conflevel, digits=input$digits_subgroup)
+      })
+    })
+  }
 
   output$msummary_norm_subgroup <- renderPrint({
+    unique_subgroups <- unique(hot$data[[input$moderators_subgroup]])
+    subgroup_index <- 0
     for (subgroup_analysis in res_subgroup) {
+      subgroup_index <- subgroup_index + 1
+      subgroup_name <- unique_subgroups[subgroup_index]
+      print(paste("Subgroup:", subgroup_name))
       print(subgroup_analysis)
     }
   })

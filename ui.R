@@ -76,8 +76,9 @@ ui <- function(session) {
                        
                        navbarMenu(div(id="cum_meta_analysis_div", img(src="cum_meta_analysis.png")),
                                   tabPanel("Accumulative data", source("ui/ui_cum_data.R", local=T)$value),
-                                  tabPanel("Normal approximation", source("ui/ui_cum_norm.R", local=T)$value),
-                                  tabPanel("Exact likelihood", source("ui/ui_cum_exact.R", local=T)$value)
+                                  tabPanel("Normal approximation", source("ui/ui_cum_norm.R", local=T)$value)#,
+                                  #TODO: Find a way to implement this? cumul not supported for rma.glmm.. would have to do manually
+                                  #tabPanel("Exact likelihood", source("ui/ui_cum_exact.R", local=T)$value)
                        ),#tabPanel "Cumulative meta-analysis"
                        bsTooltip("cum_meta_analysis_div", "Cumulative meta-analysis", "right", options=list(container="body")),
                        

@@ -7,6 +7,7 @@ library(DT)
 library(metafor)
 library(dplyr)
 library(grDevices) #png()
+library(gridExtra)
 
 server <- function(input, output, session) {withMathJax()
   app <- reactiveValues(page=1)
@@ -40,6 +41,8 @@ server <- function(input, output, session) {withMathJax()
   source("server/server_cum_data.R", local=T)$value
   
   source("server/server_cum_norm.R", local=T)$value
+  
+  source("server/server_cum_exact.R", local=T)$value
   
   source("server/server_meta_subgroup.R", local=T)$value
   

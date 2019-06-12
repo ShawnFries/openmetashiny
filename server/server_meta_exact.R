@@ -45,6 +45,14 @@ observeEvent(input$okexact_escalc, {                         ####okexact_escalc
         else if (!is.null(hot$data$n_is)) n_is
         else if (!is.null(hot$data$n)) n
         else ns,
+        slab=paste(if (!is.null(hot$data$author)) hot$data$author
+                   else if (!is.null(hot$data$authors)) hot$data$authors,
+                   
+                   if (!is.null(hot$data$year)) hot$data$year
+                   else if (!is.null(hot$data$years)) hot$data$years,
+                   
+                   sep=", "
+        ),
         
         data=hot$data)},
       error=function(err) {
@@ -61,6 +69,14 @@ observeEvent(input$okexact_escalc, {                         ####okexact_escalc
              n1i=n1i,
              ci=ci,
              n2i=n2i,
+             slab=paste(if (!is.null(hot$data$author)) hot$data$author
+                        else if (!is.null(hot$data$authors)) hot$data$authors,
+                        
+                        if (!is.null(hot$data$year)) hot$data$year
+                        else if (!is.null(hot$data$years)) hot$data$years,
+                        
+                        sep=", "
+             ),
              data=hot$data)},
       error=function(err){
         print("ERROR:  There must be at least one column each named \"ai\", \"ci\", \"n1i\", and \"n2i\"")
@@ -75,6 +91,14 @@ observeEvent(input$okexact_escalc, {                         ####okexact_escalc
              bi=bi,
              ci=ci,
              di=di,
+             slab=paste(if (!is.null(hot$data$author)) hot$data$author
+                        else if (!is.null(hot$data$authors)) hot$data$authors,
+                        
+                        if (!is.null(hot$data$year)) hot$data$year
+                        else if (!is.null(hot$data$years)) hot$data$years,
+                        
+                        sep=", "
+             ),
              data=hot$data)},
       error=function(err){
         print("ERROR:  There must be at least one column each named \"ai\", \"bi\", \"ci\", and \"di\"")

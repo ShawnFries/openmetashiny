@@ -33,7 +33,7 @@ sidebarLayout(
     tabBox(width=12,
            tabPanel("Transformed data", tableOutput("escalcdat_subgroup")),
            tabPanel("Meta-analysis summary", verbatimTextOutput("msummary_norm_subgroup")),      ####msummary_norm in server_meta_norm.R
-           tabPanel("Forest plot", plotOutput("forest_norm_subgroup"), actionButton("save_fplot_subgroup", "Save forest plot") ####save_fplot in server_meta_norm.R
+           tabPanel("Forest plot", uiOutput("forest_plots"), actionButton("save_fplot_subgroup", "Save forest plot") ####save_fplot in server_meta_norm.R
                    )
     )
   )#ends mainPanel
