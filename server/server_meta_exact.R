@@ -121,7 +121,7 @@ observeEvent(input$okexact_escalc, {                         ####okexact_escalc
 ##         okexact_res          ##
 #################################
 
-res <- eventReactive(input$okexact_res, {
+res_exact <- eventReactive(input$okexact_res, {
   conflevel <- as.numeric(as.character(input$conflevel_exact))
   cc <- as.numeric(as.character(input$cc_exact))
   
@@ -144,7 +144,7 @@ observeEvent(input$okexact_res, {
 # }else if(input$fixed_exact=="RE"){
 #   rma(yi, vi, method=input$rand_est, data=vals$dataescalc, weighted=FALSE, add=cc, to=input$addto)
 # }
-res <- res()
+res_exact <- res_exact()
 
 #####################NEEDS TO BE GENERALIZED############################
 
@@ -152,7 +152,7 @@ output$forest_exact <- renderPlot({
   conflevel <- as.numeric(as.character(input$conflevel_exact))
   
   ##display forest plot
-  forest(res, refline=NA, level=conflevel, digits=input$digits_exact, slab=paste(if (!is.null(hot$data$author)) hot$data$author
+  forest(res_exact, refline=NA, level=conflevel, digits=input$digits_exact, slab=paste(if (!is.null(hot$data$author)) hot$data$author
                                                                            else if (!is.null(hot$data$authors)) hot$data$authors,
 
                                                                            if (!is.null(hot$data$year)) hot$data$year
@@ -165,7 +165,7 @@ output$forest_exact <- renderPlot({
   })
 
 output$msummary_exact <- renderPrint({
-  print(res)
+  print(res_exact)
 })
 
 })
@@ -196,12 +196,12 @@ observeEvent(input$save_fplot_exact, {
 observeEvent(input$ok_save_fplot_exact, {
   conflevel<-as.numeric(as.character(input$conflevel_exact))
   
-  res <- res()
+  res_exact <- res_exact()
   
   ##save a png of the plot
   png(filename=input$fplot_path_exact, width=as.numeric(input$fplot_w_exact), height=as.numeric(input$fplot_h_exact), units=input$fplot_unit_exact, res=as.numeric(input$fplot_resolution_exact))
   
-  forest(res, refline=NA, digits=input$digits_exact, level=conflevel, slab=paste(if (!is.null(hot$data$author)) hot$data$author
+  forest(res_exact, refline=NA, digits=input$digits_exact, level=conflevel, slab=paste(if (!is.null(hot$data$author)) hot$data$author
                                                                            else if (!is.null(hot$data$authors)) hot$data$authors,
                                                                            
                                                                            if (!is.null(hot$data$year)) hot$data$year

@@ -8,6 +8,7 @@ library(metafor)
 library(dplyr)
 library(grDevices) #png()
 library(gridExtra)
+library(grid)
 
 server <- function(input, output, session) {withMathJax()
   app <- reactiveValues(page=1)

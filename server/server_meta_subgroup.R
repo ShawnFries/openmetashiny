@@ -303,19 +303,20 @@ observeEvent(input$oknorm_res_subgroup, {
   number_of_plots <- length(res_subgroup)
   #flattened_subgroups <- unlist(res_subgroup, recursive=F, use=F)
   #print(flattened_subgroups)
-  print(res_subgroup[[1]])
+  #print(res_subgroup[[1]])
+  unique_subgroups <- unique(hot$data[[input$moderators_subgroup]])
   for (i in 1:number_of_plots) {
     local({
       local_i <- i
       plot_name <- paste("forest_norm_subgroup", local_i, sep="_")
       output[[plot_name]] <- renderPlot({
         forest(res_subgroup[[local_i]], refline=NA, level=conflevel, digits=input$digits_subgroup)
+        grid.text(paste("Subgroup:", unique_subgroups[local_i]), .5, .9, gp=gpar(cex=2))
       })
     })
   }
 
   output$msummary_norm_subgroup <- renderPrint({
-    unique_subgroups <- unique(hot$data[[input$moderators_subgroup]])
     subgroup_index <- 0
     for (subgroup_analysis in res_subgroup) {
       subgroup_index <- subgroup_index + 1

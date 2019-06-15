@@ -19,6 +19,15 @@ sidebarLayout(
     textInput("conflevel", "Confidence level", value="95"),
     textInput("cc", "Continuity correction", value="0.5"),
     selectInput("addto", "Add continuity correction to", c("all", "only0", "if0all", "none"), "only0"),
+    #TODO: Add all functionality from metafor trans
+    selectInput("atransf", "X-axis transformation", c("none"="none",
+                                                      "logit (log odds, for proportions)"="logit",
+                                                      "inverse logit"="ilogit",
+                                                      "arcsine square-root (for proportions)"="arcsin",
+                                                      "inverse arcsine square-root"="iarcsin",
+                                                      "square (x²)"="isqrt"
+                                                     )
+               ),
     actionButton("oknorm_res", "Show results"),
     bookmarkButton()
   ),

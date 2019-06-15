@@ -346,7 +346,7 @@ res <- res()
 
 output$forest_norm <- renderPlot({
   conflevel <- as.numeric(as.character(input$conflevel))
-  
+  #print(as.name(input$atransf))
   ##display forest plot
   forest(res, refline=NA, level=conflevel, digits=input$digits, slab=paste(if (!is.null(hot$data$author)) hot$data$author
                                                                            else if (!is.null(hot$data$authors)) hot$data$authors,
@@ -355,7 +355,7 @@ output$forest_norm <- renderPlot({
                                                                            else if (!is.null(hot$data$years)) hot$data$years,
 
                                                                            sep=", "
-                                                                          )
+                                                                          ), atransf=if (input$atransf != "none") get(paste0("transf.", input$atransf))
   )
 
   })
@@ -404,7 +404,7 @@ observeEvent(input$ok_save_fplot, {
                                                                            else if (!is.null(hot$data$years)) hot$data$years,
                                                                            
                                                                            sep=", "
-                                                                          )
+                                                                          ), atransf=if (input$atransf != "none") get(paste0("transf.", input$atransf))
         )
   dev.off()
   
