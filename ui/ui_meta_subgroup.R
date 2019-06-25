@@ -26,6 +26,14 @@ sidebarLayout(
     textInput("conflevel_subgroup", "Confidence level", "95"),
     textInput("cc_subgroup", "Continuity correction", "0.5"),
     selectInput("addto_subgroup", "Add continuity correction to", c("all", "only0", "if0all", "none"), "only0"),
+    selectInput("atransf_subgroup", "X-axis transformation", c("none"="none",
+                                                      "logit (log odds, for proportions)"="logit",
+                                                      "inverse logit"="ilogit",
+                                                      "arcsine square-root (for proportions)"="arcsin",
+                                                      "inverse arcsine square-root"="iarcsin",
+                                                      "square (x²)"="isqrt"
+    )
+    ),
     actionButton("oknorm_res_subgroup", "Show results"),
     bookmarkButton()
   ),

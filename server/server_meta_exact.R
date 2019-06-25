@@ -2,16 +2,13 @@
 ##       effect_exact       ##
 #############################
 
-#TODO: Add rma.glmm() for exact calculations as an option
-#TODO: Support regression coefficient in forest/escalc/rma calculations! (And the other data types e.g. generic effect size, diagnostic i.e. TP/FP...)
-#TODO: (lower priority) Support entering proportions as decimal from 0 to 1 (possibly + sample size)
+#TODO: This only really does anything for 2 proportions/diagnostic with odds ratio. Remove "one proportion"/update errors for normal as appropriate.
+# The exact approach uses the hypergeometric-normal model for odds ratios as described in documentation.
 # (Is part of backcalc)
 dataModal2_exact <- function(failed=F) {
   modalDialog(
-    selectInput("type_exact", "Type of data", c("One proportion", "Two proportions", "Diagnostic"), switch(input$dataType,
-                                                                                                           "proportion" = "One proportion",
-                                                                                                           "proportions" = "Two proportions",
-                                                                                                           "diagnostic" = "Diagnostic"
+    selectInput("type_exact", "Type of data", c("Two proportions", "Diagnostic"), switch(input$dataType,
+                                                                                         "diagnostic" = "Diagnostic"
     )
     ), 
     footer=tagList(
@@ -27,42 +24,7 @@ observeEvent(input$effect_exact, {
 })
 
 observeEvent(input$okexact_escalc, {                         ####okexact_escalc
-  if (!is.null(hot$data) & input$type_exact == "One proportion") {
-    vals$dataescalc_exact <- tryCatch({
-      rma.glmm(
-        measure="PLO",
-        xi=if (!is.null(hot$data$count)) count
-        else if (!is.null(hot$data$counts)) counts
-        else if (!is.null(hot$data$xi)) xi
-        else if (!is.null(hot$data$x)) x
-        else if (!is.null(hot$data$x_i)) x_i
-        else if (!is.null(hot$data$x_is)) x_is
-        else xis,
-        
-        ni=if (!is.null(hot$data$ni)) ni
-        else if (!is.null(hot$data$nis)) nis
-        else if (!is.null(hot$data$n_i)) n_i
-        else if (!is.null(hot$data$n_is)) n_is
-        else if (!is.null(hot$data$n)) n
-        else ns,
-        slab=paste(if (!is.null(hot$data$author)) hot$data$author
-                   else if (!is.null(hot$data$authors)) hot$data$authors,
-                   
-                   if (!is.null(hot$data$year)) hot$data$year
-                   else if (!is.null(hot$data$years)) hot$data$years,
-                   
-                   sep=", "
-        ),
-        
-        data=hot$data)},
-      error=function(err) {
-        #error handler picks up where error was generated
-        print(paste("ERROR:  There must be at least one column named \"count\" or \"xi\" and one named \"ni\""))
-      }
-    )#ends tryCatch
-    removeModal()
-  
-  } else if(!is.null(hot$data) & input$type_exact == "Two proportions") {
+  if(!is.null(hot$data) & input$type_exact == "Two proportions") {
     vals$dataescalc_exact <- tryCatch({ # TODO: Add error handling for other column names/check similar names
       rma.glmm(measure="OR",
              ai=ai,
@@ -77,6 +39,7 @@ observeEvent(input$okexact_escalc, {                         ####okexact_escalc
                         
                         sep=", "
              ),
+             model="CM.EL",
              data=hot$data)},
       error=function(err){
         print("ERROR:  There must be at least one column each named \"ai\", \"ci\", \"n1i\", and \"n2i\"")
@@ -99,6 +62,7 @@ observeEvent(input$okexact_escalc, {                         ####okexact_escalc
                         
                         sep=", "
              ),
+             model="CM.EL",
              data=hot$data)},
       error=function(err){
         print("ERROR:  There must be at least one column each named \"ai\", \"bi\", \"ci\", and \"di\"")
@@ -115,7 +79,6 @@ observeEvent(input$okexact_escalc, {                         ####okexact_escalc
     }
   })
 })
-
 
 #################################
 ##         okexact_res          ##

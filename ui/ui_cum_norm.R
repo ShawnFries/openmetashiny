@@ -11,6 +11,14 @@ sidebarLayout(
     textInput("conflevel_cum", "Confidence level", value="95"),
     textInput("cc_cum", "Continuity correction", value="0.5"),
     selectInput("addto_cum", "Add continuity correction to", c("all", "only0", "if0all", "none"), "only0"),
+    selectInput("atransf_cum", "X-axis transformation", c("none"="none",
+                                                      "logit (log odds, for proportions)"="logit",
+                                                      "inverse logit"="ilogit",
+                                                      "arcsine square-root (for proportions)"="arcsin",
+                                                      "inverse arcsine square-root"="iarcsin",
+                                                      "square (x²)"="isqrt"
+    )
+    ),
     actionButton("oknorm_cum_res", "Show results")
   ),
   mainPanel(

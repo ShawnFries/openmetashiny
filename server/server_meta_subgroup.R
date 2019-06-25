@@ -310,7 +310,8 @@ observeEvent(input$oknorm_res_subgroup, {
       local_i <- i
       plot_name <- paste("forest_norm_subgroup", local_i, sep="_")
       output[[plot_name]] <- renderPlot({
-        forest(res_subgroup[[local_i]], refline=NA, level=conflevel, digits=input$digits_subgroup)
+        forest(res_subgroup[[local_i]], refline=NA, level=conflevel, digits=input$digits_subgroup,
+               atransf=if (input$atransf_subgroup != "none") get(paste0("transf.", input$atransf_subgroup)))
         grid.text(paste("Subgroup:", unique_subgroups[local_i]), .5, .9, gp=gpar(cex=2))
       })
     })
@@ -364,7 +365,7 @@ observeEvent(input$ok_save_fplot_subgroup,{
       res=as.numeric(input$fplot_resolution_subgroup)
      )
 
-  forest(res, refline=NA, digits=input$digits_subgroup, level=conflevel)
+  forest(res, refline=NA, digits=input$digits_subgroup, level=conflevel, atransf=if (input$atransf_subgroup != "none") get(paste0("transf.", input$atransf_subgroup)))
 
   dev.off()
 

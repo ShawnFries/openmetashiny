@@ -2,17 +2,18 @@
 ##       effect_norm       ##
 #############################
 #TODO: Support regression coefficient in forest/escalc/rma calculations! (And the other data types e.g. generic effect size, diagnostic i.e. TP/FP...)
-#TODO: (lower priority) Support entering proportions as decimal from 0 to 1 (possibly + sample size)
 # (Is part of backcalc)
+# TODO: Truncate confidence intervals for proportions in metafor plots to 0 to 1
 dataModal2 <- function(failed=F) {
   modalDialog(
-    selectInput("type", "Type of data", c("One proportion", "One mean", "Two proportions", "Two means", "Regression coefficient", "Generic effect size", "Diagnostic"), switch(input$dataType,
+    selectInput("type", "Type of data", c("One proportion", "One mean", "Two proportions", "Two means", "Regression coefficient", "Generic effect size", "Raw mean difference", "Diagnostic"), switch(input$dataType,
                                                                                                                                               "proportion" = "One proportion",
                                                                                                                                               "mean" = "One mean",
                                                                                                                                               "proportions" = "Two proportions",
                                                                                                                                               "means" = "Two means",
                                                                                                                                               "regression coefficient" = "Regression coefficient",
                                                                                                                                               "generic effect size" = "Generic effect size",
+                                                                                                                                              "mean difference" = "Raw mean difference",
                                                                                                                                               "diagnostic" = "Diagnostic"
     )
     ),
@@ -20,7 +21,16 @@ dataModal2 <- function(failed=F) {
       condition="input.type == 'One proportion'",
       selectInput("metric1",
                   "Metric",
-                  c(`PR - raw proportion`="PR", `PAS - arcsine transformed proportion`="PAS", `PLO - logit transformed proportion`="PLO")
+                  c(`PR - raw proportion`="PR",
+                    `PLN - natural logarithm transformed proportion`="PLN",
+                    `PLO - logit transformed proportion`="PLO",
+                    `PAS - arcsine square root (angular) transformed proportion`="PAS",
+                    `PFT - Freeman-Tukey double arcsine transformed proportion`="PFT"
+                   )#,
+                  #TODO: Below is incorrect, we would actually want to reverse the transformation in this case (manually back-transform then feed through metafor?)
+                   #if (exists("min_proportion") && (min_proportion < 0 || max_proportion > 1)) {
+                   # "PLO"
+                 # }
                  )
     ),
     conditionalPanel(
@@ -33,24 +43,46 @@ dataModal2 <- function(failed=F) {
                     `SDLN - log transformed standard deviation`="SDLN"
                    )
                   )
+    ), conditionalPanel(
+      condition="input.type == 'Two proportions' || input.type == 'Diagnostic'",
+      selectInput("model_type",
+                  "Select the model type to fit 2x2 data to",
+                  c("Linear Mixed Effects"="rma",
+                    "Peto's Method"="peto",
+                    "Mantel-Haenszel Method"="mh"
+                   )
+      )
     ),
     conditionalPanel(
-      condition="input.type == 'Two proportions'",
+      condition="(input.type == 'Two proportions' || input.type == 'Diagnostic') && input.model_type != 'mh' && input.model_type != 'peto'",
       selectInput("metric3",
                   "Metric", 
                   c(`RR - log risk ratio`="RR", 
                     `OR - log odds ratio`="OR",
                     `RD - risk difference`="RD",
-                    `AS - arcsine square root transformed risk difference`="AS",
+                    `AS - arcsine square-root transformed risk difference`="AS",
                     `PETO - log odds ratio estimated with Peto's method`="PETO",
                     `PBIT - probit transformed risk difference`="PBIT",
                     `OR2DN - Transformed odds ratio for normal distributions`="OR2DN",
-                    `OR2DL - Transformed odds ratio for logistic distributions`="OR2DL"
+                    `OR2DL - Transformed odds ratio for logistic distributions`="OR2DL",
+                    `PHI - phi coefficient`='PHI',
+                    `YUQ - Yule's Q`="YUQ",
+                    `YUY - Yule's Y`="YUY",
+                    `RTET - tetrachoric correlation`="RTET"
                    )
                  )
+    ), conditionalPanel(
+      condition="(input.type == 'Two proportions' || input.type == 'Diagnostic') && input.model_type == 'mh'",
+      selectInput("metric_mh",
+                  "Metric", 
+                  c(`RR - relative risk`="RR", 
+                    `OR - odds ratio`="OR",
+                    `RD - risk difference`="RD"
+                  )
+      )
     ),
     conditionalPanel(
-      condition="input.type == 'Two means'",
+      condition="input.type == 'Two means' || input.type == 'Raw mean difference'",
       selectInput("metric4",
                   "Metric", 
                   c(`MD - raw mean difference`="MD",
@@ -60,6 +92,7 @@ dataModal2 <- function(failed=F) {
                    )
                  )
 ),
+#TODO: Add mean change (over time, requires correlation coefficient ri, m1i, m2i, sd1i, sd2i)
 conditionalPanel(
   condition="input.type == 'Regression Coefficient'",
   selectInput("metric5",
@@ -70,28 +103,6 @@ conditionalPanel(
               )
   )
 ),
-conditionalPanel(
-  condition="input.type == 'Diagnostic'",
-  selectInput("metric6",
-              "Metric", 
-              c(`RR - log risk ratio`="RR", 
-                `OR - log odds ratio`="OR",
-                `RD - risk difference`="RD",
-                `AS - arcsine square root transformed risk difference`="AS",
-                `PETO - log odds ratio estimated with Peto's method`="PETO",
-                `PBIT - probit transformed risk difference`="PBIT",
-                `OR2DN - Transformed odds ratio for normal distributions`="OR2DN",
-                `OR2DL - Transformed odds ratio for logistic distributions`="OR2DL"
-              )
-  )
-),
-
-      conditionalPanel(
-        condition="input.metric4 == 'MD'",
-        checkboxInput("use_homoscedasticity",
-                      "Assume homoscedasticity of sampling variances? (i.e. true variance of measurements is the same in sample 1 and sample 2)"
-                     )
-        ),
       conditionalPanel(
         condition="input.metric4 == 'SMD' || input.metric5 == 'UCOR'",
         checkboxInput("variance_is_approximate",
@@ -281,9 +292,27 @@ observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
         print("ERROR:  There must be at least one column named \"yi\" and either \"vi\" or \"sei\"")
       })
     removeModal()
-  } else if (!is.null(hot$data) & input$type == "Diagnostic") {
+  } else if (!is.null(hot$data) & input$type == "Raw mean difference") {
     vals$dataescalc <- tryCatch({ # TODO: Add error handling for other column names/check similar names
-      escalc(measure=input$metric6,
+      if ((!is.null(hot$data$sei))) {
+        escalc(measure=input$metric4,
+               yi=yi,
+               sei=sei,
+               data=hot$data)
+      } else {
+        escalc(measure=input$metric4,
+               yi=yi,
+               vi=vi,
+               data=hot$data)
+      }
+    },
+    error=function(err){
+      print("ERROR:  There must be at least one column named \"yi\" and either \"vi\" or \"sei\"")
+    })
+    removeModal()
+  }else if (!is.null(hot$data) & input$type == "Diagnostic") {
+    vals$dataescalc <- tryCatch({ # TODO: Add error handling for other column names/check similar names
+      escalc(measure=input$metric3,
              ai=ai,
              bi=bi,
              ci=ci,
@@ -315,6 +344,7 @@ res <- eventReactive(input$oknorm_res, {
   cc <- as.numeric(as.character(input$cc))
   
     tryCatch({
+    if (!(input$type %in% c("Two proportions", "Diagnostic")) || input$model_type != "rma") {
     rma(yi,
         vi,
         method=if (input$fixed_norm == "RE") input$est else "FE",
@@ -323,7 +353,36 @@ res <- eventReactive(input$oknorm_res, {
         add=cc,
         to=input$addto,
         level=conflevel,
-        digits=input$digits)
+        digits=input$digits
+       )
+    } else {
+      switch(input$model_type,
+             "mh"=rma.mh(ai,
+                               if (!is.null(hot$data$bi)) bi
+                               else n1i,
+                               ci,
+                               if (!is.null(hot$data$di)) di
+                               else n2i,
+                               data=vals$dataescalc,
+                               measure=input$metric_mh,
+                               add=cc,
+                               to=input$addto,
+                               level=conflevel,
+                               digits=input$digits
+             ),
+             rma.peto(ai,
+                            if (!is.null(hot$data$bi)) bi
+                            else n1i,
+                            ci,
+                            if (!is.null(hot$data$di)) di
+                            else n2i,
+                            data=vals$dataescalc,
+                            add=cc,
+                            to=input$addto,
+                            level=conflevel,
+                            digits=input$digits
+             ))
+    }
     },
     error=function(err) {
       print(paste("ERROR:  ", err))
@@ -348,19 +407,49 @@ output$forest_norm <- renderPlot({
   conflevel <- as.numeric(as.character(input$conflevel))
   #print(as.name(input$atransf))
   ##display forest plot
-  forest(res, refline=NA, level=conflevel, digits=input$digits, slab=paste(if (!is.null(hot$data$author)) hot$data$author
+  if (input$type == "One proportion" && input$metric1 == "PR") {
+    forest(res, refline=NA, level=conflevel, digits=input$digits, slab=paste(if (!is.null(hot$data$author)) hot$data$author
                                                                            else if (!is.null(hot$data$authors)) hot$data$authors,
 
                                                                            if (!is.null(hot$data$year)) hot$data$year
                                                                            else if (!is.null(hot$data$years)) hot$data$years,
-
                                                                            sep=", "
-                                                                          ), atransf=if (input$atransf != "none") get(paste0("transf.", input$atransf))
+                                                                          ), atransf=if (input$atransf != "none") get(paste0("transf.", input$atransf)),
+         # If raw proportion (cannot be less than 0 or greater than 1), enforce that limit on x-axis and confidence intervals
+         alim=c(0, 1),
+         clim=c(0, 1)
   )
+  } else {
+    forest(res, refline=NA, level=conflevel, digits=input$digits, slab=paste(if (!is.null(hot$data$author)) hot$data$author
+                                                                             else if (!is.null(hot$data$authors)) hot$data$authors,
+                                                                             
+                                                                             if (!is.null(hot$data$year)) hot$data$year
+                                                                             else if (!is.null(hot$data$years)) hot$data$years,
+                                                                             sep=", "
+    ), atransf=if (input$atransf != "none") get(paste0("transf.", input$atransf))
+    # If raw proportion (cannot be less than 0 or greater than 1), enforce that limit on x-axis and confidence intervals
+    )
+  }
 
   })
 
 output$msummary_norm <- renderPrint({
+  if (input$type %in% c("Two proportions", "Diagnostic")) {
+    np_first <- min(hot$data$ai)
+    np_second <- min(hot$data$ci)
+    if (input$type == "Two proportions") {
+      binomial_variance_first <- min(hot$data$ai * (1 - hot$data$ai / hot$data$n1i))
+      binomial_variance_second <- min(hot$data$ci * (1 - hot$data$ci / hot$data$n2i))
+    } else {
+      binomial_variance_first <- min(hot$data$ai * (1 - hot$data$ai / (hot$data$ai + hot$data$bi)))
+      binomial_variance_second <- min(hot$data$ci * (1 - hot$data$ci / (hot$data$ci + hot$data$di)))
+    }
+    if (np_first < 10 || np_second < 10 || binomial_variance_first < 10 || binomial_variance_second < 10) {
+      print(
+        'Caution: At least one of your studies uses a very small sample size and/or a proportion close to 0 or 1. We recommend using the dropdown above to select "exact likelihood" instead.'
+      )
+    } 
+  }
   print(res)
 })
 
@@ -397,15 +486,30 @@ observeEvent(input$ok_save_fplot, {
   ##save a png of the plot
   png(filename=input$fplot_path, width=as.numeric(input$fplot_w), height=as.numeric(input$fplot_h), units=input$fplot_unit, res=as.numeric(input$fplot_resolution))
   
-  forest(res, refline=NA, digits=input$digits, level=conflevel, slab=paste(if (!is.null(hot$data$author)) hot$data$author
-                                                                           else if (!is.null(hot$data$authors)) hot$data$authors,
-                                                                           
-                                                                           if (!is.null(hot$data$year)) hot$data$year
-                                                                           else if (!is.null(hot$data$years)) hot$data$years,
-                                                                           
-                                                                           sep=", "
-                                                                          ), atransf=if (input$atransf != "none") get(paste0("transf.", input$atransf))
-        )
+  if (input$type == "One proportion" && input$metric1 == "PR") {
+    forest(res, refline=NA, digits=input$digits, level=conflevel, slab=paste(if (!is.null(hot$data$author)) hot$data$author
+                                                                             else if (!is.null(hot$data$authors)) hot$data$authors,
+                                                                             
+                                                                             if (!is.null(hot$data$year)) hot$data$year
+                                                                             else if (!is.null(hot$data$years)) hot$data$years,
+                                                                             
+                                                                             sep=", "
+                                                                            ), atransf=if (input$atransf != "none") get(paste0("transf.", input$atransf)),
+           # If raw proportion (cannot be less than 0 or greater than 1), enforce that limit on x-axis and confidence intervals
+           alim=c(0, 1),
+           clim=c(0, 1)
+          )
+  } else {
+    forest(res, refline=NA, digits=input$digits, level=conflevel, slab=paste(if (!is.null(hot$data$author)) hot$data$author
+                                                                             else if (!is.null(hot$data$authors)) hot$data$authors,
+                                                                             
+                                                                             if (!is.null(hot$data$year)) hot$data$year
+                                                                             else if (!is.null(hot$data$years)) hot$data$years,
+                                                                             
+                                                                             sep=", "
+    ), atransf=if (input$atransf != "none") get(paste0("transf.", input$atransf))
+    )
+  }
   dev.off()
   
   removeModal()

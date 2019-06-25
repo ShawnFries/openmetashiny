@@ -272,7 +272,7 @@ observeEvent(input$oknorm_cum_res, {
   output$forest_cum_norm <- renderPlot({
     conflevel <- as.numeric(as.character(input$conflevel_cum))
     
-    forest(cumul(res, order(hot$data$year)), refline=NA, digits=input$digits_cum, level=conflevel)
+    forest(cumul(res, order(hot$data$year)), refline=NA, digits=input$digits_cum, level=conflevel, atransf=if (input$atransf_cum != "none") get(paste0("transf.", input$atransf_cum)))
   })
 
   output$msummary_cum_norm <- renderPrint({

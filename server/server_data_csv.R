@@ -1,6 +1,7 @@
 ##########################################
 #####           Upload csv           #####
 ##########################################
+#TODO: Needs to support editing before adding CSV... if doing from scratch
 
 library(rhandsontable)
 library(stringr)
@@ -151,7 +152,7 @@ output$hot <- renderRHandsontable({####dat_csv in ui_data.R
       if (new_column_names[i] != "") colnames(DF)[i] <- new_column_names[i]
     }
   }
-  hot$table <- rhandsontable(DF, stretchH="all", useTypes=F)
+  hot$table <- rhandsontable(data.frame(DF), stretchH="all", useTypes=F)
   if (!(is.null(input$hot) | csv_button_pressed)) {
     hot$data <- hot_to_r(input$hot)
     # if (!is.null(hot$data_cache) && !identical(hot$data_cache, hot$data)) {
@@ -168,9 +169,19 @@ output$hot <- renderRHandsontable({####dat_csv in ui_data.R
     #   }
     # } 
     # print(hot$data)
-    # 
+    #
     # print(vals$data)
     vals$data <- hot$data
+    vals$datar <- vals$data
+    # Define minimum and maximum values for auto-data type selection (actually this would mean the data already follows that transformation and we need to reverse it)
+   # proportion_column <- grep('prop', colnames(vals$data), T)[1]
+    #print(proportion_column)
+   # if (!is.na(proportion_column)) {
+     # min_proportion <<- min(vals$data[proportion_column])
+     # max_proportion <<- max(vals$data[proportion_column])
+   # }
+    #print(max_proportion)
+    #print(exists("min_proportion") && (min_proportion < 0 || max_proportion > 1))
   } else {
     csv_button_pressed <<- F
   }
