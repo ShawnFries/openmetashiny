@@ -40,15 +40,20 @@ ui <- function(session) {
                        sidebarLayout(
                          sidebarPanel(selectizeInput("dataType",
                                                      "Data Type",
+                                                     #TODO: Do we need this if not starting from scratch? Could just have an option to import (and infer datatype)
+                                                     #or start from one of the below as a backup..
                                                      list("One piece of data from each study/studies within one group"=
                                                             c("proportion ( x ⁄ N )"="proportion",
                                                               "mean (μ)"="mean",
+                                                              "event count over time (x and t)"="event count",
                                                               "regression coefficient (β)"="regression coefficient",
+                                                              "Cronbach's α (aka tau-equivalent reliability, ρᴛ)"="cronbach alpha",
                                                               "generic effect size (θ, se)"="generic effect size"),
                                                           "Data on two groups per study"=
                                                             c("proportions ( x₁ ⁄ N₁ vs x₂ ⁄ N₂ )"="proportions",
                                                               "means (μ₁ vs μ₂)"="means",
-                                                              "Raw Mean Difference"="mean difference"),
+                                                              "event counts over time (x₁ and t₁ vs x₂ and t₂)"="event counts",
+                                                              "raw mean difference ( x₁ - x₂ )"="mean difference"),
                                                           "Data on test performance"=
                                                             c("diagnostic (TP┼FP┼FN┼TN)"="diagnostic"))
                          )),
@@ -66,8 +71,9 @@ ui <- function(session) {
                        bsTooltip("data_div", "View Data", "right", options=list(container="body")),
                        
                        navbarMenu(div(id="meta_analysis_div", img(src="meta_analysis.png")),
-                                  tabPanel("Normal approximation", source("ui/ui_meta_norm.R", local=T)$value),
-                                  tabPanel("Exact likelihood", source("ui/ui_meta_exact.R", local=T)$value)
+                                  tabPanel("Normal approximation (linear model)", source("ui/ui_meta_norm.R", local=T)$value),
+                                  tabPanel("Exact likelihood (generalized linear model)", source("ui/ui_meta_exact.R", local=T)$value),
+                                  tabPanel("Multilevel model (multivariate/hierarchical linear model)", source("ui/ui_meta_multilevel.R", local=T)$value)
                        ),
                         #tabPanel "Meta-analysis"
                        #https://stackoverflow.com/questions/44953873/add-tooltip-to-tabs-in-shiny

@@ -5,7 +5,7 @@ sidebarLayout(
                 "Fixed or random effect",
                 c(`Fixed effect`="FE", Random_effects="RE"),
                 "RE"),
-    selectInput("est", "Estimation method", c(`DerSimonian Laird`="DL",
+    selectInput("est", "Estimation method (Ignored if data contains a column called 'weights' unless using Peto/MH method)", c(`DerSimonian Laird`="DL",
                                               `Hedges`="HE",
                                               `Hunter-Schmidt`="HS",
                                               `Sidik-Jonkman`="SJ",

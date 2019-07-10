@@ -4,9 +4,9 @@
 #TODO: Support regression coefficient in forest/escalc/rma calculations! (And the other data types e.g. generic effect size, diagnostic i.e. TP/FP...)
 # (Is part of backcalc)
 # TODO: Truncate confidence intervals for proportions in metafor plots to 0 to 1
-dataModal2 <- function(failed=F) {
+dataModal2_multilevel <- function(failed=F) {
   modalDialog(
-    selectInput("type", "Type of data", c("One proportion", "One mean", "Event count", "Two proportions", "Two means", "Event counts", "Regression coefficient", "Cronbach α", "Generic effect size", "Raw mean difference", "Diagnostic"), switch(input$dataType,
+    selectInput("type_multilevel", "Type of data", c("One proportion", "One mean", "Event count", "Two proportions", "Two means", "Event counts", "Regression coefficient", "Cronbach α", "Generic effect size", "Raw mean difference", "Diagnostic"), switch(input$dataType,
                                                                                                                                               "proportion" = "One proportion",
                                                                                                                                               "mean" = "One mean",
                                                                                                                                               "event count" = "Event count",
@@ -20,9 +20,10 @@ dataModal2 <- function(failed=F) {
                                                                                                                                               "diagnostic" = "Diagnostic"
     )
     ),
+    selectInput("grouping_variables_random_effects", "Grouping variables (random effects within the same group)", colnames(hot$data), multiple=T),
     conditionalPanel(
-      condition="input.type == 'One proportion'",
-      selectInput("metric1",
+      condition="input.type_multilevel == 'One proportion'",
+      selectInput("metric1_multilevel",
                   "Metric",
                   c(`PR - raw proportion`="PR",
                     `PLN - natural logarithm transformed proportion`="PLN",
@@ -37,8 +38,8 @@ dataModal2 <- function(failed=F) {
                  )
     ),
     conditionalPanel(
-      condition="input.type == 'One mean'",
-      selectInput("metric2",
+      condition="input.type_multilevel == 'One mean'",
+      selectInput("metric2_multilevel",
                   "Metric", 
                   c(`MN - raw mean`="MN", 
                     `MNLN - log transformed mean`="MNLN", 
@@ -46,19 +47,10 @@ dataModal2 <- function(failed=F) {
                     `SDLN - log transformed standard deviation`="SDLN"
                    )
                   )
-    ), conditionalPanel(
-      condition="input.type == 'Two proportions' || input.type == 'Diagnostic'",
-      selectInput("model_type",
-                  "Select the model type to fit 2x2 data to",
-                  c("Linear Mixed Effects"="rma",
-                    "Peto's Method"="peto",
-                    "Mantel-Haenszel Method"="mh"
-                   )
-      )
     ),
     conditionalPanel(
-      condition="(input.type == 'Two proportions' || input.type == 'Diagnostic') && input.model_type != 'mh' && input.model_type != 'peto'",
-      selectInput("metric3",
+      condition="input.type_multilevel == 'Two proportions' || input.type_multilevel == 'Diagnostic'",
+      selectInput("metric3_multilevel",
                   "Metric", 
                   c(`RR - log risk ratio`="RR", 
                     `OR - log odds ratio`="OR",
@@ -74,19 +66,10 @@ dataModal2 <- function(failed=F) {
                     `RTET - tetrachoric correlation`="RTET"
                    )
                  )
-    ), conditionalPanel(
-      condition="(input.type == 'Two proportions' || input.type == 'Diagnostic') && input.model_type == 'mh'",
-      selectInput("metric_mh",
-                  "Metric", 
-                  c(`RR - relative risk`="RR", 
-                    `OR - odds ratio`="OR",
-                    `RD - risk difference`="RD"
-                  )
-      )
     ),
     conditionalPanel(
-      condition="input.type == 'Two means' || input.type == 'Raw mean difference'",
-      selectInput("metric4",
+      condition="input.type_multilevel == 'Two means' || input.type_multilevel == 'Raw mean difference'",
+      selectInput("metric4_multilevel",
                   "Metric",
                   c(`MD - raw mean difference`="MD",
                     `SMD - standardized mean difference`="SMD",
@@ -97,8 +80,8 @@ dataModal2 <- function(failed=F) {
 ),
 #TODO: Add mean change (over time, requires correlation coefficient ri, m1i, m2i, sd1i, sd2i)
 conditionalPanel(
-  condition="input.type == 'Regression coefficient'",
-  selectInput("metric5",
+  condition="input.type_multilevel == 'Regression coefficient'",
+  selectInput("metric5_multilevel",
               "Metric", 
               c(`COR - raw correlation coefficient`="COR",
                 `UCOR - unbiased raw correlation coefficient`="UCOR",
@@ -106,8 +89,8 @@ conditionalPanel(
               )
   )
 ), conditionalPanel(
-  condition="input.type == 'Event count'",
-  selectInput("metric_event_count",
+  condition="input.type_multilevel == 'Event count'",
+  selectInput("metric_event_count_multilevel",
               "Metric", 
               c(`IR - raw incidence rate`="IR",
                 `IRLN - unbiased raw correlation coefficient`="IRLN",
@@ -116,8 +99,8 @@ conditionalPanel(
                )
   )
 ), conditionalPanel(
-  condition="input.type == 'Event counts'",
-  selectInput("metric_event_counts",
+  condition="input.type_multilevel == 'Event counts'",
+  selectInput("metric_event_counts_multilevel",
               "Metric", 
               c(`IRR - log incidence rate ratio`="IRR",
                 `IRD - incidence rate difference`="IRD",
@@ -125,8 +108,8 @@ conditionalPanel(
                )
   )
 ), conditionalPanel(
-  condition="input.type == 'Cronbach α'",
-  selectInput("metric_cronbach_alpha",
+  condition="input.type_multilevel == 'Cronbach α'",
+  selectInput("metric_cronbach_alpha_multilevel",
               "Metric",
               c(`ARAW - raw alpha values`="ARAW",
                 `AHW - transformed alpha values (modified Hakstian and Whalen)`="AHW",
@@ -135,8 +118,8 @@ conditionalPanel(
   )
 ),
       conditionalPanel(
-        condition="input.metric4 == 'SMD' || input.metric5 == 'UCOR'",
-        checkboxInput("variance_is_approximate",
+        condition="input.metric4_multilevel == 'SMD' || input.metric5_multilevel == 'UCOR'",
+        checkboxInput("variance_is_approximate_multilevel",
                       "Use the large-sample approximation for the sampling variances? If not, the exact unbiased sampling variances will be used", 
                       T
                      )
@@ -144,21 +127,21 @@ conditionalPanel(
     
     footer=tagList(
       modalButton("Cancel"),
-      actionButton("oknorm_escalc", "OK")                                     ####oknorm_escalc rendered later in this file
+      actionButton("okmultilevel_escalc", "OK")                                     ####oknorm_escalc rendered later in this file
     )
   )
 }
 
 # Show modal when button is clicked.
-observeEvent(input$effect_norm, {
-  showModal(dataModal2())
+observeEvent(input$effect_multilevel, {
+  showModal(dataModal2_multilevel())
 })
 
-observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
-  if (!is.null(hot$data) & input$type == "One proportion") {
+observeEvent(input$okmultilevel_escalc, {                         ####oknorm_escalc
+  if (!is.null(hot$data) & input$type_multilevel == "One proportion") {
     vals$dataescalc <- tryCatch({
       escalc(
-        measure=input$metric1,
+        measure=input$metric1_multilevel,
         
         xi=if (!is.null(hot$data$count)) count
         else if (!is.null(hot$data$counts)) counts
@@ -167,6 +150,8 @@ observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
         else if (!is.null(hot$data$x_i)) x_i
         else if (!is.null(hot$data$x_is)) x_is
         else xis,
+        add=as.numeric(as.character(input$cc_multilevel)),
+        to=input$addto_multilevel,
         
         ni=if (!is.null(hot$data$ni)) ni
         else if (!is.null(hot$data$nis)) nis
@@ -183,9 +168,9 @@ observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
     )#ends tryCatch
     removeModal()
   
-  } else if (!is.null(hot$data) & input$type == "One mean") {
+  } else if (!is.null(hot$data) & input$type_multilevel == "One mean") {
     vals$dataescalc <- tryCatch({
-      escalc(measure=input$metric2,
+      escalc(measure=input$metric2_multilevel,
              
              mi=if (!is.null(hot$data$mi)) mi
              else if (!is.null(hot$data$m)) m
@@ -220,6 +205,8 @@ observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
              else if (!is.null(hot$data$n_is)) n_is
              else if (!is.null(hot$data$n)) n
              else ns,
+             add=as.numeric(as.character(input$cc_multilevel)),
+             to=input$addto_multilevel,
              
              data=hot$data
              )
@@ -230,13 +217,15 @@ observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
     )#ends tryCatch
     removeModal()
     
-  } else if(!is.null(hot$data) & input$type == "Two proportions") {
+  } else if(!is.null(hot$data) & input$type_multilevel == "Two proportions") {
     vals$dataescalc <- tryCatch({ # TODO: Add error handling for other column names/check similar names
-      escalc(measure=input$metric3,
+      escalc(measure=input$metric3_multilevel,
              ai=ai,
              n1i=n1i,
              ci=ci,
              n2i=n2i,
+             add=as.numeric(as.character(input$cc_multilevel)),
+             to=input$addto_multilevel,
              data=hot$data)},
       error=function(err){
         print("ERROR:  There must be at least one column each named \"ai\", \"ci\", \"n1i\", and \"n2i\"")
@@ -244,9 +233,9 @@ observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
     )#ends tryCatch
     removeModal()
     
-  } else if (!is.null(hot$data) & input$type=="Two means") {  # TODO: Add error handling for other column names/check similar names
+  } else if (!is.null(hot$data) & input$type_multilevel == "Two means") {  # TODO: Add error handling for other column names/check similar names
     vals$dataescalc <- tryCatch({
-      escalc(measure=input$metric4, 
+      escalc(measure=input$metric4_multilevel, 
              m1i=if (!is.null(hot$data$m1i)) hot$data$m1i
              else if (!is.null(hot$data$m1)) hot$data$m1
              else if (!is.null(hot$data$m1_i)) hot$data$m1_i
@@ -281,10 +270,12 @@ observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
              else hot$data$mu2is,
              sd2i=sd2i,
              n2i=n2i,
+             add=as.numeric(as.character(input$cc_multilevel)),
+             to=input$addto_multilevel,
              
              # LS is the default (large-sample approximation if using SMD). UB is unbiased (only an option for measure == "SMD")
-             vtype=if (input$metric4 == "SMD" & !input$variance_is_approximate) "UB"
-                   else if (input$metric4 == "MD" & input$use_homoscedasticity) "HO"
+             vtype=if (input$metric4_multilevel == "SMD" & !input$variance_is_approximate_multilevel) "UB"
+                   else if (input$metric4_multilevel == "MD" & input$use_homoscedasticity_multilevel) "HO"
                    else "LS",
              data=hot$data)
       },
@@ -294,28 +285,34 @@ observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
     )#ends tryCatch
     removeModal()
     
-  } else if (!is.null(hot$data) & input$type == "Regression coefficient") {
+  } else if (!is.null(hot$data) & input$type_multilevel == "Regression coefficient") {
     vals$dataescalc <- tryCatch({ # TODO: Add error handling for other column names/check similar names
-      escalc(measure=input$metric5,
+      escalc(measure=input$metric5_multilevel,
              ri=ri,
              ni=ni,
+             add=as.numeric(as.character(input$cc_multilevel)),
+             to=input$addto_multilevel,
              data=hot$data)},
       error=function(err){ 
         print("ERROR:  There must be at least one column each named \"ri\" and \"ni\"")
       }
     ) #ends tryCatch
     removeModal()
-  } else if (!is.null(hot$data) & input$type == "Generic effect size") {
+  } else if (!is.null(hot$data) & input$type_multilevel == "Generic effect size") {
     vals$dataescalc <- tryCatch({ # TODO: Add error handling for other column names/check similar names
       if ((!is.null(hot$data$sei))) {
         escalc(measure="GEN",
                yi=yi,
                sei=sei,
+               add=as.numeric(as.character(input$cc_multilevel)),
+               to=input$addto_multilevel,
                data=hot$data)
       } else {
         escalc(measure="GEN",
                yi=yi,
                vi=vi,
+               add=as.numeric(as.character(input$cc_multilevel)),
+               to=input$addto_multilevel,
                data=hot$data)
       }
       },
@@ -323,17 +320,21 @@ observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
         print("ERROR:  There must be at least one column named \"yi\" and either \"vi\" or \"sei\"")
       })
     removeModal()
-  } else if (!is.null(hot$data) & input$type == "Raw mean difference") {
+  } else if (!is.null(hot$data) & input$type_multilevel == "Raw mean difference") {
     vals$dataescalc <- tryCatch({ # TODO: Add error handling for other column names/check similar names
       if ((!is.null(hot$data$sei))) {
-        escalc(measure=input$metric4,
+        escalc(measure=input$metric4_multilevel,
                yi=yi,
                sei=sei,
+               add=as.numeric(as.character(input$cc_multilevel)),
+               to=input$addto_multilevel,
                data=hot$data)
       } else {
-        escalc(measure=input$metric4,
+        escalc(measure=input$metric4_multilevel,
                yi=yi,
                vi=vi,
+               add=as.numeric(as.character(input$cc_multilevel)),
+               to=input$addto_multilevel,
                data=hot$data)
       }
     },
@@ -341,49 +342,57 @@ observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
       print("ERROR:  There must be at least one column named \"yi\" and either \"vi\" or \"sei\"")
     })
     removeModal()
-  } else if (!is.null(hot$data) & input$type == "Diagnostic") {
+  } else if (!is.null(hot$data) & input$type_multilevel == "Diagnostic") {
     vals$dataescalc <- tryCatch({ # TODO: Add error handling for other column names/check similar names
-      escalc(measure=input$metric3,
+      escalc(measure=input$metric3_multilevel,
              ai=ai,
              bi=bi,
              ci=ci,
              di=di,
+             add=as.numeric(as.character(input$cc_multilevel)),
+             to=input$addto_multilevel,
              data=hot$data)},
       error=function(err){
         print("ERROR:  There must be at least one column each named \"ai\", \"bi\", \"ci\", and \"di\"")
       }
     )#ends tryCatch
     removeModal()
-  } else if (!is.null(hot$data) & input$type == "Event count") {
+  } else if (!is.null(hot$data) & input$type_multilevel == "Event count") {
     vals$dataescalc <- tryCatch({ # TODO: Add error handling for other column names/check similar names
-      escalc(measure=input$metric_event_count,
+      escalc(measure=input$metric_event_count_multilevel,
              xi=xi,
              ti=ti,
+             add=as.numeric(as.character(input$cc_multilevel)),
+             to=input$addto_multilevel,
              data=hot$data)},
       error=function(err){
         print("ERROR:  There must be at least one column each named \"xi\" and \"ti\"")
       }
     )#ends tryCatch
     removeModal()
-  } else if (!is.null(hot$data) & input$type == "Event counts") {
+  } else if (!is.null(hot$data) & input$type_multilevel == "Event counts") {
     vals$dataescalc <- tryCatch({ # TODO: Add error handling for other column names/check similar names
-      escalc(measure=input$metric_event_counts,
+      escalc(measure=input$metric_event_counts_multilevel,
              x1i=x1i,
              t1i=t1i,
              x2i=x2i,
              t2i=t2i,
+             add=as.numeric(as.character(input$cc_multilevel)),
+             to=input$addto_multilevel,
              data=hot$data)},
       error=function(err){
         print("ERROR:  There must be at least one column each named \"x1i\", \"t1i\", \"x2i\", and \"t2i\"")
       }
     )#ends tryCatch
     removeModal()
-  } else if (!is.null(hot$data) & input$type == "Cronbach α") {
+  } else if (!is.null(hot$data) & input$type_multilevel == "Cronbach α") {
     vals$dataescalc <- tryCatch({ # TODO: Add error handling for other column names/check similar names
-      escalc(measure=input$metric_cronbach_alpha,
+      escalc(measure=input$metric_cronbach_alpha_multilevel,
              ai=ai,
              mi=mi,
              ti=ti,
+             add=as.numeric(as.character(input$cc_multilevel)),
+             to=input$addto_multilevel,
              data=hot$data)},
       error=function(err) {
         print("ERROR:  There must be at least one column each named \"ai\" (for observed alpha values), \"mi\" (for number of items/replications/parts of the measurement instrument),
@@ -395,7 +404,7 @@ observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
     showModal(dataModal(failed=T))
   }
   
-  output$escalcdat <- renderTable({
+  output$escalcdat_multilevel <- renderTable({
     if (!is.null(vals$dataescalc)) {
       vals$dataescalc
     }
@@ -407,51 +416,21 @@ observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
 ##         oknorm_res          ##
 #################################
 
-res <- eventReactive(input$oknorm_res, {
-  conflevel <- as.numeric(as.character(input$conflevel))
-  cc <- as.numeric(as.character(input$cc))
+res <- eventReactive(input$okmultilevel_res, {
+  conflevel <- as.numeric(as.character(input$conflevel_multilevel))
+  cc <- as.numeric(as.character(input$cc_multilevel))
   
     tryCatch({
-    if (!(input$type %in% c("Two proportions", "Diagnostic")) || input$model_type != "rma") {
-    rma(yi,
+    rma.mv(yi,
         vi,
-        weights=if (!is.null(hot$data$weights)) hot$data$weights,
-        method=if (input$fixed_norm == "RE") input$est else "FE",
+        W=if (!is.null(hot$data$weights)) hot$data$weights,
+        method=if (input$fixed_multilevel == "RE") input$est_multilevel,
         data=vals$dataescalc,
-        weighted=F,
-        add=cc,
-        to=input$addto,
+        random=lapply(input$grouping_variables_random_effects, function(x) reformulate(paste("1 |", x))),
         level=conflevel,
-        digits=input$digits
+        test="t",
+        digits=input$digits_multilevel
        )
-    } else {
-      switch(input$model_type,
-             "mh"=rma.mh(ai,
-                               if (!is.null(hot$data$bi)) bi
-                               else n1i,
-                               ci,
-                               if (!is.null(hot$data$di)) di
-                               else n2i,
-                               data=vals$dataescalc,
-                               measure=input$metric_mh,
-                               add=cc,
-                               to=input$addto,
-                               level=conflevel,
-                               digits=input$digits
-             ),
-             rma.peto(ai,
-                            if (!is.null(hot$data$bi)) bi
-                            else n1i,
-                            ci,
-                            if (!is.null(hot$data$di)) di
-                            else n2i,
-                            data=vals$dataescalc,
-                            add=cc,
-                            to=input$addto,
-                            level=conflevel,
-                            digits=input$digits
-             ))
-    }
     },
     error=function(err) {
       print(paste("ERROR:  ", err))
@@ -460,7 +439,7 @@ res <- eventReactive(input$oknorm_res, {
 }
 )
 
-observeEvent(input$oknorm_res, {
+observeEvent(input$okmultilevel_res, {
 # cc<-as.numeric(as.character(input$cc))
 # 
 # res<-if(input$fixed_norm=="FE"){
@@ -597,17 +576,11 @@ observe({
   
   updateSelectInput(session,
                            "est",
-                           "Estimation method (Ignored if data contains a column called 'weights', unless using Peto/MH method)",
+                           "Estimation method (Ignored if data contains a column called 'weights')",
                            
-                           if (fixed_norm == "RE") c(`DerSimonian Laird`="DL",
-                                                     `Hedges`="HE",
-                                                     `Hunter-Schmidt`="HS",
-                                                     `Sidik-Jonkman`="SJ",
+                           if (fixed_norm == "RE") c(
                                                      `Maximum likelihood`="ML",
-                                                     `Restricted ML`="REML",
-                                                     `Empirical Bayes`="EB",
-                                                     `Paule-Mandel`="PM",
-                                                     `Generalized Q-statistic`="GENQ"
+                                                     `Restricted ML`="REML"
                                                     )
                            else c(`Inverse-variance`="FE"),
                            

@@ -17,7 +17,7 @@ dataModal2_reg <- function(failed=F) {
                                                                                                                     "means" = "Two means",
                                                                                                                     "regression coefficient" = "Regression coefficient"
                                                                                                                    )
-    ), selectInput("moderators_reg", "Moderators", colnames(hot$data), multiple=T),
+    ), selectInput("moderators_reg", "Moderators (terms with stars are interaction terms)", c(colnames(hot$data), combn(colnames(hot$data), 2, paste, collapse='*')), multiple=T),
     conditionalPanel(
       condition="input.type_reg == 'One proportion'",
       selectInput("metric1_reg",
@@ -76,7 +76,7 @@ dataModal2_reg <- function(failed=F) {
     footer=tagList(
       modalButton("Cancel"),
       actionButton("oknorm_escalc_reg", "OK")                                     ####oknorm_escalc rendered later in this file
-    )
+    ) 
   )
 }
 
