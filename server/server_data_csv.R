@@ -2,9 +2,10 @@
 #####           Upload csv           #####
 ##########################################
 #TODO: Needs to support editing before adding CSV... if doing from scratch
+# https://stackoverflow.com/questions/41161822/filter-rows-in-rhandsontable-in-r-shiny
 
 library(rhandsontable)
-library(stringr)
+#library(stringr)
 
 csv_button_pressed <- F
 
@@ -15,9 +16,7 @@ vals <- reactiveValues(data=NULL, datar=NULL, dataescalc=NULL)                  
 # TRUE, then display a message that the previous value was invalid.
 dataModal1 <- function(failed=F) {                                                        ####dataModal1
   modalDialog(
-    fileInput("file1", "Choose CSV File",                                                       ####file1
-              multiple=T,
-              accept=c("text/csv", "text/comma-separated-values,text/plain", ".csv")),
+    fileInput("file1", "Choose CSV File", multiple=T, accept=c("text/csv", "text/comma-separated-values,text/plain", ".csv")),
     
     # Horizontal line ----
     tags$hr(),
@@ -36,14 +35,10 @@ dataModal1 <- function(failed=F) {                                              
     
     # Input: Select number of rows to display ----
     radioButtons("disp", "Display", choices=c(Head="head", All="all"), selected="head"),
-    if (failed)
-      div(tags$b("Invalid name of data object", style="color: red;")),
+    if (failed) div(tags$b("Invalid name of data object", style="color: red;")),
     
     #easyClose = TRUE,
-    footer = tagList(
-      modalButton("Cancel"),
-      actionButton("okcsv", "OK")                                                              ####okcsv action button
-    )
+    footer=tagList(modalButton("Cancel"), actionButton("okcsv", "OK"))
   )
 }
 
@@ -52,38 +47,61 @@ observeEvent(input$upcsv, {                                                     
   showModal(dataModal1())                                                                       ####dataModal1
 })
 
-
-
 # When OK button is pressed, attempt to load the data set. If successful,
 # remove the modal. If not show another modal, but this time with a failure
 # message.
 observeEvent(input$okcsv, {                                                                     ####okcsv action button observed
   # Check that data object exists and is data frame.
   if (!is.null(input$file1)) {
-    vals$data <- read.csv(input$file1$datapath,                                                 ####file1 in up csv modal
-                          header=input$header,
-                          sep=input$sep,
-                          quote=input$quote)
-    if (input$dataType == "proportion" & length(
-                                    intersect(c("count", "xi", "counts", "x_i", "x_is", "xis", "x", "xs", "prop", "props", "proportions", "proportion", "x/n", "x / n", "X / N", "x / n", "n", "ns", "ni", "nis", "n_is", "n_i", "sample size", "sample sizes"),
-                                    colnames(vals$data
-                                    )
-      )) == 2) {  # Exactly 2 matches so we can simply calculate the other one (count, N, proportion)
+    vals$data <- read.csv(input$file1$datapath, header=input$header, sep=input$sep, quote=input$quote)
+    if (input$dataType == "proportion" & length(intersect(c("count",
+                                                            "xi",
+                                                            "counts",
+                                                            "x_i",
+                                                            "x_is",
+                                                            "xis",
+                                                            "x",
+                                                            "xs",
+                                                            "prop",
+                                                            "props",
+                                                            "proportions",
+                                                            "proportion",
+                                                            "x/n",
+                                                            "x / n",
+                                                            "X / N",
+                                                            "x / n",
+                                                            "n",
+                                                            "ns",
+                                                            "ni",
+                                                            "nis",
+                                                            "n_is",
+                                                            "n_i",
+                                                            "sample size",
+                                                            "sample sizes"
+                                                           ), colnames(vals$data)
+                                                         )
+                                               ) == 2
+       ) {  # Exactly 2 matches so we can simply calculate the other one (count, N, proportion)
       if (length(intersect(c("count", "xi", "counts", "x_i", "x_is", "xis", "x", "xs", "n", "ns", "ni", "nis", "n_is", "n_i", "sample size", "sample sizes"),
-                    colnames(vals$data
-                    ))) == 2) {  # missing proportion column
+                           colnames(vals$data)
+                          )
+                ) == 2
+         ) {  # missing proportion column
         vals$data$proportion <- vals$data[[intersect(c("count", "xi", "counts", "x_i", "x_is", "xis", "x", "xs"), colnames(vals$data))]] /
                                 vals$data[[intersect(c("n", "ns", "ni", "nis", "n_is", "n_i", "sample size", "sample sizes"), colnames(vals$data))]]
         
       } else if (length(intersect(c("prop", "props", "proportions", "proportion", "x/n", "x / n", "X / N", "x / n", "n", "ns", "ni", "nis", "n_is", "n_i", "sample size", "sample sizes"),
-                                  colnames(vals$data
-                                  ))) == 2) {  # missing count column
+                                  colnames(vals$data)
+                                 )
+                       ) == 2
+                ) {  # missing count column
         vals$data$count <- vals$data[[intersect(c("prop", "props", "proportions", "proportion", "x/n", "x / n", "X / N", "x / n"), colnames(vals$data))]] *
                            vals$data[[intersect(c("n", "ns", "ni", "nis", "n_is", "n_i", "sample size", "sample sizes"), colnames(vals$data))]]
       } else {  # missing sample size
         vals$data$ni <- vals$data[[intersect(c("count", "xi", "counts", "x_i", "x_is", "xis", "x", "xs"), colnames(vals$data))]]  /
                         vals$data[[intersect(c("prop", "props", "proportions", "proportion", "x/n", "x / n", "X / N", "x / n"), colnames(vals$data))]]
       }
+      # Compute lower and upper bounds from t distribution given sample size and proportion
       error <- mapply(function(x, y) qt(0.975, x - 1) * sqrt(y * (1 - y) / x), vals$data$ni, vals$data$proportion)
       vals$data$lower <- pmax(0, vals$data$proportion - error)
       vals$data$upper <- pmin(1, vals$data$proportion + error)
@@ -116,6 +134,43 @@ hot <- reactiveValues()
 
 observe({
   if (!is.null(input$hot)) hot$data <- hot_to_r(input$hot)
+  
+  # Working! Except, now need to make removing something from filter actually flow out of the table etc...
+  number_of_columns <- length(colnames(hot$data))
+  row_filters <- list()
+  
+  output$row_filters <- renderUI ({
+    for (i in 1:number_of_columns) {
+      column_values <- unique(hot$data[[i]])
+      row_filters[[paste("row_filters", i, sep="_")]] <- ({
+        selectInput(paste("row_filters", i, sep="_"), paste("Row filter", colnames(hot$data)[i]), column_values, column_values, multiple=T)
+      })
+    }
+    
+    do.call(tagList, row_filters)
+  })
+  
+  # for (i in 1:number_of_columns) {
+  #   local({
+  #     local_i <- i
+  #     filter_name <- paste("row_filters", local_i, sep="_")
+  #     output[[filter_name]] <- renderPlot({
+  #       forest(res_subgroup[[local_i]], refline=NA, level=conflevel, digits=input$digits_subgroup,
+  #              atransf=if (input$atransf_subgroup != "none") get(paste0("transf.", input$atransf_subgroup)))
+  #       grid.text(paste("Subgroup:", unique_subgroups[local_i]), .5, .9, gp=gpar(cex=2))
+  #     })
+  #   })
+  # }
+  # 
+  # output$msummary_norm_subgroup <- renderPrint({
+  #   subgroup_index <- 0
+  #   for (subgroup_analysis in res_subgroup) {
+  #     subgroup_index <- subgroup_index + 1
+  #     subgroup_name <- unique_subgroups[subgroup_index]
+  #     print(paste("Subgroup:", subgroup_name))
+  #     print(subgroup_analysis)
+  #   }
+  # })
 })
 
 # Display selected data

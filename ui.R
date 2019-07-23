@@ -1,10 +1,10 @@
 library(shiny)
-library(shinydashboard)
+#library(shinydashboard)
 library(shinyjs)
-library(shinyBS)
-library(DT)
+#library(shinyBS)
+#library(DT)
 library(metafor)
-library(dplyr)
+#library(dplyr)
 
 # dashboardPage(
 #   dashboardHeader(),
@@ -36,12 +36,24 @@ ui <- function(session) {
   fluidPage(
     useShinyjs(),
     conditionalPanel('output.page == 1',
-                       titlePanel("What type of data do you have?"),
-                       sidebarLayout(
+                     titlePanel("What language would you like to use? (Welche Sprache möchten Sie benutzen?)"),
+                     sidebarLayout(
+                       sidebarPanel(selectInput("language",
+                                                "Language (Sprache)",
+                                                c("English"="en", "Deutsch"="de")
+                                               )
+                                   ),
+                       mainPanel()
+                    ),
+                    actionButton("continueButton", "Continue (Weiter)")
+    ),
+    conditionalPanel('output.page == 2 && input.language == "en"',
+                     titlePanel("What type of data do you have?"),
+                     sidebarLayout(
                          sidebarPanel(selectizeInput("dataType",
                                                      "Data Type",
                                                      #TODO: Do we need this if not starting from scratch? Could just have an option to import (and infer datatype)
-                                                     #or start from one of the below as a backup..
+                                                     # or start from one of the below as a backup..
                                                      list("One piece of data from each study/studies within one group"=
                                                             c("proportion ( x ⁄ N )"="proportion",
                                                               "mean (μ)"="mean",
@@ -55,31 +67,58 @@ ui <- function(session) {
                                                               "event counts over time (x₁ and t₁ vs x₂ and t₂)"="event counts",
                                                               "raw mean difference ( x₁ - x₂ )"="mean difference"),
                                                           "Data on test performance"=
-                                                            c("diagnostic (TP┼FP┼FN┼TN)"="diagnostic"))
-                         )),
-                         mainPanel(
-                         )),
-                       actionButton("continueButton", "Continue")
+                                                            c("diagnostic (TP┼FP┼FN┼TN)"="diagnostic")
+                                                         )
+                                                    )
+                                     ),
+                         mainPanel()),
+                       actionButton("continueButton2", "Continue")
+    ), conditionalPanel('output.page == 2 && input.language == "de"',
+                        titlePanel("Welche Art von Daten haben Sie?"),
+                        sidebarLayout(
+                          sidebarPanel(selectizeInput("dataType_de",
+                                                      "Datentyp",
+                                                      #TODO: Do we need this if not starting from scratch? Could just have an option to import (and infer datatype)
+                                                      # or start from one of the below as a backup..
+                                                      list("Ein Teil der Daten von jeden Studie/Studien in einen Gruppe"=
+                                                             c("proportion ( x ⁄ N )"="proportion",
+                                                               "mean (μ)"="mean",
+                                                               "event count over time (x and t)"="event count",
+                                                               "regression coefficient (β)"="regression coefficient",
+                                                               "Cronbach's α (aka tau-equivalent reliability, ρᴛ)"="cronbach alpha",
+                                                               "generic effect size (θ, se)"="generic effect size"),
+                                                           "Daten on two groups per study"=
+                                                             c("proportions ( x₁ ⁄ N₁ vs x₂ ⁄ N₂ )"="proportions",
+                                                               "means (μ₁ vs μ₂)"="means",
+                                                               "event counts over time (x₁ and t₁ vs x₂ and t₂)"="event counts",
+                                                               "raw mean difference ( x₁ - x₂ )"="mean difference"),
+                                                           "Daten an Prüfung performance"=
+                                                             c("diagnostic (TP┼FP┼FN┼TN)"="diagnostic")
+                                                      )
+                          )
+                          ),
+                          mainPanel()),
+                        actionButton("continueButton2", "Weiter")
     ),
-    conditionalPanel('output.page > 1',
-                     
+    conditionalPanel('output.page > 2 && language == "de"',
+
                      navbarPage(#div(id="title", img(src="meta.png")), #logo
                        #"OpenMetaAnalyst", #just the words
                        title=HTML("<a style=font-size:150%;color:black;href=\"http://www.cebm.brown.edu/openmeta\">OpenMeta[Analyst]</a>"),
-                       
+
                        tabPanel(div(id="data_div", img(src="data-512.png")), source("ui/ui_data_csv.R", local=T)$value), #navbarMenu "Data"
-                       bsTooltip("data_div", "View Data", "right", options=list(container="body")),
-                       
+                       bsTooltip("data_div", "Sehen Daten", "right", options=list(container="body")),
+
                        navbarMenu(div(id="meta_analysis_div", img(src="meta_analysis.png")),
-                                  tabPanel("Normal approximation (linear model)", source("ui/ui_meta_norm.R", local=T)$value),
-                                  tabPanel("Exact likelihood (generalized linear model)", source("ui/ui_meta_exact.R", local=T)$value),
-                                  tabPanel("Multilevel model (multivariate/hierarchical linear model)", source("ui/ui_meta_multilevel.R", local=T)$value)
+                                  tabPanel("Normaler Annäherungswerte (lineares Modell)", source("ui/ui_meta_norm.R", local=T)$value),
+                                  tabPanel("Exact likelihood (generalized lineares Modell)", source("ui/ui_meta_exact.R", local=T)$value),
+                                  tabPanel("Multilevel Modell (multivariate/phylogenetic/hierarchical lineares Modell)", source("ui/ui_meta_multilevel.R", local=T)$value)
                        ),
                         #tabPanel "Meta-analysis"
                        #https://stackoverflow.com/questions/44953873/add-tooltip-to-tabs-in-shiny
                        #add tooltip to the Meta-analysis tabPanel
                        bsTooltip("meta_analysis_div", "Meta-analysis", "right", options=list(container="body")),
-                       
+
                        navbarMenu(div(id="cum_meta_analysis_div", img(src="cum_meta_analysis.png")),
                                   tabPanel("Accumulative data", source("ui/ui_cum_data.R", local=T)$value),
                                   tabPanel("Normal approximation", source("ui/ui_cum_norm.R", local=T)$value)#,
@@ -87,23 +126,61 @@ ui <- function(session) {
                                   #tabPanel("Exact likelihood", source("ui/ui_cum_exact.R", local=T)$value)
                        ),#tabPanel "Cumulative meta-analysis"
                        bsTooltip("cum_meta_analysis_div", "Cumulative meta-analysis", "right", options=list(container="body")),
-                       
+
                        tabPanel(div(id="subgroup_meta_analysis_div", img(src="subgroup_ma.png")), source("ui/ui_meta_subgroup.R", local=T)$value
                        ),#tabPanel "Subgroup meta-analysis"
                        bsTooltip("subgroup_meta_analysis_div", "Subgroup meta-analysis", "right", options=list(container="body")),
-                       
+
                        tabPanel(div(id="meta_regression_div", img(src="meta_reg.png")), source("ui/ui_meta_reg.R", local=T)$value),#tabPanel "Meta-regression"
                        bsTooltip("meta_regression_div", "Meta regression", "right", options=list(container="body")),
-                       
+
                        tabPanel(div(id="leave_one_out_div", img(src="leave_one_out.png")), source("ui/ui_leave_one_out.R", local=T)$value),#tabPanel "Leave-one-out meta-analysis"
                        bsTooltip("leave_one_out_div", "Leave-one-out meta-analysis", "right", options=list(container="body")),
-                       
+
                        tabPanel(div(id="report_div", img(src="report.png")), source("ui/ui_report.R", local=T)$value),#tabPanel "Report"
                        bsTooltip("report_div", "Generate report", "right", options=list(container="body")))),
-    
-    tags$style(type='text/css', '.navbar { 
-                             font-family: Times;
-                             font-size: 30px;}')
-    
-  )
+    conditionalPanel('output.page > 2 && language == "en"',
+                      
+                      navbarPage(#div(id="title", img(src="meta.png")), #logo
+                        #"OpenMetaAnalyst", #just the words
+                        title=HTML("<a style=font-size:150%;color:black;href=\"http://www.cebm.brown.edu/openmeta\">OpenMeta[Analyst]</a>"),
+                        
+                        tabPanel(div(id="data_div", img(src="data-512.png")), source("ui/ui_data_csv.R", local=T)$value), #navbarMenu "Data"
+                        bsTooltip("data_div", "View Data", "right", options=list(container="body")),
+                        
+                        navbarMenu(div(id="meta_analysis_div", img(src="meta_analysis.png")),
+                                   tabPanel("Normal approximation (linear model)", source("ui/ui_meta_norm.R", local=T)$value),
+                                   tabPanel("Exact likelihood (generalized linear model)", source("ui/ui_meta_exact.R", local=T)$value),
+                                   tabPanel("Multilevel model (multivariate/phylogenetic/hierarchical linear model)", source("ui/ui_meta_multilevel.R", local=T)$value)
+                        ),
+                        #tabPanel "Meta-analysis"
+                        #https://stackoverflow.com/questions/44953873/add-tooltip-to-tabs-in-shiny
+                        #add tooltip to the Meta-analysis tabPanel
+                        bsTooltip("meta_analysis_div", "Meta-analysis", "right", options=list(container="body")),
+                        
+                        navbarMenu(div(id="cum_meta_analysis_div", img(src="cum_meta_analysis.png")),
+                                   tabPanel("Accumulative data", source("ui/ui_cum_data.R", local=T)$value),
+                                   tabPanel("Normal approximation", source("ui/ui_cum_norm.R", local=T)$value)#,
+                                   #TODO: Find a way to implement this? cumul not supported for rma.glmm.. would have to do manually
+                                   #tabPanel("Exact likelihood", source("ui/ui_cum_exact.R", local=T)$value)
+                        ),#tabPanel "Cumulative meta-analysis"
+                        bsTooltip("cum_meta_analysis_div", "Cumulative meta-analysis", "right", options=list(container="body")),
+                        
+                        tabPanel(div(id="subgroup_meta_analysis_div", img(src="subgroup_ma.png")), source("ui/ui_meta_subgroup.R", local=T)$value
+                        ),#tabPanel "Subgroup meta-analysis"
+                        bsTooltip("subgroup_meta_analysis_div", "Subgroup meta-analysis", "right", options=list(container="body")),
+                        
+                        tabPanel(div(id="meta_regression_div", img(src="meta_reg.png")), source("ui/ui_meta_reg.R", local=T)$value),#tabPanel "Meta-regression"
+                        bsTooltip("meta_regression_div", "Meta regression", "right", options=list(container="body")),
+                        
+                        tabPanel(div(id="leave_one_out_div", img(src="leave_one_out.png")), source("ui/ui_leave_one_out.R", local=T)$value),#tabPanel "Leave-one-out meta-analysis"
+                        bsTooltip("leave_one_out_div", "Leave-one-out meta-analysis", "right", options=list(container="body")),
+                        
+                        tabPanel(div(id="report_div", img(src="report.png")), source("ui/ui_report.R", local=T)$value),#tabPanel "Report"
+                        bsTooltip("report_div", "Generate report", "right", options=list(container="body")))),
+  
+  tags$style(type='text/css', '.navbar { 
+             font-family: Times;
+             font-size: 30px;}'
+  ))
 }

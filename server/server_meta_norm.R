@@ -133,6 +133,11 @@ conditionalPanel(
                 `ABT - transformed alpha values (modified Bonett)`="ABT"
                )
   )
+), conditionalPanel(
+  condition="input.metric4 == 'MD'",
+  checkboxInput("use_homoscedasticity",
+                "Assume homoscedasticity of sampling variances? (i.e. true variance of measurements is the same in sample 1 and sample 2)"
+  )
 ),
       conditionalPanel(
         condition="input.metric4 == 'SMD' || input.metric5 == 'UCOR'",
@@ -241,13 +246,13 @@ observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
       error=function(err){
         print("ERROR:  There must be at least one column each named \"ai\", \"ci\", \"n1i\", and \"n2i\"")
       }
-    )#ends tryCatch
+    ) #ends tryCatch
     removeModal()
     
   } else if (!is.null(hot$data) & input$type=="Two means") {  # TODO: Add error handling for other column names/check similar names
     vals$dataescalc <- tryCatch({
       escalc(measure=input$metric4, 
-             m1i=if (!is.null(hot$data$m1i)) hot$data$m1i
+             m1i=if (!is.null(hot$data$m1i)) m1i
              else if (!is.null(hot$data$m1)) hot$data$m1
              else if (!is.null(hot$data$m1_i)) hot$data$m1_i
              else if (!is.null(hot$data$m1_is)) hot$data$m1_is
@@ -261,10 +266,11 @@ observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
              else if (!is.null(hot$data$mu1i)) hot$data$mu1i
              else if (!is.null(hot$data$mu1_i)) hot$data$mu1_i
              else if (!is.null(hot$data$mu1_is)) hot$data$mu1_is
-             else hot$data$mu1is,
-             sd1i=hot$data$sd1i,
-             n1i=hot$data$n1i,
-             m2i=if (!is.null(hot$data$m2i)) hot$data$m2i
+             else hot$data$mu1is
+             ,
+             sd1i=sd1i,
+             n1i=n1i,
+             m2i=if (!is.null(hot$data$m2i)) m2i
              else if (!is.null(hot$data$m2)) hot$data$m2
              else if (!is.null(hot$data$m2_i)) hot$data$m2_i
              else if (!is.null(hot$data$m2_is)) hot$data$m2_is
@@ -278,18 +284,22 @@ observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
              else if (!is.null(hot$data$mu2i)) hot$data$mu2i
              else if (!is.null(hot$data$mu2_i)) hot$data$mu2_i
              else if (!is.null(hot$data$mu2_is)) hot$data$mu2_is
-             else hot$data$mu2is,
+             else hot$data$mu2is
+                  ,
              sd2i=sd2i,
              n2i=n2i,
              
              # LS is the default (large-sample approximation if using SMD). UB is unbiased (only an option for measure == "SMD")
              vtype=if (input$metric4 == "SMD" & !input$variance_is_approximate) "UB"
                    else if (input$metric4 == "MD" & input$use_homoscedasticity) "HO"
-                   else "LS",
+                   else "LS"
+                   ,
              data=hot$data)
       },
       error=function(err){
         print("ERROR:  There must be at least one column each named \"m1i\", \"m2i\", \"sd1i\", \"sd2i\", \"n1i\", and \"n2i\"")
+        print(vals$dataescalc)
+        print(err)
       }
     )#ends tryCatch
     removeModal()
@@ -418,7 +428,6 @@ res <- eventReactive(input$oknorm_res, {
         weights=if (!is.null(hot$data$weights)) hot$data$weights,
         method=if (input$fixed_norm == "RE") input$est else "FE",
         data=vals$dataescalc,
-        weighted=F,
         add=cc,
         to=input$addto,
         level=conflevel,
@@ -428,10 +437,12 @@ res <- eventReactive(input$oknorm_res, {
       switch(input$model_type,
              "mh"=rma.mh(ai,
                                if (!is.null(hot$data$bi)) bi
-                               else n1i,
+                               else n1i
+                         ,
                                ci,
                                if (!is.null(hot$data$di)) di
-                               else n2i,
+                               else n2i
+                         ,
                                data=vals$dataescalc,
                                measure=input$metric_mh,
                                add=cc,
@@ -441,10 +452,12 @@ res <- eventReactive(input$oknorm_res, {
              ),
              rma.peto(ai,
                             if (!is.null(hot$data$bi)) bi
-                            else n1i,
+                            else n1i
+                      ,
                             ci,
                             if (!is.null(hot$data$di)) di
-                            else n2i,
+                            else n2i
+                      ,
                             data=vals$dataescalc,
                             add=cc,
                             to=input$addto,

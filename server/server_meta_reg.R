@@ -251,7 +251,6 @@ res_reg <- eventReactive(input$oknorm_res_reg, {
         vi,
         method=input$est_reg,
         data=vals$dataescalc_reg,
-        weighted=F,
         mods=reformulate(input$moderators_reg, intercept=F),
         add=cc,
         to=input$addto_reg,

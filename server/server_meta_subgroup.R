@@ -91,7 +91,7 @@ observeEvent(input$oknorm_escalc_subgroup, {                         ####oknorm_
         measure=input$metric1_subgroup,
 
         xi=if (!is.null(hot$data$count)) count
-        else if (!is.null(hot$data$counts)) counts
+        else if (!is.null(hot$data$counts)) countsx
         else if (!is.null(hot$data$xi)) xi
         else if (!is.null(hot$data$x)) x
         else if (!is.null(hot$data$x_i)) x_i
@@ -257,7 +257,6 @@ res_subgroup <- eventReactive(input$oknorm_res_subgroup, {
           vi,
           method=input$est_subgroup,
           data=vals$dataescalc_subgroup,
-          weighted=F,
           add=cc,
           to=input$addto_subgroup,
           level=conflevel,

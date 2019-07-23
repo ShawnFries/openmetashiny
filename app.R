@@ -1,13 +1,13 @@
 library(shiny)
-library(shinydashboard)
-library(shinyBS)
-library(DT)
+#library(shinydashboard)
+#library(shinyBS)
+#library(DT)
 library(rhandsontable)
 library(metafor)
-library(dplyr)
-library(stringr)
-library(devtools)
-library(grDevices) #png()
+#library(dplyr)
+#library(stringr)
+#library(devtools)
+#library(grDevices) #png()
 
 # dashboardPage(
 #   dashboardHeader(),

@@ -20,7 +20,27 @@ dataModal2_multilevel <- function(failed=F) {
                                                                                                                                               "diagnostic" = "Diagnostic"
     )
     ),
-    selectInput("grouping_variables_random_effects", "Grouping variables (random effects within the same group)", colnames(hot$data), multiple=T),
+    selectInput("grouping_variables_random_effects", "Outer hierarchical variables - Random effects within each group, groups are assumed independent)", colnames(hot$data), multiple=T),
+    selectizeInput("inner_variables_random_effects",
+                   "Inner hierarchical variables - Correlated random effects within each above group depending on value of inner variable (applied in same order, first here to first above etc)",
+                   colnames(hot$data), multiple=T, options=list(maxItems=2)
+                  ),
+    #TODO: Add correlation matrix? (argument R in rma.mv, e.g. for phylogenetic meta-analysis; see package shinyMatrix)
+    selectizeInput("inner_variance_structure",
+                "Inner variable variance structure (set 2 values in order if using 2 inner variables above)",
+                c("Compound symmetry"="CS",
+                  "Heteroscedastic compound symmetry"="HCS",
+                  "Unstructured variance-covariance matrix"="UN",
+                  "Identity (compound symmetry with ρ = 0)"="ID",
+                  "Diagonal (heteroscedastic compound symmetry with ρ = 0)"="DIAG",
+                  "Autoregressive (autoregression among random effects, e.g. for time series data set inner variable to points in time)"="AR",
+                  "Heteroscedastic autoregressive structure"="HAR"
+                 ),
+                multiple=T,
+                options=list(maxItems=2)
+               ),
+    # Phylogenetic meta-analysis; really probably need to pass in species correlation matrices? Then modify other argument... check rma.mv documentation
+   # checkboxInput("is_phylogenetic", "Perform a phylogenetic meta-analysis? (i.e. force the correlation of effects ", colnames(hot$data), multiple=T),
     conditionalPanel(
       condition="input.type_multilevel == 'One proportion'",
       selectInput("metric1_multilevel",
@@ -115,6 +135,11 @@ conditionalPanel(
                 `AHW - transformed alpha values (modified Hakstian and Whalen)`="AHW",
                 `ABT - transformed alpha values (modified Bonett)`="ABT"
                )
+  )
+), conditionalPanel(
+  condition="input.metric4_multilevel == 'MD'",
+  checkboxInput("use_homoscedasticity_multilevel",
+                "Assume homoscedasticity of sampling variances? (i.e. true variance of measurements is the same in sample 1 and sample 2)"
   )
 ),
       conditionalPanel(
@@ -279,7 +304,7 @@ observeEvent(input$okmultilevel_escalc, {                         ####oknorm_esc
                    else "LS",
              data=hot$data)
       },
-      error=function(err){
+      error=function(err){ 
         print("ERROR:  There must be at least one column each named \"m1i\", \"m2i\", \"sd1i\", \"sd2i\", \"n1i\", and \"n2i\"")
       }
     )#ends tryCatch
@@ -416,7 +441,7 @@ observeEvent(input$okmultilevel_escalc, {                         ####oknorm_esc
 ##         oknorm_res          ##
 #################################
 
-res <- eventReactive(input$okmultilevel_res, {
+res_multilevel <- eventReactive(input$okmultilevel_res, {
   conflevel <- as.numeric(as.character(input$conflevel_multilevel))
   cc <- as.numeric(as.character(input$cc_multilevel))
   
@@ -426,7 +451,20 @@ res <- eventReactive(input$okmultilevel_res, {
         W=if (!is.null(hot$data$weights)) hot$data$weights,
         method=if (input$fixed_multilevel == "RE") input$est_multilevel,
         data=vals$dataescalc,
-        random=lapply(input$grouping_variables_random_effects, function(x) reformulate(paste("1 |", x))),
+        random=if (!is.null(input$inner_variables_random_effects)) {
+                #print(2)
+                 inner_variable_length <- length(input$inner_variables_random_effects)
+                 #print(inner_variable_length)
+                 # Don't recycle length of inner variables, just use them once then do no correlated inner effect for any excess outer grouping variables in order
+                 mapply(function(x, y, z) reformulate(paste(ifelse(z > inner_variable_length, "1", y), "|", x)),
+                        input$grouping_variables_random_effects,
+                        input$inner_variables_random_effects,
+                        seq_along(input$grouping_variables_random_effects),
+                        SIMPLIFY=F
+                       )
+               } else lapply(input$grouping_variables_random_effects, function(x) reformulate(paste("1 |", x)))
+               ,
+        struct=input$inner_variance_structure,
         level=conflevel,
         test="t",
         digits=input$digits_multilevel
@@ -447,16 +485,16 @@ observeEvent(input$okmultilevel_res, {
 # }else if(input$fixed_norm=="RE"){
 #   rma(yi, vi, method=input$rand_est, data=vals$dataescalc, weighted=FALSE, add=cc, to=input$addto)
 # }
-res <- res()
+res_multilevel <- res_multilevel()
 
 #####################NEEDS TO BE GENERALIZED############################
 
-output$forest_norm <- renderPlot({
+output$forest_multilevel <- renderPlot({
   conflevel <- as.numeric(as.character(input$conflevel))
   #print(as.name(input$atransf))
   ##display forest plot
-  if (input$type == "One proportion" && input$metric1 == "PR") {
-    forest(res, refline=NA, level=conflevel, digits=input$digits, slab=paste(if (!is.null(hot$data$author)) hot$data$author
+  if (input$type_multilevel == "One proportion" && input$metric1_multilevel == "PR") {
+    forest(res_multilevel, refline=NA, level=conflevel, digits=input$digits, slab=paste(if (!is.null(hot$data$author)) hot$data$author
                                                                            else if (!is.null(hot$data$authors)) hot$data$authors,
 
                                                                            if (!is.null(hot$data$year)) hot$data$year
@@ -468,7 +506,7 @@ output$forest_norm <- renderPlot({
          clim=c(0, 1)
   )
   } else {
-    forest(res, refline=NA, level=conflevel, digits=input$digits, slab=paste(if (!is.null(hot$data$author)) hot$data$author
+    forest(res_multilevel, refline=NA, level=conflevel, digits=input$digits, slab=paste(if (!is.null(hot$data$author)) hot$data$author
                                                                              else if (!is.null(hot$data$authors)) hot$data$authors,
                                                                              
                                                                              if (!is.null(hot$data$year)) hot$data$year
@@ -481,11 +519,11 @@ output$forest_norm <- renderPlot({
 
   })
 
-output$msummary_norm <- renderPrint({
-  if (input$type %in% c("Two proportions", "Diagnostic")) {
+output$msummary_multilevel <- renderPrint({
+  if (input$type_multilevel %in% c("Two proportions", "Diagnostic")) {
     np_first <- min(hot$data$ai)
     np_second <- min(hot$data$ci)
-    if (input$type == "Two proportions") {
+    if (input$type_multilevel == "Two proportions") {
       binomial_variance_first <- min(hot$data$ai * (1 - hot$data$ai / hot$data$n1i))
       binomial_variance_second <- min(hot$data$ci * (1 - hot$data$ci / hot$data$n2i))
     } else {
@@ -498,11 +536,11 @@ output$msummary_norm <- renderPrint({
       )
     } 
   }
-  print(res)
+  print(res_multilevel)
   print("Study weights (percent; model is fit using inverse-variance approach)")
-  print(weights(res))
+  print(weights(res_multilevel))
   print("Confidence intervals for residual heterogeneity")
-  print(confint(res))
+  print(confint(res_multilevel))
 })
 
 })
@@ -510,56 +548,56 @@ output$msummary_norm <- renderPrint({
 #################################
 ##         save_fplot          ##
 #################################
-dataModal3 <- function(failed=F) {
+dataModal3_multilevel <- function(failed=F) {
   modalDialog(
     
-    textInput("fplot_path", "Type a path to save your forest plot:",
+    textInput("fplot_path_multilevel", "Type a path to save your forest plot:",
                 "~/openmeta/plot1.png"),
-    textInput("fplot_w", "Width of forest plot:", "8"),
-    textInput("fplot_h", "Height of forest plot:", "6"),
-    selectInput("fplot_unit", "Unit of saved plot dimensions", c(`pixels`="px", `inches`="in", "cm", "mm"), "in"),
-    textInput("fplot_resolution", "Resolution of forest plot:", "210"),
+    textInput("fplot_w_multilevel", "Width of forest plot:", "8"),
+    textInput("fplot_h_multilevel", "Height of forest plot:", "6"),
+    selectInput("fplot_unit_multilevel", "Unit of saved plot dimensions", c(`pixels`="px", `inches`="in", "cm", "mm"), "in"),
+    textInput("fplot_resolution_multilevel", "Resolution of forest plot:", "210"),
     
-    footer = tagList(modalButton("Cancel"), actionButton("ok_save_fplot", "OK")
+    footer = tagList(modalButton("Cancel"), actionButton("ok_save_fplot_multilevel", "OK")
     )
   )
 }
 
 # Show modal when button is clicked.
-observeEvent(input$save_fplot, {
-  showModal(dataModal3())
+observeEvent(input$save_fplot_multilevel, {
+  showModal(dataModal3_multilevel())
 })
 
-observeEvent(input$ok_save_fplot, {
-  conflevel<-as.numeric(as.character(input$conflevel))
+observeEvent(input$ok_save_fplot_multilevel, {
+  conflevel<-as.numeric(as.character(input$conflevel_multilevel))
   
-  res <- res()
+  res_multilevel <- res_multilevel()
   
   ##save a png of the plot
-  png(filename=input$fplot_path, width=as.numeric(input$fplot_w), height=as.numeric(input$fplot_h), units=input$fplot_unit, res=as.numeric(input$fplot_resolution))
+  png(filename=input$fplot_path_multilevel, width=as.numeric(input$fplot_w_multilevel), height=as.numeric(input$fplot_h_multilevel), units=input$fplot_unit_multilevel, res=as.numeric(input$fplot_resolution_multilevel))
   
-  if (input$type == "One proportion" && input$metric1 == "PR") {
-    forest(res, refline=NA, digits=input$digits, level=conflevel, slab=paste(if (!is.null(hot$data$author)) hot$data$author
+  if (input$type_multilevel == "One proportion" && input$metric1_multilevel == "PR") {
+    forest(res_multilevel, refline=NA, digits=input$digits_multilevel, level=conflevel, slab=paste(if (!is.null(hot$data$author)) hot$data$author
                                                                              else if (!is.null(hot$data$authors)) hot$data$authors,
                                                                              
                                                                              if (!is.null(hot$data$year)) hot$data$year
                                                                              else if (!is.null(hot$data$years)) hot$data$years,
                                                                              
                                                                              sep=", "
-                                                                            ), atransf=if (input$atransf != "none") get(paste0("transf.", input$atransf)),
+                                                                            ), atransf=if (input$atransf_multilevel != "none") get(paste0("transf.", input$atransf_multilevel)),
            # If raw proportion (cannot be less than 0 or greater than 1), enforce that limit on x-axis and confidence intervals
            alim=c(0, 1),
            clim=c(0, 1)
           )
   } else {
-    forest(res, refline=NA, digits=input$digits, level=conflevel, slab=paste(if (!is.null(hot$data$author)) hot$data$author
+    forest(res_multilevel, refline=NA, digits=input$digits_multilevel, level=conflevel, slab=paste(if (!is.null(hot$data$author)) hot$data$author
                                                                              else if (!is.null(hot$data$authors)) hot$data$authors,
                                                                              
                                                                              if (!is.null(hot$data$year)) hot$data$year
                                                                              else if (!is.null(hot$data$years)) hot$data$years,
                                                                              
                                                                              sep=", "
-    ), atransf=if (input$atransf != "none") get(paste0("transf.", input$atransf))
+    ), atransf=if (input$atransf_multilevel != "none") get(paste0("transf.", input$atransf_multilevel))
     )
   }
   dev.off()
@@ -572,18 +610,18 @@ observeEvent(input$ok_save_fplot, {
 ##     dynamic UI       ##
 ##########################
 observe({
-  fixed_norm <- input$fixed_norm
+  fixed_multilevel <- input$fixed_multilevel
   
   updateSelectInput(session,
-                           "est",
+                           "est_multilevel",
                            "Estimation method (Ignored if data contains a column called 'weights')",
                            
-                           if (fixed_norm == "RE") c(
+                           if (fixed_multilevel == "RE") c(
                                                      `Maximum likelihood`="ML",
                                                      `Restricted ML`="REML"
                                                     )
                            else c(`Inverse-variance`="FE"),
                            
-                           if (fixed_norm == "RE") "REML"
+                           if (fixed_multilevel == "RE") "REML"
                           )
 })
