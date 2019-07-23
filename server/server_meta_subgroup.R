@@ -382,7 +382,7 @@ observe({
                     "est_subgroup",
                     "Estimation method",
 
-                    if (fixed_norm == "RE") c(`DerSimonian Laird`="DL",
+                    if (!is.null(fixed_norm) && fixed_norm == "RE") c(`DerSimonian Laird`="DL",
                                               `Hedges`="HE",
                                               `Hunter-Schmidt`="HS",
                                               `Sidik-Jonkman`="SJ",
@@ -394,6 +394,6 @@ observe({
                                              )
                     else c(`Inverse-variance`="FE"),
 
-                    if (fixed_norm == "RE") "REML"  # Default to REML if Random-Effects
+                    if (!is.null(fixed_norm) && fixed_norm == "RE") "REML"  # Default to REML if Random-Effects
   )
 })

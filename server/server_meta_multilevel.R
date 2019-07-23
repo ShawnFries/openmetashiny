@@ -616,12 +616,12 @@ observe({
                            "est_multilevel",
                            "Estimation method (Ignored if data contains a column called 'weights')",
                            
-                           if (fixed_multilevel == "RE") c(
+                           if (!is.null(fixed_multilevel) && fixed_multilevel == "RE") c(
                                                      `Maximum likelihood`="ML",
                                                      `Restricted ML`="REML"
                                                     )
                            else c(`Inverse-variance`="FE"),
                            
-                           if (fixed_multilevel == "RE") "REML"
+                           if (!is.null(fixed_multilevel) && fixed_multilevel == "RE") "REML"
                           )
 })

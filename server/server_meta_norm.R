@@ -612,7 +612,7 @@ observe({
                            "est",
                            "Estimation method (Ignored if data contains a column called 'weights', unless using Peto/MH method)",
                            
-                           if (fixed_norm == "RE") c(`DerSimonian Laird`="DL",
+                           if (!is.null(fixed_norm) && fixed_norm == "RE") c(`DerSimonian Laird`="DL",
                                                      `Hedges`="HE",
                                                      `Hunter-Schmidt`="HS",
                                                      `Sidik-Jonkman`="SJ",
@@ -624,6 +624,6 @@ observe({
                                                     )
                            else c(`Inverse-variance`="FE"),
                            
-                           if (fixed_norm == "RE") "REML"
+                           if (!is.null(fixed_norm) && fixed_norm == "RE") "REML"
                           )
 })

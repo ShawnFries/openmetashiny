@@ -249,12 +249,12 @@ output$rand_leave_estimation <- renderUI({
   #   NULL
   # }else
   
-  if (input$fixed_leave_norm == "FE") {                                                   ####fixed_norm in ui_meta_norm.R
+  if (!is.null(input$fixed_leave_norm) && input$fixed_leave_norm == "FE") {                                                   ####fixed_norm in ui_meta_norm.R
     selectInput("fixed_leave_est",
                 "Estimation method",
                 c("Inverse-variance")
     )
-  } else if (input$fixed_leave_norm == "RE"){                                             ####fixed_norm in ui_meta_norm.R
+  } else if (!is.null(input$fixed_leave_norm) && input$fixed_leave_norm == "RE"){                                             ####fixed_norm in ui_meta_norm.R
     selectInput("rand_leave_est",
                 "Estimation method",
                 c(`DerSimonian Laird`="DL",

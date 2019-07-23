@@ -189,7 +189,7 @@ observe({
                            "est_exact",
                            "Estimation method",
                            
-                           if (fixed_exact == "RE") c(`DerSimonian Laird`="DL",
+                           if (!is.null(fixed_exact) && fixed_exact == "RE") c(`DerSimonian Laird`="DL",
                                                      `Hedges`="HE",
                                                      `Hunter-Schmidt`="HS",
                                                      `Sidik-Jonkman`="SJ",
@@ -201,6 +201,6 @@ observe({
                                                     )
                            else c(`Inverse-variance`="FE"),
                            
-                           if (fixed_exact == "RE") "REML"
+                           if (!is.null(fixed_exact) && fixed_exact == "RE") "REML"
                           )
 })
