@@ -122,15 +122,8 @@ observeEvent(input$okcsv, {                                                     
     }  # TODO: Add for SMD (lower/upper for SMD) and for diagnostic (lower/upper for each of sensitivity and specificity)
     vals$datar <- vals$data
     removeModal()
-  } if (input$dataType == "proportion" && length(intersect(c("lower", "upper",
-                                                             "n",
-                                                             "ns",
-                                                             "ni",
-                                                             "nis",
-                                                             "n_is",
-                                                             "n_i",
-                                                             "sample size",
-                                                             "sample sizes"), colnames(vals$data))) == 3 && length(intersect(c("count",
+  } if (input$dataType == "proportion" && length(intersect(c("lower",
+                                                             "upper"), colnames(vals$data))) == 2 && length(intersect(c("count",
                                                                                                                                  "xi",
                                                                                                                                  "counts",
                                                                                                                                  "x_i",
@@ -138,23 +131,51 @@ observeEvent(input$okcsv, {                                                     
                                                                                                                                  "xis",
                                                                                                                                  "x",
                                                                                                                                  "xs",
-                                                                                                                                 "prop",
-                                                                                                                                 "props",
-                                                                                                                                 "proportions",
-                                                                                                                                 "proportion",
-                                                                                                                                 "x/n",
-                                                                                                                                 "x / n",
-                                                                                                                                 "X / N",
-                                                                                                                                 "x / n"
+                                                                                                                              "n",
+                                                                                                                        "ns",
+                                                                                                                        "ni",
+                                                                                                                        "nis",
+                                                                                                                        "n_is",
+                                                                                                                        "n_i",
+                                                                                                                        "sample size",
+                                                                                                                        "sample sizes"
   ), colnames(vals$data)
-  )) == 0) {# TODO: Add checks for proper columns being there...
+  )) == 1) {# TODO: Add checks for proper columns being there...
   #TODO: What are the most important back calculations to do? Perhaps given lower AND upper AND sample size, the actual proportion (easy) and x (count) columns..
     #also could calculate sample size from upper and lower somehow (next most important)..
     vals$data$proportion <- (vals$data$upper + vals$data$lower) / 2
-    vals$data$count <- vals$data$proportion * vals$data$ni
+    if (!is.null(vals$data$ni)) {
+      vals$data$count <- vals$data$proportion * vals$data$ni
+    } else if (!is.null(vals$data$count)) {
+      vals$data$ni <- vals$data$count / vals$data$proportion
+    }
     #error <- mapply(function(x, y) qt(0.975, x - 1) * y / sqrt(x), vals$data$ni, vals$data$sdi)
    # vals$data$lower <- vals$data$mi - error
    # vals$data$upper <- vals$data$mi + error
+  } else if ((input$dataType == "proportion" && length(intersect(c("lower",
+                                                                   "upper"), colnames(vals$data))) == 2 && length(intersect(c("count",
+                                                                                                                                     "xi",
+                                                                                                                                     "counts",
+                                                                                                                                     "x_i",
+                                                                                                                                     "x_is",
+                                                                                                                                     "xis",
+                                                                                                                                     "x",
+                                                                                                                                     "xs",
+                                                                                                                              "n",
+                                                                                                                              "ns",
+                                                                                                                              "ni",
+                                                                                                                              "nis",
+                                                                                                                              "n_is",
+                                                                                                                              "n_i",
+                                                                                                                              "sample size",
+                                                                                                                              "sample sizes"
+                                                                   ), colnames(vals$data)
+                                                                   )) == 0)) {
+    #Unknown sample size, so find t distribution that fits from upper/lower bounds to derive sample size etc.
+    vals$data$proportion <- (vals$data$upper + vals$data$lower) / 2
+    # Probably need to do some kind of binary search to find the degrees of freedom here.. given error (difference of proportion and upper/lower for 95% interval) and probably some initial guess
+    #error <- mapply(function(x, y) qt(0.975, x - 1) * sqrt(y * (1 - y) / x), vals$data$ni, vals$data$proportion)
+    
   }
   else {
     showModal(dataModal(failed=T))
