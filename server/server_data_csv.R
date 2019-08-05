@@ -54,7 +54,7 @@ observeEvent(input$okcsv, {                                                     
   # Check that data object exists and is data frame.
   if (!is.null(input$file1)) {
     vals$data <- read.csv(input$file1$datapath, header=input$header, sep=input$sep, quote=input$quote)
-    if (input$dataType == "proportion" & length(intersect(c("count",
+    if (input$dataType == "proportion" && length(intersect(c("count",
                                                             "xi",
                                                             "counts",
                                                             "x_i",
@@ -101,21 +101,19 @@ observeEvent(input$okcsv, {                                                     
         vals$data$ni <- vals$data[[intersect(c("count", "xi", "counts", "x_i", "x_is", "xis", "x", "xs"), colnames(vals$data))]]  /
                         vals$data[[intersect(c("prop", "props", "proportions", "proportion", "x/n", "x / n", "X / N", "x / n"), colnames(vals$data))]]
       }
-      # Compute lower and upper bounds from t distribution given sample size and proportion
+      # Still one proportion data type here
+      # Compute lower and upper bounds from t distribution given sample size and proportion 
       error <- mapply(function(x, y) qt(0.975, x - 1) * sqrt(y * (1 - y) / x), vals$data$ni, vals$data$proportion)
       vals$data$lower <- pmax(0, vals$data$proportion - error)
       vals$data$upper <- pmin(1, vals$data$proportion + error)
-    } else if (input$dataType == "mean" & length(intersect(c("ni", "sdi"), colnames(vals$data))) == 2) {# TODO: Add checks for proper columns being there...
-      error <- mapply(function(x, y) qt(0.975, x - 1) * y / sqrt(x), vals$data$ni, vals$data$sdi)
-      vals$data$lower <- vals$data$mi - error
-      vals$data$upper <- vals$data$mi + error
-    } else if (input$dataType == "proportions" & length(intersect(c("ai", "n1i", "ci", "n2i"), colnames(vals$data))) == 4) {# TODO: Add checks for proper columns being there...
+      # Add back calculation given lower and upper bounds and sample size OR sd?
+    } else if (input$dataType == "proportions" && length(intersect(c("ai", "n1i", "ci", "n2i"), colnames(vals$data))) == 4) {# TODO: Add additional checks for proper columns being there...
       vals$data$odds_ratio <- vals$data$ai / vals$data$n1i / (vals$data$ci / vals$data$n2i)
       sds <- sqrt(1 / vals$data$ai + 1 / vals$data$ci + 1 / (vals$data$n1i - vals$data$ai) + 1 / (vals$data$n2i - vals$data$ci))  # Asymptotic approximation..
       error <- mapply(function(x, y) qt(0.975, x - 1) * y, vals$data$n1i + vals$data$n2i, sds)
       vals$data$lower <- vals$data$odds_ratio - error
       vals$data$upper <- vals$data$odds_ratio + error
-    } else if (input$dataType == "means" & length(intersect(c("m1i", "m2i", "sd1i", "sd2i", "n1i", "n2i"), colnames(vals$data))) == 6) {# TODO: Add checks for proper columns being there...
+    } else if (input$dataType == "means" && length(intersect(c("m1i", "m2i", "sd1i", "sd2i", "n1i", "n2i"), colnames(vals$data))) == 6) {# TODO: Add checks for proper columns being there...
       vals$data$mean_difference <- vals$data$m2i - vals$data$m1i
       sds <- vals$data$sd1i / sqrt(vals$data$n1i) + vals$data$sd2i / sqrt(vals$data$n2i)
       error <- mapply(function(x, y) qt(0.975, x - 1) * y, vals$data$n1i + vals$data$n2i, sds)
@@ -124,7 +122,41 @@ observeEvent(input$okcsv, {                                                     
     }  # TODO: Add for SMD (lower/upper for SMD) and for diagnostic (lower/upper for each of sensitivity and specificity)
     vals$datar <- vals$data
     removeModal()
-  } else {
+  } if (input$dataType == "proportion" && length(intersect(c("lower", "upper",
+                                                             "n",
+                                                             "ns",
+                                                             "ni",
+                                                             "nis",
+                                                             "n_is",
+                                                             "n_i",
+                                                             "sample size",
+                                                             "sample sizes"), colnames(vals$data))) == 3 && length(intersect(c("count",
+                                                                                                                                 "xi",
+                                                                                                                                 "counts",
+                                                                                                                                 "x_i",
+                                                                                                                                 "x_is",
+                                                                                                                                 "xis",
+                                                                                                                                 "x",
+                                                                                                                                 "xs",
+                                                                                                                                 "prop",
+                                                                                                                                 "props",
+                                                                                                                                 "proportions",
+                                                                                                                                 "proportion",
+                                                                                                                                 "x/n",
+                                                                                                                                 "x / n",
+                                                                                                                                 "X / N",
+                                                                                                                                 "x / n"
+  ), colnames(vals$data)
+  )) == 0) {# TODO: Add checks for proper columns being there...
+  #TODO: What are the most important back calculations to do? Perhaps given lower AND upper AND sample size, the actual proportion (easy) and x (count) columns..
+    #also could calculate sample size from upper and lower somehow (next most important)..
+    vals$data$proportion <- (vals$data$upper + vals$data$lower) / 2
+    vals$data$count <- vals$data$proportion * vals$data$ni
+    #error <- mapply(function(x, y) qt(0.975, x - 1) * y / sqrt(x), vals$data$ni, vals$data$sdi)
+   # vals$data$lower <- vals$data$mi - error
+   # vals$data$upper <- vals$data$mi + error
+  }
+  else {
     showModal(dataModal(failed=T))
   }
   csv_button_pressed <<- T
