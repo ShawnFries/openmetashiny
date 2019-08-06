@@ -119,10 +119,7 @@ observeEvent(input$okcsv, {                                                     
       error <- mapply(function(x, y) qt(0.975, x - 1) * y, vals$data$n1i + vals$data$n2i, sds)
       vals$data$lower <- vals$data$mean_difference - error
       vals$data$upper <- vals$data$mean_difference + error
-    }  # TODO: Add for SMD (lower/upper for SMD) and for diagnostic (lower/upper for each of sensitivity and specificity)
-    vals$datar <- vals$data
-    removeModal()
-  } if (input$dataType == "proportion" && length(intersect(c("lower",
+    } else if (input$dataType == "proportion" && length(intersect(c("lower",
                                                              "upper"), colnames(vals$data))) == 2 && length(intersect(c("count",
                                                                                                                                  "xi",
                                                                                                                                  "counts",
@@ -175,8 +172,25 @@ observeEvent(input$okcsv, {                                                     
     vals$data$proportion <- (vals$data$upper + vals$data$lower) / 2
     # Probably need to do some kind of binary search to find the degrees of freedom here.. given error (difference of proportion and upper/lower for 95% interval) and probably some initial guess
     #error <- mapply(function(x, y) qt(0.975, x - 1) * sqrt(y * (1 - y) / x), vals$data$ni, vals$data$proportion)
-    
-  }
+    df_estimates <- rep(50, length(vals$data$upper))  # Initialize df guess to 50 for all rows
+    real_errors <- vals$data$upper - vals$data$proportion
+    error_estimates <- mapply(function(x, y) qt(0.975, x - 1) * sqrt(y * (1 - y) / x), df_estimates, vals$data$proportion)
+    previous_error_estimates <- 0
+    # Increase df if estimated error too high, decrease it if too low (a sort of binary search for t distribution df). Stop if exact df value found or stops improving
+    while (real_errors != error_estimates && previous_error_estimates != error_estimates) {
+      previous_error_estimates <- error_estimates
+      df_estimates <- mapply(function(x, y) if (x > y) round(mean(z, 0))
+                                           else if (x < y) round(z, 10*z)
+                                           else z
+                                           , real_errors, error_estimates, df_estimates)
+      error_estimates <- mapply(function(x, y) qt(0.975, x - 1) * sqrt(y * (1 - y) / x), df_estimates, vals$data$proportion)
+    }
+    vals$data$ni <- df_estimates
+    vals$data$count <- vals$data$ni * vals$data$proportion
+  } # TODO: Add for SMD (lower/upper for SMD) and for diagnostic (lower/upper for each of sensitivity and specificity)
+    vals$datar <- vals$data
+    removeModal()
+  } 
   else {
     showModal(dataModal(failed=T))
   }
@@ -190,7 +204,7 @@ observe({
   
   # Working! Except, now need to make removing something from filter actually flow out of the table etc...
   number_of_columns <- length(colnames(hot$data))
-  row_filters <- list()
+  row_filters <<- list()  # Set as global to check when rendering table farther down in code
   
   output$row_filters <- renderUI ({
     for (i in 1:number_of_columns) {
