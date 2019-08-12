@@ -5,7 +5,7 @@ library(shiny)
 library(rhandsontable)
 library(metafor)
 #library(dplyr)
-#library(stringr)
+library(stringr)
 #library(devtools)
 #library(grDevices) #png()
 

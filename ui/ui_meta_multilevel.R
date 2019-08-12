@@ -29,7 +29,7 @@ sidebarLayout(
     tabBox(width=12,
            tabPanel("Transformed data", tableOutput("escalcdat_multilevel")),
            tabPanel("Meta-analysis summary", verbatimTextOutput("msummary_multilevel")),      ####msummary_multilevel in server_meta_multilevel.R
-           tabPanel("Forest plot", plotOutput("forest_multilevel"),
+           tabPanel("Forest plot", br(), br(), br(), column(12, align="center", "Multilevel Meta-Analysis"), plotOutput("forest_multilevel"),
                     actionButton("save_fplot_multilevel", "Save forest plot")                     ####save_fplot in server_meta_multilevel.R
            )
     )

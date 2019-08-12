@@ -5,7 +5,7 @@
 # https://stackoverflow.com/questions/41161822/filter-rows-in-rhandsontable-in-r-shiny
 
 library(rhandsontable)
-#library(stringr)
+library(stringr)
 
 csv_button_pressed <- F
 
@@ -203,15 +203,20 @@ observe({
   if (!is.null(input$hot)) hot$data <- hot_to_r(input$hot)
   
   # Working! Except, now need to make removing something from filter actually flow out of the table etc...
-  number_of_columns <- length(colnames(hot$data))
-  row_filters <<- list()  # Set as global to check when rendering table farther down in code
+  if (!is.null(hot$data)) {
+    columns <- colnames(hot$data)
+    number_of_columns <<- length(columns)
+  }
+  row_filters <- list()
   
   output$row_filters <- renderUI ({
     for (i in 1:number_of_columns) {
-      column_values <- unique(hot$data[[i]])
-      row_filters[[paste("row_filters", i, sep="_")]] <- ({
-        selectInput(paste("row_filters", i, sep="_"), paste("Row filter", colnames(hot$data)[i]), column_values, column_values, multiple=T)
-      })
+      row_values <- sort(unique(hot$data[[i]]))
+      if (!is.null(row_values) && !is.null(number_of_columns) && number_of_columns > 0) {
+        row_filters[[columns[i]]] <<- ({
+          selectInput(paste("row_filters", i, sep="_"), paste("Row filter", columns[i]), row_values, row_values, multiple=T)
+        })
+      }
     }
     
     do.call(tagList, row_filters)
@@ -275,8 +280,35 @@ output$hot <- renderRHandsontable({####dat_csv in ui_data.R
     }
   }
   hot$table <- rhandsontable(data.frame(DF), stretchH="all", useTypes=F)
-  if (!(is.null(input$hot) | csv_button_pressed)) {
+  if (!(is.null(input$hot) || csv_button_pressed || nrow(hot_to_r(input$hot)) == 0)) {
     hot$data <- hot_to_r(input$hot)
+    print(3)
+    print(hot$data)
+    if (!is.null(colnames(hot$data)) && !is.null(row_filters) && !csv_button_pressed && length(row_filters) > 0 && length(input$row_filters_1) > 1 && nrow(hot$data) > 0) {
+      print(4)
+      DF <- hot$data
+      print(number_of_columns)
+      print(DF)
+          for (i in 1:number_of_columns) {
+            row_values <- sort(input[[paste("row_filters", i, sep="_")]])
+            if (!is.null(row_values) && !is.null(DF) && ncol(DF) > 0 && length(row_values) > 0 && nrow(DF) > 0) {
+            #  print(i)
+            #  print("data")
+            #  print(DF)
+            #  print("column")
+            #  print(DF[[i]])
+            #  print("filter values")
+              print(row_values)
+              DF <- DF[DF[[i]] %in% row_values, ]
+              print(DF)
+            }
+          }
+        #  print(row_filters[[column]])
+         # DF <- hot$data[hot$data[[column]] %in% row_filters[[column]]]
+       #   print(2)
+         # print(DF)
+          hot$table <- rhandsontable(data.frame(DF), stretchH="all", useTypes=F)
+    }
     # if (!is.null(hot$data_cache) && !identical(hot$data_cache, hot$data)) {
     #   print(hot$data)
     #   if (hot$data_cache$proportion != hot$data$proportion) { # TODO: Check if any proportion-like column name not only "proportion"

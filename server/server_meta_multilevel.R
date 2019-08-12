@@ -24,6 +24,7 @@ dataModal2_multilevel <- function(failed=F) {
     selectizeInput("inner_variables_random_effects",
                    "Inner hierarchical variables - Correlated random effects within each above group depending on value of inner variable (applied in same order, first here to first above etc)",
                    colnames(hot$data), multiple=T, options=list(maxItems=2)
+                   #TODO: Need to have option to select same option twice (e.g. CS, CS)
                   ),
     #TODO: Add correlation matrix? (argument R in rma.mv, e.g. for phylogenetic meta-analysis; see package shinyMatrix)
     selectizeInput("inner_variance_structure",
@@ -444,6 +445,7 @@ observeEvent(input$okmultilevel_escalc, {                         ####oknorm_esc
 res_multilevel <- eventReactive(input$okmultilevel_res, {
   conflevel <- as.numeric(as.character(input$conflevel_multilevel))
   cc <- as.numeric(as.character(input$cc_multilevel))
+  inner_variable_length <- length(input$inner_variables_random_effects)
   
     tryCatch({
     rma.mv(yi,
@@ -451,7 +453,7 @@ res_multilevel <- eventReactive(input$okmultilevel_res, {
         W=if (!is.null(hot$data$weights)) hot$data$weights,
         method=if (input$fixed_multilevel == "RE") input$est_multilevel,
         data=vals$dataescalc,
-        random=if (!is.null(input$inner_variables_random_effects)) {
+        random=if (!is.null(input$inner_variables_random_effects) && !is.null(input$grouping_variables_random_effects)) {
                 #print(2)
                  inner_variable_length <- length(input$inner_variables_random_effects)
                  #print(inner_variable_length)
@@ -462,9 +464,9 @@ res_multilevel <- eventReactive(input$okmultilevel_res, {
                         seq_along(input$grouping_variables_random_effects),
                         SIMPLIFY=F
                        )
-               } else lapply(input$grouping_variables_random_effects, function(x) reformulate(paste("1 |", x)))
+               } else if (!is.null(input$grouping_variables_random_effects)) lapply(input$grouping_variables_random_effects, function(x) reformulate(paste("1 |", x)))
                ,
-        struct=input$inner_variance_structure,
+        struct=ifelse(is.null(input$inner_variance_structure), "CS", input$inner_variance_structure),
         level=conflevel,
         test="t",
         digits=input$digits_multilevel
@@ -575,14 +577,13 @@ observeEvent(input$ok_save_fplot_multilevel, {
   
   ##save a png of the plot
   png(filename=input$fplot_path_multilevel, width=as.numeric(input$fplot_w_multilevel), height=as.numeric(input$fplot_h_multilevel), units=input$fplot_unit_multilevel, res=as.numeric(input$fplot_resolution_multilevel))
-  
   if (input$type_multilevel == "One proportion" && input$metric1_multilevel == "PR") {
     forest(res_multilevel, refline=NA, digits=input$digits_multilevel, level=conflevel, slab=paste(if (!is.null(hot$data$author)) hot$data$author
                                                                              else if (!is.null(hot$data$authors)) hot$data$authors,
                                                                              
                                                                              if (!is.null(hot$data$year)) hot$data$year
                                                                              else if (!is.null(hot$data$years)) hot$data$years,
-                                                                             
+                                                                             top=0,
                                                                              sep=", "
                                                                             ), atransf=if (input$atransf_multilevel != "none") get(paste0("transf.", input$atransf_multilevel)),
            # If raw proportion (cannot be less than 0 or greater than 1), enforce that limit on x-axis and confidence intervals
@@ -592,7 +593,7 @@ observeEvent(input$ok_save_fplot_multilevel, {
   } else {
     forest(res_multilevel, refline=NA, digits=input$digits_multilevel, level=conflevel, slab=paste(if (!is.null(hot$data$author)) hot$data$author
                                                                              else if (!is.null(hot$data$authors)) hot$data$authors,
-                                                                             
+                                                                             top=0,
                                                                              if (!is.null(hot$data$year)) hot$data$year
                                                                              else if (!is.null(hot$data$years)) hot$data$years,
                                                                              
@@ -600,6 +601,7 @@ observeEvent(input$ok_save_fplot_multilevel, {
     ), atransf=if (input$atransf_multilevel != "none") get(paste0("transf.", input$atransf_multilevel))
     )
   }
+  title("Multilevel Meta-Analysis")
   dev.off()
   
   removeModal()

@@ -35,7 +35,7 @@ sidebarLayout(
     tabBox(width=12,
            tabPanel("Transformed data", tableOutput("escalcdat")),
            tabPanel("Meta-analysis summary", verbatimTextOutput("msummary_norm")),      ####msummary_norm in server_meta_norm.R
-           tabPanel("Forest plot", plotOutput("forest_norm"),
+           tabPanel("Forest plot", br(), br(), br(), column(12, align="center", "Meta-Analysis (Normal Approximation)"), plotOutput("forest_norm"),
                     actionButton("save_fplot", "Save forest plot")                     ####save_fplot in server_meta_norm.R
                    )
            )
