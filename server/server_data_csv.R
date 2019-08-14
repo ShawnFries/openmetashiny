@@ -210,16 +210,30 @@ observe({
   row_filters <- list()
   
   output$row_filters <- renderUI ({
-    for (i in 1:number_of_columns) {
-      row_values <- sort(unique(hot$data[[i]]))
-      if (!is.null(row_values) && !is.null(number_of_columns) && number_of_columns > 0) {
-        row_filters[[columns[i]]] <<- ({
-          selectInput(paste("row_filters", i, sep="_"), paste("Row filter", columns[i]), row_values, row_values, multiple=T)
-        })
+    if (input$enable_filtering) {
+      for (i in 1:number_of_columns) {
+        row_values <- sort(unique(hot$data[[i]]))
+        if (!is.null(row_values) && !is.null(number_of_columns) && number_of_columns > 0) {
+          row_filters[[columns[i]]] <<- ({
+            selectInput(paste("row_filters", i, sep="_"), paste("Row filter", columns[i]), row_values, row_values, multiple=T)
+          })
+        }
       }
+      
+      do.call(tagList, row_filters)
+    } else if (length(row_filters) > 0) {  # If row filters have been set, reset them to blank if filters are later disabled to prevent problems if editing data
+      for (i in 1:number_of_columns) {
+        row_values <- vector()
+        if (!is.null(row_values) && !is.null(number_of_columns) && number_of_columns > 0) {
+          row_filters[[columns[i]]] <<- ({
+            # Refresh, but silently in the background(hidden element that user can't see). Needs to refresh to blank in case user edits (so real filters won't interfere with their edits)
+            hidden(selectInput(paste("row_filters", i, sep="_"), paste("Row filter", columns[i]), row_values, row_values, multiple=T))
+          })
+        }
+      }
+      
+      do.call(tagList, row_filters)
     }
-    
-    do.call(tagList, row_filters)
   })
   
   # for (i in 1:number_of_columns) {
@@ -284,25 +298,34 @@ output$hot <- renderRHandsontable({####dat_csv in ui_data.R
     hot$data <- hot_to_r(input$hot)
     print(3)
     print(hot$data)
-    if (!is.null(colnames(hot$data)) && !is.null(row_filters) && !csv_button_pressed && length(row_filters) > 0 && length(input$row_filters_1) > 1 && nrow(hot$data) > 0) {
+    # Bit of a hack to prevent the initial setup e.g. "Study A" row filters from causing the table to overwrite at the instant a new CSV is uploaded..
+    # Ideally we'd hold off on updating this until the row filters have refreshed to prevent them from overwriting (when uploading a CSV first replace row filters THEN update this table)
+    # TODO: Give a way of retrieving the filter values after selected instead of just deleting them? (e.g. undo button for filters..)
+    # TODO: Cleaner way of selecting filters? Dropdown menus for each/better yet one dropdown for entire section instead of taking up a screen's worth of text above the table...
+    if (input$enable_filtering && !is.null(colnames(hot$data)) && !is.null(row_filters) && !csv_button_pressed && length(row_filters) > 0 && nrow(hot$data) > 0) {
       print(4)
       DF <- hot$data
       print(number_of_columns)
       print(DF)
           for (i in 1:number_of_columns) {
             row_values <- sort(input[[paste("row_filters", i, sep="_")]])
-            if (!is.null(row_values) && !is.null(DF) && ncol(DF) > 0 && length(row_values) > 0 && nrow(DF) > 0) {
-            #  print(i)
-            #  print("data")
-            #  print(DF)
-            #  print("column")
-            #  print(DF[[i]])
-            #  print("filter values")
-              print(row_values)
-              DF <- DF[DF[[i]] %in% row_values, ]
-              print(DF)
-            }
-          }
+           # if (DF == hot_to_r(input$hot)) { # This is necessary in case user edits while this code would be running (force synchronization otherwise get to it next time table refreshes)
+              if (!is.null(row_values) && !is.null(DF) && ncol(DF) > 0 && length(row_values) > 0 && nrow(DF) > 0) {
+              #  print(i)
+              #  print("data")
+              #  print(DF)
+              #  print("column")
+              #  print(DF[[i]])
+              #  print("filter values")
+                print(row_values)
+                DF <- DF[DF[[i]] %in% row_values, ]
+                print(DF)
+              } else {
+                break  # Stop filtering, they're blank or there is some other problem
+              }
+            #} else {
+         #   
+         }
         #  print(row_filters[[column]])
          # DF <- hot$data[hot$data[[column]] %in% row_filters[[column]]]
        #   print(2)
