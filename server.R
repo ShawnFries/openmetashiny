@@ -28,6 +28,7 @@ server <- function(input, output, session) {
 
   #observeEvent(input$backButton, nextStep(-1))
   observeEvent(input$continueButton, nextStep(1))
+  observeEvent(input$continueButton_real_or_sample, nextStep(1))
   observeEvent(input$continueButton2, nextStep(1))
   observeEvent(input$continueButton2_de, nextStep(1))
 

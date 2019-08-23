@@ -497,7 +497,13 @@ output$forest_multilevel <- renderPlot({
   ##display forest plot
   if (input$type_multilevel == "One proportion" && input$metric1_multilevel == "PR") {
     forest(res_multilevel, refline=NA, level=conflevel, digits=input$digits, slab=paste(if (!is.null(hot$data$author)) hot$data$author
-                                                                           else if (!is.null(hot$data$authors)) hot$data$authors,
+                                                                                        else if (!is.null(hot$data$authors)) hot$data$authors
+                                                                                        else if (!is.null(hot$data$study.name)) hot$data$study.name
+                                                                                        else if (!is.null(hot$data$study.names)) hot$data$study.names
+                                                                                        else if (!is.null(hot$data[["study name"]])) hot$data[["study name"]]
+                                                                                        else if (!is.null(hot$data[["study names"]])) hot$data[["study names"]]
+                                                                                        else if (!is.null(hot$data$study)) hot$data$study
+                                                                                        else if (!is.null(hot$data$studies)) hot$data$studies,
 
                                                                            if (!is.null(hot$data$year)) hot$data$year
                                                                            else if (!is.null(hot$data$years)) hot$data$years,
@@ -509,7 +515,13 @@ output$forest_multilevel <- renderPlot({
   )
   } else {
     forest(res_multilevel, refline=NA, level=conflevel, digits=input$digits, slab=paste(if (!is.null(hot$data$author)) hot$data$author
-                                                                             else if (!is.null(hot$data$authors)) hot$data$authors,
+                                                                                        else if (!is.null(hot$data$authors)) hot$data$authors
+                                                                                        else if (!is.null(hot$data$study.name)) hot$data$study.name
+                                                                                        else if (!is.null(hot$data$study.names)) hot$data$study.names
+                                                                                        else if (!is.null(hot$data[["study name"]])) hot$data[["study name"]]
+                                                                                        else if (!is.null(hot$data[["study names"]])) hot$data[["study names"]]
+                                                                                        else if (!is.null(hot$data$study)) hot$data$study
+                                                                                        else if (!is.null(hot$data$studies)) hot$data$studies,
                                                                              
                                                                              if (!is.null(hot$data$year)) hot$data$year
                                                                              else if (!is.null(hot$data$years)) hot$data$years,
@@ -579,7 +591,13 @@ observeEvent(input$ok_save_fplot_multilevel, {
   png(filename=input$fplot_path_multilevel, width=as.numeric(input$fplot_w_multilevel), height=as.numeric(input$fplot_h_multilevel), units=input$fplot_unit_multilevel, res=as.numeric(input$fplot_resolution_multilevel))
   if (input$type_multilevel == "One proportion" && input$metric1_multilevel == "PR") {
     forest(res_multilevel, refline=NA, digits=input$digits_multilevel, level=conflevel, slab=paste(if (!is.null(hot$data$author)) hot$data$author
-                                                                             else if (!is.null(hot$data$authors)) hot$data$authors,
+                                                                                                   else if (!is.null(hot$data$authors)) hot$data$authors
+                                                                                                   else if (!is.null(hot$data$study.name)) hot$data$study.name
+                                                                                                   else if (!is.null(hot$data$study.names)) hot$data$study.names
+                                                                                                   else if (!is.null(hot$data[["study name"]])) hot$data[["study name"]]
+                                                                                                   else if (!is.null(hot$data[["study names"]])) hot$data[["study names"]]
+                                                                                                   else if (!is.null(hot$data$study)) hot$data$study
+                                                                                                   else if (!is.null(hot$data$studies)) hot$data$studies,
                                                                              
                                                                              if (!is.null(hot$data$year)) hot$data$year
                                                                              else if (!is.null(hot$data$years)) hot$data$years,
@@ -592,7 +610,13 @@ observeEvent(input$ok_save_fplot_multilevel, {
           )
   } else {
     forest(res_multilevel, refline=NA, digits=input$digits_multilevel, level=conflevel, slab=paste(if (!is.null(hot$data$author)) hot$data$author
-                                                                             else if (!is.null(hot$data$authors)) hot$data$authors,
+                                                                                                   else if (!is.null(hot$data$authors)) hot$data$authors
+                                                                                                   else if (!is.null(hot$data$study.name)) hot$data$study.name
+                                                                                                   else if (!is.null(hot$data$study.names)) hot$data$study.names
+                                                                                                   else if (!is.null(hot$data[["study name"]])) hot$data[["study name"]]
+                                                                                                   else if (!is.null(hot$data[["study names"]])) hot$data[["study names"]]
+                                                                                                   else if (!is.null(hot$data$study)) hot$data$study
+                                                                                                   else if (!is.null(hot$data$studies)) hot$data$studies,
                                                                              top=0,
                                                                              if (!is.null(hot$data$year)) hot$data$year
                                                                              else if (!is.null(hot$data$years)) hot$data$years,

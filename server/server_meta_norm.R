@@ -491,10 +491,17 @@ output$forest_norm <- renderPlot({
   ##display forest plot
   if (input$type == "One proportion" && input$metric1 == "PR") {
     forest(res, refline=NA, level=conflevel, digits=input$digits, slab=paste(if (!is.null(hot$data$author)) hot$data$author
-                                                                           else if (!is.null(hot$data$authors)) hot$data$authors,
-
+                                                                           else if (!is.null(hot$data$authors)) hot$data$authors
+                                                                           else if (!is.null(hot$data$study.name)) hot$data$study.name
+                                                                           else if (!is.null(hot$data$study.names)) hot$data$study.names
+                                                                           else if (!is.null(hot$data[["study name"]])) hot$data[["study name"]]
+                                                                           else if (!is.null(hot$data[["study names"]])) hot$data[["study names"]]
+                                                                           else if (!is.null(hot$data$study)) hot$data$study
+                                                                           else if (!is.null(hot$data$studies)) hot$data$studies
+                                                                           else "NA",
                                                                            if (!is.null(hot$data$year)) hot$data$year
-                                                                           else if (!is.null(hot$data$years)) hot$data$years,
+                                                                           else if (!is.null(hot$data$years)) hot$data$years
+                                                                           else "NA",
                                                                            sep=", "
                                                                           ), atransf=if (input$atransf != "none") get(paste0("transf.", input$atransf)),
          # If raw proportion (cannot be less than 0 or greater than 1), enforce that limit on x-axis and confidence intervals
@@ -503,10 +510,17 @@ output$forest_norm <- renderPlot({
   )
   } else {
     forest(res, refline=NA, level=conflevel, digits=input$digits, slab=paste(if (!is.null(hot$data$author)) hot$data$author
-                                                                             else if (!is.null(hot$data$authors)) hot$data$authors,
-                                                                             
+                                                                             else if (!is.null(hot$data$authors)) hot$data$authors
+                                                                             else if (!is.null(hot$data$study.name)) hot$data$study.name
+                                                                             else if (!is.null(hot$data$study.names)) hot$data$study.names
+                                                                             else if (!is.null(hot$data[["study name"]])) hot$data[["study name"]]
+                                                                             else if (!is.null(hot$data[["study names"]])) hot$data[["study names"]]
+                                                                             else if (!is.null(hot$data$study)) hot$data$study
+                                                                             else if (!is.null(hot$data$studies)) hot$data$studies
+                                                                             else "NA",
                                                                              if (!is.null(hot$data$year)) hot$data$year
-                                                                             else if (!is.null(hot$data$years)) hot$data$years,
+                                                                             else if (!is.null(hot$data$years)) hot$data$years
+                                                                             else "NA",
                                                                              sep=", "
     ), atransf=if (input$atransf != "none") get(paste0("transf.", input$atransf))
     # If raw proportion (cannot be less than 0 or greater than 1), enforce that limit on x-axis and confidence intervals
@@ -571,14 +585,20 @@ observeEvent(input$ok_save_fplot, {
   
   ##save a png of the plot
   png(filename=input$fplot_path, width=as.numeric(input$fplot_w), height=as.numeric(input$fplot_h), units=input$fplot_unit, res=as.numeric(input$fplot_resolution))
-  
+
   if (input$type == "One proportion" && input$metric1 == "PR") {
     forest(res, refline=NA, digits=input$digits, level=conflevel, slab=paste(if (!is.null(hot$data$author)) hot$data$author
-                                                                             else if (!is.null(hot$data$authors)) hot$data$authors,
-                                                                             
+                                                                             else if (!is.null(hot$data$authors)) hot$data$authors
+                                                                             else if (!is.null(hot$data$study.name)) hot$data$study.name
+                                                                             else if (!is.null(hot$data$study.names)) hot$data$study.names
+                                                                             else if (!is.null(hot$data[["study name"]])) hot$data[["study name"]]
+                                                                             else if (!is.null(hot$data[["study names"]])) hot$data[["study names"]]
+                                                                             else if (!is.null(hot$data$study)) hot$data$study
+                                                                             else if (!is.null(hot$data$studies)) hot$data$studies
+                                                                             else "NA",
                                                                              if (!is.null(hot$data$year)) hot$data$year
-                                                                             else if (!is.null(hot$data$years)) hot$data$years,
-                                                                             
+                                                                             else if (!is.null(hot$data$years)) hot$data$years
+                                                                             else "NA",
                                                                              sep=", "
                                                                             ), atransf=if (input$atransf != "none") get(paste0("transf.", input$atransf)),
            # If raw proportion (cannot be less than 0 or greater than 1), enforce that limit on x-axis and confidence intervals
@@ -587,10 +607,17 @@ observeEvent(input$ok_save_fplot, {
           )
   } else {
     forest(res, refline=NA, digits=input$digits, level=conflevel, slab=paste(if (!is.null(hot$data$author)) hot$data$author
-                                                                             else if (!is.null(hot$data$authors)) hot$data$authors,
-                                                                             
+                                                                             else if (!is.null(hot$data$authors)) hot$data$authors
+                                                                             else if (!is.null(hot$data$study.name)) hot$data$study.name
+                                                                             else if (!is.null(hot$data$study.names)) hot$data$study.names
+                                                                             else if (!is.null(hot$data[["study name"]])) hot$data[["study name"]]
+                                                                             else if (!is.null(hot$data[["study names"]])) hot$data[["study names"]]
+                                                                             else if (!is.null(hot$data$study)) hot$data$study
+                                                                             else if (!is.null(hot$data$studies)) hot$data$studies
+                                                                             else "NA",
                                                                              if (!is.null(hot$data$year)) hot$data$year
-                                                                             else if (!is.null(hot$data$years)) hot$data$years,
+                                                                             else if (!is.null(hot$data$years)) hot$data$years
+                                                                             else "NA",
                                                                              
                                                                              sep=", "
     ), atransf=if (input$atransf != "none") get(paste0("transf.", input$atransf))
