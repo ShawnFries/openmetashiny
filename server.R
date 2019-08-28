@@ -18,7 +18,8 @@ server <- function(input, output, session) {
   observe({
     #toggleState(id="backButton", condition=app$page > 1)
     toggleState("continueButton", app$page == 1)
-    toggleState("continueButton2", app$page == 2)
+    toggleState("continueButton_real_or_sample", app$page == 2)
+    toggleState("continueButton2", app$page == 3)
   })
 
   nextStep <- function(direction) {
@@ -31,6 +32,7 @@ server <- function(input, output, session) {
   observeEvent(input$continueButton_real_or_sample, nextStep(1))
   observeEvent(input$continueButton2, nextStep(1))
   observeEvent(input$continueButton2_de, nextStep(1))
+  observeEvent(input$continueButton_sample_data, nextStep(1))
 
   output$page <- renderText({
     app$page
@@ -40,7 +42,7 @@ server <- function(input, output, session) {
   outputOptions(output, "page", suspendWhenHidden=F)
   
   output$main_page <- renderUI({
-    if(app$page > 2) {
+    if(app$page > 3) {
                      
                      navbarPage(#div(id="title", img(src="meta.png")), #logo
                        #"OpenMetaAnalyst", #just the words

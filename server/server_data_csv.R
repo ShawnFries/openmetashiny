@@ -274,7 +274,9 @@ output$hot <- renderRHandsontable({####dat_csv in ui_data.R
     #print(csv_button_pressed)
    # print(DF)
   } else if (is.null(vals$datar)) {
-      if (input$dataType == "proportion") {
+      if (input$is_real_data == "sample") {
+        DF <- get(input$sample_dataset) # I coded this input variable to the exact name of the built-in Metafor datasets. Get, as the name suggests, gets the dataframe of that name
+      } else if (input$dataType == "proportion") {
         DF <- data.frame(names="Study A", year=as.integer(format(Sys.Date(), "%Y")), count=5, ni=10, proportion=0.5, stringsAsFactors=F)
       } else if (input$dataType == "mean") {
         DF <- data.frame(X=1, study=1, source="Location A", ni=10, mi=5, sdi=1, stringsAsFactors=F)
