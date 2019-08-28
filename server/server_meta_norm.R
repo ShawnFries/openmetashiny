@@ -370,7 +370,7 @@ observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
              xi=xi,
              ti=ti,
              data=hot$data)},
-      error=function(err){
+      error=function(err) {
         print("ERROR:  There must be at least one column each named \"xi\" and \"ti\"")
       }
     )#ends tryCatch
@@ -393,7 +393,7 @@ observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
       escalc(measure=input$metric_cronbach_alpha,
              ai=ai,
              mi=mi,
-             ti=ti,
+             ni=ni,
              data=hot$data)},
       error=function(err) {
         print("ERROR:  There must be at least one column each named \"ai\" (for observed alpha values), \"mi\" (for number of items/replications/parts of the measurement instrument),
