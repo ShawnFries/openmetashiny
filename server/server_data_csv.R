@@ -298,17 +298,17 @@ output$hot <- renderRHandsontable({####dat_csv in ui_data.R
   hot$table <- rhandsontable(data.frame(DF), stretchH="all", useTypes=F)
   if (!(is.null(input$hot) || csv_button_pressed || nrow(hot_to_r(input$hot)) == 0)) {
     hot$data <- hot_to_r(input$hot)
-    print(3)
+   # print(3)
     print(hot$data)
     # Bit of a hack to prevent the initial setup e.g. "Study A" row filters from causing the table to overwrite at the instant a new CSV is uploaded..
     # Ideally we'd hold off on updating this until the row filters have refreshed to prevent them from overwriting (when uploading a CSV first replace row filters THEN update this table)
     # TODO: Give a way of retrieving the filter values after selected instead of just deleting them? (e.g. undo button for filters..)
     # TODO: Cleaner way of selecting filters? Dropdown menus for each/better yet one dropdown for entire section instead of taking up a screen's worth of text above the table...
     if (input$enable_filtering && !is.null(colnames(hot$data)) && !is.null(row_filters) && !csv_button_pressed && length(row_filters) > 0 && nrow(hot$data) > 0) {
-      print(4)
+     # print(4)
       DF <- hot$data
-      print(number_of_columns)
-      print(DF)
+     # print(number_of_columns)
+     # print(DF)
           for (i in 1:number_of_columns) {
             row_values <- sort(input[[paste("row_filters", i, sep="_")]])
            # if (DF == hot_to_r(input$hot)) { # This is necessary in case user edits while this code would be running (force synchronization otherwise get to it next time table refreshes)
@@ -319,9 +319,9 @@ output$hot <- renderRHandsontable({####dat_csv in ui_data.R
               #  print("column")
               #  print(DF[[i]])
               #  print("filter values")
-                print(row_values)
+              #  print(row_values)
                 DF <- DF[DF[[i]] %in% row_values, ]
-                print(DF)
+               # print(DF)
               } else {
                 break  # Stop filtering, they're blank or there is some other problem
               }

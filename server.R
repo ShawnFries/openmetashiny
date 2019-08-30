@@ -3,6 +3,7 @@ library(shinyjs)
 library(shinyBS)
 library(shinydashboard) #tabBox()
 library(rhandsontable)
+library(BiasedUrn)
 #library(DT)
 library(metafor)
 #library(dplyr)
@@ -15,12 +16,12 @@ server <- function(input, output, session) {
  # print(app)
  # print(language)
 
-  observe({
+ # observe({
     #toggleState(id="backButton", condition=app$page > 1)
-    toggleState("continueButton", app$page == 1)
-    toggleState("continueButton_real_or_sample", app$page == 2)
-    toggleState("continueButton2", app$page == 3)
-  })
+    #toggleState("continueButton", app$page == 1)
+    #toggleState("continueButton_real_or_sample", app$page == 2)
+    #toggleState("continueButton2", app$page == 3)
+ # })
 
   nextStep <- function(direction) {
     app$page <- app$page + direction
@@ -30,6 +31,7 @@ server <- function(input, output, session) {
   #observeEvent(input$backButton, nextStep(-1))
   observeEvent(input$continueButton, nextStep(1))
   observeEvent(input$continueButton_real_or_sample, nextStep(1))
+  observeEvent(input$continueButton_real_or_sample_de, nextStep(1))
   observeEvent(input$continueButton2, nextStep(1))
   observeEvent(input$continueButton2_de, nextStep(1))
   observeEvent(input$continueButton_sample_data, nextStep(1))

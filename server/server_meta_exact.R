@@ -8,8 +8,8 @@
 dataModal2_exact <- function(failed=F) {
   modalDialog(
     selectInput("type_exact", "Type of data", c("Two proportions", "Diagnostic"), switch(input$dataType,
-                                                                                         "diagnostic" = "Diagnostic"
-    )
+                                                                                         "diagnostic"="Diagnostic"
+                                                                                        )
     ), 
     footer=tagList(
       modalButton("Cancel"),
@@ -39,8 +39,10 @@ observeEvent(input$okexact_escalc, {                         ####okexact_escalc
                         
                         sep=", "
              ),
-             model="CM.EL",
-             data=hot$data)},
+            # model="CM.EL", # This argument seems to make it take forever to calculate (literally as far as I could tell in limited computing time..) but uses a quasi Newtonian method
+            # Default uses iteratively reweighted least squares
+             data=hot$data)
+      },
       error=function(err){
         print("ERROR:  There must be at least one column each named \"ai\", \"ci\", \"n1i\", and \"n2i\"")
       }

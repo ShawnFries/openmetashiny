@@ -36,7 +36,7 @@ ui <- function(session) {
   fluidPage(
     useShinyjs(),
     conditionalPanel('output.page == 1',
-                     titlePanel("What language would you like to use? (Welche Sprache möchten Sie benutzen?)"),
+                     titlePanel("Which language would you like to use? (Welche Sprache möchten Sie benutzen?)"),
                      sidebarLayout(
                        sidebarPanel(selectInput("language",
                                                 "Language (Sprache)",
@@ -47,7 +47,7 @@ ui <- function(session) {
                     ),
                     actionButton("continueButton", "Continue (Weiter)")
     ),
-    conditionalPanel('output.page == 2',  # TODO: Add German translation for each of these
+    conditionalPanel('output.page == 2 && input.language == "en"',  # TODO: Add German translation for each of these
                      titlePanel("Would you like to import/enter your own data or try a sample dataset obtained from a published meta-analysis?"),
                      sidebarLayout(
                        sidebarPanel(selectInput("is_real_data",
@@ -58,6 +58,18 @@ ui <- function(session) {
                        mainPanel()
                      ),
                      actionButton("continueButton_real_or_sample", "Continue")
+    ),
+    conditionalPanel('output.page == 2 && input.language == "de"',  # TODO: Add German translation for each of these
+                     titlePanel("Would you like to import/enter your own data or try a sample dataset obtained from a published meta-analysis?"),
+                     sidebarLayout(
+                       sidebarPanel(selectInput("is_real_data_de",
+                                                "User Input or Sample Data",
+                                                c("Input my own"="user_input", "Sample"="sample")
+                       )
+                       ),
+                       mainPanel()
+                     ),
+                     actionButton("continueButton_real_or_sample_de", "Weiter")
     ),
     conditionalPanel('output.page == 3 && input.language == "en" && input.is_real_data == "user_input"',
                      titlePanel("What type of data do you have?"),
