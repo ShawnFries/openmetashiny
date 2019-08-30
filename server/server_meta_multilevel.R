@@ -6,7 +6,7 @@
 # TODO: Truncate confidence intervals for proportions in metafor plots to 0 to 1
 dataModal2_multilevel <- function(failed=F) {
   modalDialog(
-    selectInput("type_multilevel", "Type of data", c("One proportion", "One mean", "Event count", "Two proportions", "Two means", "Event counts", "Regression coefficient", "Cronbach α", "Generic effect size", "Raw mean difference", "Diagnostic"), switch(input$dataType,
+    selectInput("type_multilevel", "Type of data", c("One proportion", "One mean", "Event count", "Two proportions", "Two means", "Event counts", "Regression coefficient", "Cronbach α", "Generic effect size", "Raw mean difference", "Diagnostic"), switch(dataType$type,
                                                                                                                                               "proportion" = "One proportion",
                                                                                                                                               "mean" = "One mean",
                                                                                                                                               "event count" = "Event count",

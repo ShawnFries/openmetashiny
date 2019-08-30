@@ -8,7 +8,7 @@
 
 dataModal2_exact_cum <- function(failed=F) {
   modalDialog(
-    selectInput("type_exact_cum", "Type of data", c("One proportion", "Two proportions", "Diagnostic"), switch(input$dataType,
+    selectInput("type_exact_cum", "Type of data", c("One proportion", "Two proportions", "Diagnostic"), switch(dataType$type,
                                                                                                                "proportion" = "One proportion",
                                                                                                                "proportions" = "Two proportions",
                                                                                                                "diagnostic" = "Diagnostic"

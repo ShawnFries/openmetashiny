@@ -8,7 +8,7 @@
 
 dataModal2_cum <- function(failed=F) {
   modalDialog(
-    selectInput("type_cum", "Type of data", c("Proportion", "Mean", "Two proportions (2X2)", "Two means"), switch(input$dataType,
+    selectInput("type_cum", "Type of data", c("Proportion", "Mean", "Two proportions (2X2)", "Two means"), switch(dataType$type,
                                                                                                                   "proportion" = "Proportion",
                                                                                                                   "mean" = "Mean",
                                                                                                                   "proportions" = "Two proportions (2X2)",

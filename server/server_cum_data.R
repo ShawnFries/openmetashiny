@@ -39,7 +39,7 @@ observe({
                     "type_cum_data",
                     "Type of data",
                     c("Proportion", "Mean", "Two proportions (2X2)", "Two means"),
-                    switch(input$dataType,
+                    switch(dataType$type,
                            "mean" = "Mean",
                            "proportions" = "Two proportions (2X2)",
                            "means" = "Two means"

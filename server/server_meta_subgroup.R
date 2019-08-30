@@ -10,7 +10,7 @@
 
 dataModal2_subgroup <- function(failed=F) {
   modalDialog(
-    selectInput("type_subgroup", "Type of data", c("One proportion", "One mean", "Two proportions", "Two means"), switch(input$dataType,
+    selectInput("type_subgroup", "Type of data", c("One proportion", "One mean", "Two proportions", "Two means"), switch(dataType$type,
                                                                                                                     "proportion" = "One proportion",
                                                                                                                     "mean" = "One mean",
                                                                                                                     "proportions" = "Two proportions",

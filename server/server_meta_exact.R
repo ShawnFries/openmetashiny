@@ -7,7 +7,7 @@
 # (Is part of backcalc)
 dataModal2_exact <- function(failed=F) {
   modalDialog(
-    selectInput("type_exact", "Type of data", c("Two proportions", "Diagnostic"), switch(input$dataType,
+    selectInput("type_exact", "Type of data", c("Two proportions", "Diagnostic"), switch(dataType$type,
                                                                                          "diagnostic"="Diagnostic"
                                                                                         )
     ), 

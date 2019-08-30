@@ -54,7 +54,7 @@ observeEvent(input$okcsv, {                                                     
   # Check that data object exists and is data frame.
   if (!is.null(input$file1)) {
     vals$data <- read.csv(input$file1$datapath, header=input$header, sep=input$sep, quote=input$quote)
-    if (input$dataType == "proportion" && length(intersect(c("count",
+    if (dataType$type == "proportion" && length(intersect(c("count",
                                                             "xi",
                                                             "counts",
                                                             "x_i",
@@ -107,19 +107,19 @@ observeEvent(input$okcsv, {                                                     
       vals$data$lower <- pmax(0, vals$data$proportion - error)
       vals$data$upper <- pmin(1, vals$data$proportion + error)
       # Add back calculation given lower and upper bounds and sample size OR sd?
-    } else if (input$dataType == "proportions" && length(intersect(c("ai", "n1i", "ci", "n2i"), colnames(vals$data))) == 4) {# TODO: Add additional checks for proper columns being there...
+    } else if (dataType$type == "proportions" && length(intersect(c("ai", "n1i", "ci", "n2i"), colnames(vals$data))) == 4) {# TODO: Add additional checks for proper columns being there...
       vals$data$odds_ratio <- vals$data$ai / vals$data$n1i / (vals$data$ci / vals$data$n2i)
       sds <- sqrt(1 / vals$data$ai + 1 / vals$data$ci + 1 / (vals$data$n1i - vals$data$ai) + 1 / (vals$data$n2i - vals$data$ci))  # Asymptotic approximation..
       error <- mapply(function(x, y) qt(0.975, x - 1) * y, vals$data$n1i + vals$data$n2i, sds)
       vals$data$lower <- vals$data$odds_ratio - error
       vals$data$upper <- vals$data$odds_ratio + error
-    } else if (input$dataType == "means" && length(intersect(c("m1i", "m2i", "sd1i", "sd2i", "n1i", "n2i"), colnames(vals$data))) == 6) {# TODO: Add checks for proper columns being there...
+    } else if (dataType$type == "means" && length(intersect(c("m1i", "m2i", "sd1i", "sd2i", "n1i", "n2i"), colnames(vals$data))) == 6) {# TODO: Add checks for proper columns being there...
       vals$data$mean_difference <- vals$data$m2i - vals$data$m1i
       sds <- vals$data$sd1i / sqrt(vals$data$n1i) + vals$data$sd2i / sqrt(vals$data$n2i)
       error <- mapply(function(x, y) qt(0.975, x - 1) * y, vals$data$n1i + vals$data$n2i, sds)
       vals$data$lower <- vals$data$mean_difference - error
       vals$data$upper <- vals$data$mean_difference + error
-    } else if (input$dataType == "proportion" && length(intersect(c("lower",
+    } else if (dataType$type == "proportion" && length(intersect(c("lower",
                                                              "upper"), colnames(vals$data))) == 2 && length(intersect(c("count",
                                                                                                                                  "xi",
                                                                                                                                  "counts",
@@ -149,7 +149,7 @@ observeEvent(input$okcsv, {                                                     
     #error <- mapply(function(x, y) qt(0.975, x - 1) * y / sqrt(x), vals$data$ni, vals$data$sdi)
    # vals$data$lower <- vals$data$mi - error
    # vals$data$upper <- vals$data$mi + error
-  } else if ((input$dataType == "proportion" && length(intersect(c("lower",
+  } else if ((dataType$type == "proportion" && length(intersect(c("lower",
                                                                    "upper"), colnames(vals$data))) == 2 && length(intersect(c("count",
                                                                                                                                      "xi",
                                                                                                                                      "counts",
@@ -195,6 +195,17 @@ observeEvent(input$okcsv, {                                                     
     showModal(dataModal(failed=T))
   }
   csv_button_pressed <<- T
+  column_names <- colnames(vals$datar)
+  changeDataType(if ("m1i" %in% column_names) "means"
+                 else if ("mi" %in% column_names) "mean"
+                 else if ("t2i" %in% column_names) "event counts"
+                 else if ("ti" %in% column_names) "event count"
+                 else if ("count" %in% column_names) "proportion"
+                 else if ("x2i" %in% column_names) "proportions"
+                 else if ("ri" %in% column_names) "regression coefficient"
+                 else if ("ai" %in% column_names) "cronbach alpha"
+                 else F  # Pass false so that changeDataType does not execute (per an if-statement within it) if no matching data type found
+  )
 })
 
 hot <- reactiveValues()
@@ -276,13 +287,13 @@ output$hot <- renderRHandsontable({####dat_csv in ui_data.R
   } else if (is.null(vals$datar)) {
       if (input$is_real_data == "sample") {
         DF <- get(input$sample_dataset) # I coded this input variable to the exact name of the built-in Metafor datasets. Get, as the name suggests, gets the dataframe of that name
-      } else if (input$dataType == "proportion") {
+      } else if (dataType$type == "proportion") {
         DF <- data.frame(names="Study A", year=as.integer(format(Sys.Date(), "%Y")), count=5, ni=10, proportion=0.5, stringsAsFactors=F)
-      } else if (input$dataType == "mean") {
+      } else if (dataType$type == "mean") {
         DF <- data.frame(X=1, study=1, source="Location A", ni=10, mi=5, sdi=1, stringsAsFactors=F)
-      } else if (input$dataType == "proportions") {
+      } else if (dataType$type == "proportions") {
         DF <- data.frame(X=1, study=1, author="Author A", year=as.integer(format(Sys.Date(), "%Y")), ai=5, n1i=10, ci=3, n2i=15, stringsAsFactors=F)
-      } else if (input$dataType == "means") {
+      } else if (dataType$type == "means") {
         DF <- data.frame(X=1, study=1, source="Location A")#, n1i=10, m1i=5, sd1i=1, n2i=30, m2i=7, sd2i=2, stringsAsFactors=F)
       }
     } else {
@@ -299,7 +310,7 @@ output$hot <- renderRHandsontable({####dat_csv in ui_data.R
   if (!(is.null(input$hot) || csv_button_pressed || nrow(hot_to_r(input$hot)) == 0)) {
     hot$data <- hot_to_r(input$hot)
    # print(3)
-    print(hot$data)
+    #print(hot$data)
     # Bit of a hack to prevent the initial setup e.g. "Study A" row filters from causing the table to overwrite at the instant a new CSV is uploaded..
     # Ideally we'd hold off on updating this until the row filters have refreshed to prevent them from overwriting (when uploading a CSV first replace row filters THEN update this table)
     # TODO: Give a way of retrieving the filter values after selected instead of just deleting them? (e.g. undo button for filters..)

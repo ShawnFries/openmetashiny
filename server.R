@@ -13,6 +13,7 @@ library(grid)
 
 server <- function(input, output, session) {
   app <- reactiveValues(page=1)
+  dataType <- reactiveValues(type="proportion")
  # print(app)
  # print(language)
 
@@ -27,6 +28,13 @@ server <- function(input, output, session) {
     app$page <- app$page + direction
     #print(app$page)
   }
+  
+  changeDataType <- function(type) {
+    print(type)
+    if (length(type) > 0 && type != F) {
+      dataType$type <- type
+    }
+  }
 
   #observeEvent(input$backButton, nextStep(-1))
   observeEvent(input$continueButton, nextStep(1))
@@ -35,6 +43,18 @@ server <- function(input, output, session) {
   observeEvent(input$continueButton2, nextStep(1))
   observeEvent(input$continueButton2_de, nextStep(1))
   observeEvent(input$continueButton_sample_data, nextStep(1))
+  observeEvent(input$sample_dataset, changeDataType(switch(input$sample_dataset,
+                                                           "dat.debruin2009"="mean",
+                                                           "dat.normand1999"="means",
+                                                           "dat.hasselblad1998"="proportion",
+                                                           "dat.egger2001"="proportions",
+                                                           "dat.hart1999"="event counts",
+                                                           "dat.molloy2014"="regression coefficient",
+                                                           "dat.bonett2010"="cronbach alpha"
+                                                          )
+                                                   )
+              )
+  observeEvent(input$dataType, changeDataType(input$dataType))
 
   output$page <- renderText({
     app$page
