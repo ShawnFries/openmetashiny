@@ -123,8 +123,8 @@ output$forest_exact <- renderPlot({
                                                                            if (!is.null(hot$data$year)) hot$data$year
                                                                            else if (!is.null(hot$data$years)) hot$data$years,
 
-                                                                           sep=", "
-                                                                          )
+                                                                           sep=", "),
+                                                                           atransf=if (input$atransf_exact != "none") get(paste0("transf.", input$atransf_exact))
   )
 
   })
@@ -172,9 +172,8 @@ observeEvent(input$ok_save_fplot_exact, {
                                                                            if (!is.null(hot$data$year)) hot$data$year
                                                                            else if (!is.null(hot$data$years)) hot$data$years,
                                                                            
-                                                                           sep=", "
+                                                                           sep=", "), atransf=if (input$atransf_exact != "none") get(paste0("transf.", input$atransf_exact))
                                                                           )
-        )
   dev.off()
   
   removeModal()
