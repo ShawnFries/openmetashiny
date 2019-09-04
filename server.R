@@ -39,10 +39,16 @@ server <- function(input, output, session) {
   #observeEvent(input$backButton, nextStep(-1))
   observeEvent(input$continueButton, nextStep(1))
   observeEvent(input$continueButton_real_or_sample, nextStep(1))
+  observeEvent(input$backButton_real_or_sample, nextStep(-1))
   observeEvent(input$continueButton_real_or_sample_de, nextStep(1))
+  observeEvent(input$backButton_real_or_sample_de, nextStep(-1))
   observeEvent(input$continueButton2, nextStep(1))
+  observeEvent(input$backButton2, nextStep(-1))
   observeEvent(input$continueButton2_de, nextStep(1))
+  observeEvent(input$backButton2_de, nextStep(-1))
   observeEvent(input$continueButton_sample_data, nextStep(1))
+  observeEvent(input$backButton_sample_data, nextStep(-1))
+  observeEvent(input$backButton_main_page, nextStep(-1))
   observeEvent(input$sample_dataset, changeDataType(switch(input$sample_dataset,
                                                            "dat.debruin2009"="mean",
                                                            "dat.normand1999"="means",
@@ -109,7 +115,9 @@ server <- function(input, output, session) {
                        bsTooltip("leave_one_out_div", "Leave-one-out meta-analysis", "right", options=list(container="body")),
                        
                        tabPanel(div(id="report_div", img(src="report.png")), source("ui/ui_report.R", local=T)$value),#tabPanel "Report"
-                       bsTooltip("report_div", "Generate report", "right", options=list(container="body")))
+                       bsTooltip("report_div", "Generate report", "right", options=list(container="body"))
+                       )
+      
     
   }
     })

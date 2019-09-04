@@ -57,7 +57,8 @@ ui <- function(session) {
                        ),
                        mainPanel()
                      ),
-                     actionButton("continueButton_real_or_sample", "Continue")
+                     actionButton("continueButton_real_or_sample", "Continue"),
+                     actionButton("backButton_real_or_sample", "Back")
     ),
     conditionalPanel('output.page == 2 && input.language == "de"',  # TODO: Add German translation for each of these
                      titlePanel("Would you like to import/enter your own data or try a sample dataset obtained from a published meta-analysis?"),
@@ -69,7 +70,8 @@ ui <- function(session) {
                        ),
                        mainPanel()
                      ),
-                     actionButton("continueButton_real_or_sample_de", "Weiter")
+                     actionButton("continueButton_real_or_sample_de", "Weiter"),
+                     actionButton("backButton_real_or_sample_de", "Zurück")
     ),
     conditionalPanel('output.page == 3 && input.language == "en" && input.is_real_data == "user_input"',
                      titlePanel("What type of data do you have?"),
@@ -96,7 +98,8 @@ ui <- function(session) {
                                                     )
                                      ),
                          mainPanel()),
-                       actionButton("continueButton2", "Continue")
+                       actionButton("continueButton2", "Continue"),
+                     actionButton("backButton2", "Back")
     ), conditionalPanel('output.page == 3 && input.language == "de" && input.is_real_data == "user_input"',
                         titlePanel("Welche Art von Daten haben Sie?"),
                         sidebarLayout(
@@ -124,7 +127,8 @@ ui <- function(session) {
                           )
                           ),
                           mainPanel()),
-                        actionButton("continueButton2_de", "Weiter")
+                        actionButton("continueButton2_de", "Weiter"),
+                        actionButton("backButton2_de", "Zurück")
     ),
     conditionalPanel('output.page == 3 && input.language == "en" && input.is_real_data == "sample"',
                      titlePanel("Which sample dataset would you like to use?"),
@@ -157,8 +161,12 @@ ui <- function(session) {
                        )
                        ),
                        mainPanel()),
-                     actionButton("continueButton_sample_data", "Continue")
+                     actionButton("continueButton_sample_data", "Continue"),
+                     actionButton("backButton_sample_data", "Back")
     ), uiOutput("main_page"),
+    conditionalPanel('output.page > 3',
+                     actionButton("backButton_main_page", "Back")
+                     ),
     
   tags$style(type='text/css', '.navbar { 
              font-family: Times;

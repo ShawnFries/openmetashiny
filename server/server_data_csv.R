@@ -203,6 +203,7 @@ observeEvent(input$okcsv, {                                                     
                  else if ("count" %in% column_names) "proportion"
                  else if ("x2i" %in% column_names) "proportions"
                  else if ("ri" %in% column_names) "regression coefficient"
+                 else if ("bi" %in% column_names) "diagnostic"
                  else if ("ai" %in% column_names) "cronbach alpha"
                  else F  # Pass false so that changeDataType does not execute (per an if-statement within it) if no matching data type found
   )

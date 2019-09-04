@@ -15,11 +15,11 @@ dataModal2_exact_cum <- function(failed=F) {
     )
                ),
     conditionalPanel(
-      condition="input.type_exact_cum_cum == 'Proportion'",
+      condition="input.type_exact_cum == 'Proportion'",
       selectInput("metric1_exact_cum", "Metric", c(raw_exact_proportion="PR", arcsine="PAS", logit="PLO"))
     ),
     conditionalPanel(
-      condition="input.type_exact_cum_cum == 'Mean'",
+      condition="input.type_exact_cum == 'Mean'",
       selectInput("metric2_exact_cum", "Metric", c(`MN - raw mean`="MN", 
                                              `MNLN - log transformed mean`="MNLN", 
                                              `CVLN - log transformed coefficient of variation`="CVLN",
@@ -28,14 +28,14 @@ dataModal2_exact_cum <- function(failed=F) {
                  )
     ),
     conditionalPanel(
-      condition="input.type_exact_cum_cum == 'Two proportions (2X2)'",
+      condition="input.type_exact_cum == 'Two proportions (2X2)'",
       selectInput("metric3_exact_cum", "Metric", c("RR", "OR", "RD", "AS", "PETO"))
     ),
     conditionalPanel(
-      condition="input.type_exact_cum_cum == 'Two means'",
+      condition="input.type_exact_cum == 'Two means'",
       selectInput("metric4_exact_cum", "Metric", c("MD", "SMD", "SMDH", "ROM"))
     ),conditionalPanel(
-      condition="input.type_exact_cum_cum == 'Regression Coefficient'",
+      condition="input.type_exact_cum == 'Regression Coefficient'",
       selectInput("metric5_exact_cum",
                   "Metric", 
                   c(`COR - raw correlation coefficient`="COR",
@@ -45,7 +45,7 @@ dataModal2_exact_cum <- function(failed=F) {
       )
     ),
     conditionalPanel(
-      condition="input.type_exact_cum_cum == 'Diagnostic'",
+      condition="input.type_exact_cum == 'Diagnostic'",
       selectInput("metric6_exact_cum",
                   "Metric", 
                   c(`RR - log risk ratio`="RR", 
