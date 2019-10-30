@@ -93,7 +93,8 @@ ui <- function(session) {
                                                               "event counts over time (x₁ and t₁ vs x₂ and t₂)"="event counts",
                                                               "raw mean difference ( x₁ - x₂ )"="mean difference"),
                                                           "Data on test performance"=
-                                                            c("diagnostic (TP┼FP┼FN┼TN)"="diagnostic")
+                                                            c("diagnostic (TP┼FP┼FN┼TN)"="diagnostic",
+                                                            "sensitivity and specificity"="sens and spec")
                                                          )
                                                     )
                                      ),
@@ -135,7 +136,7 @@ ui <- function(session) {
                      sidebarLayout(
                        sidebarPanel(selectInput("sample_dataset",
                                                 "Sample Dataset",
-                                                c("de Bruin (2009) - (One mean) Information about standard care quality and HAART-adherence in control groups"="dat.debruin2009",
+                                                c("Senn (2013) - (One mean) Results from 26 trials examining the effectiveness of glucose-lowering agents in patients with type 2 diabetes"="dat.senn2013",
                                                   "Normand (1999) - (Two means) Data on length of hospital stay under stroke patients under specialized care (m1i i.e. mean 1) vs under routine care (m2i)"="dat.normand1999",
                                                   "Hasselblad (1998) - (One proportion) Results from 24 studies on the effectiveness of various counseling types for smoking cessation"="dat.hasselblad1998",
                                                   "Egger (2001) - (Two proportions) Effectiveness of intravenous magnesium in the prevention of death following acute myocardial infarction (ai is number of deaths in magnesium group, ci is for control group)."="dat.egger2001",

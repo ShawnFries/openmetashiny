@@ -30,7 +30,7 @@ server <- function(input, output, session) {
   }
   
   changeDataType <- function(type) {
-    print(type)
+    #print(type)
     if (length(type) > 0 && type != F) {
       dataType$type <- type
     }
@@ -50,7 +50,7 @@ server <- function(input, output, session) {
   observeEvent(input$backButton_sample_data, nextStep(-1))
   observeEvent(input$backButton_main_page, nextStep(-1))
   observeEvent(input$sample_dataset, changeDataType(switch(input$sample_dataset,
-                                                           "dat.debruin2009"="mean",
+                                                           "dat.senn2013"="mean",
                                                            "dat.normand1999"="means",
                                                            "dat.hasselblad1998"="proportion",
                                                            "dat.egger2001"="proportions",

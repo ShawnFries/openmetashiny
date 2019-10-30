@@ -142,7 +142,7 @@ dataModal3_exact <- function(failed=F) {
   modalDialog(
     
     textInput("fplot_path_exact", "Type a path to save your forest plot:",
-                "~/openmeta/plot1.png"),
+                "~/plot1.png"),
     textInput("fplot_w_exact", "Width of forest plot:", "8"),
     textInput("fplot_h_exact", "Height of forest plot:", "6"),
     selectInput("fplot_unit_exact", "Unit of saved plot dimensions", c(`pixels`="px", `inches`="in", "cm", "mm"), "in"),

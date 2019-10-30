@@ -335,7 +335,7 @@ dataModal3_subgroup <- function(failed=F) {
   modalDialog(
 
     textInput("fplot_path_subgroup", "Type a path to save your forest plot:",
-              "~/openmeta/plot1.png"),
+              "~/plot1.png"),
     textInput("fplot_w_subgroup", "Width of forest plot:", "8"),
     textInput("fplot_h_subgroup", "Height of forest plot:", "6"),
     selectInput("fplot_unit_subgroup", "Unit of saved plot dimensions", c(`pixels`="px", `inches`="in", "cm", "mm"), "in"),

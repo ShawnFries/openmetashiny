@@ -204,6 +204,7 @@ observeEvent(input$okcsv, {                                                     
                  else if ("x2i" %in% column_names) "proportions"
                  else if ("ri" %in% column_names) "regression coefficient"
                  else if ("bi" %in% column_names) "diagnostic"
+                 else if ("sensitivity" %in% column_names) "sens and spec"
                  else if ("ai" %in% column_names) "cronbach alpha"
                  else F  # Pass false so that changeDataType does not execute (per an if-statement within it) if no matching data type found
   )
@@ -296,7 +297,9 @@ output$hot <- renderRHandsontable({####dat_csv in ui_data.R
         DF <- data.frame(X=1, study=1, author="Author A", year=as.integer(format(Sys.Date(), "%Y")), ai=5, n1i=10, ci=3, n2i=15, stringsAsFactors=F)
       } else if (dataType$type == "means") {
         DF <- data.frame(X=1, study=1, source="Location A")#, n1i=10, m1i=5, sd1i=1, n2i=30, m2i=7, sd2i=2, stringsAsFactors=F)
-      }
+      } else if (dataType$type == "sens and spec") {
+        DF <- data.frame(X=1, study=1, author="Author A", year=as.integer(format(Sys.Date(), "%Y")), sensitivity=.8, specificity=.95, measured_positive=100, measured_negative=100, stringsAsFactors=F)
+      } 
     } else {
       DF <- hot$data
   }

@@ -306,7 +306,7 @@ dataModal3_reg <- function(failed=F) {
   modalDialog(
 
     textInput("fplot_path_reg", "Type a path to save your forest plot:",
-              "~/openmeta/plot1.png"),
+              "~/plot1.png"),
     textInput("fplot_w_reg", "Width of forest plot:", "8"),
     textInput("fplot_h_reg", "Height of forest plot:", "6"),
     selectInput("fplot_unit_reg", "Unit of saved plot dimensions", c(`pixels`="px", `inches`="in", "cm", "mm"), "in"),

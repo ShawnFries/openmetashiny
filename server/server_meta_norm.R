@@ -6,7 +6,7 @@
 # TODO: Truncate confidence intervals for proportions in metafor plots to 0 to 1
 dataModal2 <- function(failed=F) {
   modalDialog(
-    selectInput("type", "Type of data", c("One proportion", "One mean", "Event count", "Two proportions", "Two means", "Event counts", "Regression coefficient", "Cronbach α", "Generic effect size", "Raw mean difference", "Diagnostic"), switch(dataType$type,
+    selectInput("type", "Type of data", c("One proportion", "One mean", "Event count", "Two proportions", "Two means", "Event counts", "Regression coefficient", "Cronbach α", "Generic effect size", "Raw mean difference", "Diagnostic (2x2 data)", "Sensitivity and Specificity"), switch(dataType$type,
                                                                                                                                               "proportion" = "One proportion",
                                                                                                                                               "mean" = "One mean",
                                                                                                                                               "event count" = "Event count",
@@ -17,7 +17,8 @@ dataModal2 <- function(failed=F) {
                                                                                                                                               "cronbach alpha" = "Cronbach α",
                                                                                                                                               "generic effect size" = "Generic effect size",
                                                                                                                                               "mean difference" = "Raw mean difference",
-                                                                                                                                              "diagnostic" = "Diagnostic"
+                                                                                                                                              "diagnostic" = "Diagnostic (2x2 data)",
+                                                                                                                                              "sens and spec" = "Sensitivity and Specificity"
     )
     ),
     conditionalPanel(
@@ -47,7 +48,7 @@ dataModal2 <- function(failed=F) {
                    )
                   )
     ), conditionalPanel(
-      condition="input.type == 'Two proportions' || input.type == 'Diagnostic'",
+      condition="input.type == 'Two proportions' || input.type == 'Diagnostic (2x2 data)' || input.type == 'Sensitivity and Specificity'",
       selectInput("model_type",
                   "Select the model type to fit 2x2 data to",
                   c("Linear Mixed Effects"="rma",
@@ -57,7 +58,7 @@ dataModal2 <- function(failed=F) {
       )
     ),
     conditionalPanel(
-      condition="(input.type == 'Two proportions' || input.type == 'Diagnostic') && input.model_type != 'mh' && input.model_type != 'peto'",
+      condition="(input.type == 'Two proportions' || input.type == 'Diagnostic (2x2 data)' || input.type == 'Sensitivity and Specificity') && input.model_type != 'mh' && input.model_type != 'peto'",
       selectInput("metric3",
                   "Metric", 
                   c(`RR - log risk ratio`="RR", 
@@ -75,7 +76,7 @@ dataModal2 <- function(failed=F) {
                    )
                  )
     ), conditionalPanel(
-      condition="(input.type == 'Two proportions' || input.type == 'Diagnostic') && input.model_type == 'mh'",
+      condition="(input.type == 'Two proportions' || input.type == 'Diagnostic (2x2 data)' || input.type == 'Sensitivity and Specificity') && input.model_type == 'mh'",
       selectInput("metric_mh",
                   "Metric", 
                   c(`RR - relative risk`="RR", 
@@ -351,7 +352,7 @@ observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
       print("ERROR:  There must be at least one column named \"yi\" and either \"vi\" or \"sei\"")
     })
     removeModal()
-  } else if (!is.null(hot$data) & input$type == "Diagnostic") {
+  } else if (!is.null(hot$data) & input$type == "Diagnostic (2x2 data)") {
     vals$dataescalc <- tryCatch({ # TODO: Add error handling for other column names/check similar names
       escalc(measure=input$metric3,
              ai=ai,
@@ -361,6 +362,19 @@ observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
              data=hot$data)},
       error=function(err){
         print("ERROR:  There must be at least one column each named \"ai\", \"bi\", \"ci\", and \"di\"")
+      }
+    )#ends tryCatch
+    removeModal()
+  } else if (!is.null(hot$data) & input$type == "Sensitivity and Specificity") {
+    vals$dataescalc <- tryCatch({ # TODO: Add error handling for other column names/check similar names
+      escalc(measure=input$metric3,
+             ai=sensitivity * measured_positive,
+             bi=(1 - sensitivity) * measured_positive,
+             ci=(1 - specificity) * measured_negative,
+             di=specificity * measured_negative,
+             data=hot$data)},
+      error=function(err){
+        print("ERROR:  There must be at least one column each named \"sensitivity\", \"specificity\", \"measured_positive\", and \"measured_negative\"")
       }
     )#ends tryCatch
     removeModal()
@@ -422,7 +436,7 @@ res <- eventReactive(input$oknorm_res, {
   cc <- as.numeric(as.character(input$cc))
   
     tryCatch({
-    if (!(input$type %in% c("Two proportions", "Diagnostic")) || input$model_type != "rma") {
+    if (!(input$type %in% c("Two proportions", "Diagnostic (2x2 data)", "Sensitivity and Specificity")) || input$model_type != "rma") {
     rma(yi,
         vi,
         weights=if (!is.null(hot$data$weights)) hot$data$weights,
@@ -435,35 +449,55 @@ res <- eventReactive(input$oknorm_res, {
        )
     } else {
       switch(input$model_type,
-             "mh"=rma.mh(ai,
-                               if (!is.null(hot$data$bi)) bi
-                               else n1i
-                         ,
-                               ci,
-                               if (!is.null(hot$data$di)) di
-                               else n2i
-                         ,
+             "mh"=switch(input$type, "Two proportions"=rma.mh(ai, n1i=n1i, ci=ci, n2i=n2i,
                                data=vals$dataescalc,
                                measure=input$metric_mh,
                                add=cc,
                                to=input$addto,
                                level=conflevel,
                                digits=input$digits
-             ),
-             rma.peto(ai,
-                            if (!is.null(hot$data$bi)) bi
-                            else n1i
-                      ,
-                            ci,
-                            if (!is.null(hot$data$di)) di
-                            else n2i
-                      ,
-                            data=vals$dataescalc,
-                            add=cc,
-                            to=input$addto,
-                            level=conflevel,
-                            digits=input$digits
-             ))
+             ), "Diagnostic (2x2 data)"=rma.mh(ai, bi=bi, ci=ci, di=di,
+                                               data=vals$dataescalc,
+                                               measure=input$metric_mh,
+                                               add=cc,
+                                               to=input$addto,
+                                               level=conflevel,
+                                               digits=input$digits
+             ), # Last case (sensitivity and specificity)
+             rma.mh(ai=sensitivity * measured_positive,
+                    bi=(1 - sensitivity) * measured_positive,
+                    ci=(1 - specificity) * measured_negative,
+                    di=specificity * measured_negative,
+                       data=vals$dataescalc,
+                       measure=input$metric_mh,
+                       add=cc,
+                       to=input$addto,
+                       level=conflevel,
+                       digits=input$digits
+             )),
+             switch(input$type, "Two proportions"=rma.peto(ai, n1i=n1i, ci=ci, n2i=n2i,
+                                                         data=vals$dataescalc,
+                                                         add=cc,
+                                                         to=input$addto,
+                                                         level=conflevel,
+                                                         digits=input$digits
+             ), "Diagnostic (2x2 data)"=rma.peto(ai, bi=bi, ci=ci, di=di,
+                                               data=vals$dataescalc,
+                                               add=cc,
+                                               to=input$addto,
+                                               level=conflevel,
+                                               digits=input$digits
+             ), # Last case (sensitivity and specificity)
+             rma.peto(ai=sensitivity * measured_positive,
+                    bi=(1 - sensitivity) * measured_positive,
+                    ci=(1 - specificity) * measured_negative,
+                    di=specificity * measured_negative,
+                    data=vals$dataescalc,
+                    add=cc,
+                    to=input$addto,
+                    level=conflevel,
+                    digits=input$digits
+             )))
     }
     },
     error=function(err) {
@@ -503,7 +537,7 @@ output$forest_norm <- renderPlot({
                                                                            else if (!is.null(hot$data$years)) hot$data$years
                                                                            else "NA",
                                                                            sep=", "
-                                                                          ), atransf=if (input$atransf != "none") get(paste0("transf.", input$atransf)),
+                                                                          ), transf=if (input$atransf != "none") get(paste0("transf.", input$atransf)),
          # If raw proportion (cannot be less than 0 or greater than 1), enforce that limit on x-axis and confidence intervals
          alim=c(0, 1),
          clim=c(0, 1)
@@ -522,15 +556,16 @@ output$forest_norm <- renderPlot({
                                                                              else if (!is.null(hot$data$years)) hot$data$years
                                                                              else "NA",
                                                                              sep=", "
-    ), atransf=if (input$atransf != "none") get(paste0("transf.", input$atransf))
+    ), transf=if (input$atransf != "none") get(paste0("transf.", input$atransf))
     # If raw proportion (cannot be less than 0 or greater than 1), enforce that limit on x-axis and confidence intervals
     )
   }
+  text(-16, 26, "Study and Author", pos=4)
 
   })
 
 output$msummary_norm <- renderPrint({
-  if (input$type %in% c("Two proportions", "Diagnostic")) {
+  if (input$type %in% c("Two proportions", "Diagnostic (2x2 data")) {
     np_first <- min(hot$data$ai)
     np_second <- min(hot$data$ci)
     if (input$type == "Two proportions") {
@@ -562,7 +597,7 @@ dataModal3 <- function(failed=F) {
   modalDialog(
     
     textInput("fplot_path", "Type a path to save your forest plot:",
-                "~/openmeta/plot1.png"),
+                "~/plot1.png"),
     textInput("fplot_w", "Width of forest plot:", "8"),
     textInput("fplot_h", "Height of forest plot:", "6"),
     selectInput("fplot_unit", "Unit of saved plot dimensions", c(`pixels`="px", `inches`="in", "cm", "mm"), "in"),
@@ -600,7 +635,7 @@ observeEvent(input$ok_save_fplot, {
                                                                              else if (!is.null(hot$data$years)) hot$data$years
                                                                              else "NA",
                                                                              sep=", "
-                                                                            ), atransf=if (input$atransf != "none") get(paste0("transf.", input$atransf)),
+                                                                            ), transf=if (input$atransf != "none") get(paste0("transf.", input$atransf)),
            # If raw proportion (cannot be less than 0 or greater than 1), enforce that limit on x-axis and confidence intervals
            alim=c(0, 1),
            clim=c(0, 1)
@@ -620,9 +655,12 @@ observeEvent(input$ok_save_fplot, {
                                                                              else "NA",
                                                                              
                                                                              sep=", "
-    ), atransf=if (input$atransf != "none") get(paste0("transf.", input$atransf))
+    ), transf=if (input$atransf != "none") get(paste0("transf.", input$atransf))
     )
   }
+  # Doesn't seem to be appearing? troubleshoot..
+  # TODO: Fix below line so label appears
+  text(-16, 26, "Study and Author", pos=4)
   dev.off()
   
   removeModal()

@@ -508,7 +508,7 @@ output$forest_multilevel <- renderPlot({
                                                                            if (!is.null(hot$data$year)) hot$data$year
                                                                            else if (!is.null(hot$data$years)) hot$data$years,
                                                                            sep=", "
-                                                                          ), atransf=if (input$atransf != "none") get(paste0("transf.", input$atransf)),
+                                                                          ), transf=if (input$atransf != "none") get(paste0("transf.", input$atransf)),
          # If raw proportion (cannot be less than 0 or greater than 1), enforce that limit on x-axis and confidence intervals
          alim=c(0, 1),
          clim=c(0, 1)
@@ -526,7 +526,7 @@ output$forest_multilevel <- renderPlot({
                                                                              if (!is.null(hot$data$year)) hot$data$year
                                                                              else if (!is.null(hot$data$years)) hot$data$years,
                                                                              sep=", "
-    ), atransf=if (input$atransf != "none") get(paste0("transf.", input$atransf))
+    ), transf=if (input$atransf != "none") get(paste0("transf.", input$atransf))
     # If raw proportion (cannot be less than 0 or greater than 1), enforce that limit on x-axis and confidence intervals
     )
   }
@@ -566,7 +566,7 @@ dataModal3_multilevel <- function(failed=F) {
   modalDialog(
     
     textInput("fplot_path_multilevel", "Type a path to save your forest plot:",
-                "~/openmeta/plot1.png"),
+                "~/plot1.png"),
     textInput("fplot_w_multilevel", "Width of forest plot:", "8"),
     textInput("fplot_h_multilevel", "Height of forest plot:", "6"),
     selectInput("fplot_unit_multilevel", "Unit of saved plot dimensions", c(`pixels`="px", `inches`="in", "cm", "mm"), "in"),
@@ -603,7 +603,7 @@ observeEvent(input$ok_save_fplot_multilevel, {
                                                                              else if (!is.null(hot$data$years)) hot$data$years,
                                                                              top=0,
                                                                              sep=", "
-                                                                            ), atransf=if (input$atransf_multilevel != "none") get(paste0("transf.", input$atransf_multilevel)),
+                                                                            ), transf=if (input$atransf_multilevel != "none") get(paste0("transf.", input$atransf_multilevel)),
            # If raw proportion (cannot be less than 0 or greater than 1), enforce that limit on x-axis and confidence intervals
            alim=c(0, 1),
            clim=c(0, 1)
@@ -622,7 +622,7 @@ observeEvent(input$ok_save_fplot_multilevel, {
                                                                              else if (!is.null(hot$data$years)) hot$data$years,
                                                                              
                                                                              sep=", "
-    ), atransf=if (input$atransf_multilevel != "none") get(paste0("transf.", input$atransf_multilevel))
+    ), transf=if (input$atransf_multilevel != "none") get(paste0("transf.", input$atransf_multilevel))
     )
   }
   title("Multilevel Meta-Analysis")
