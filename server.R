@@ -89,7 +89,8 @@ server <- function(input, output, session) {
                                                   "Multilevel model (multivariate/phylogenetic/hierarchical linear model)",
                                                   "Multilevel Modell (multivariate/phylogenetic/hierarchical lineares Modell)"
                                                  ),
-                                           source("ui/ui_meta_multilevel.R", local=T)$value)
+                                           source("ui/ui_meta_multilevel.R", local=T)$value),
+                                  tabPanel("Bivariate normal-normal model (e.g. sensitivity and specificity)", source("ui/ui_meta_bivariate.R", local=T)$value)
                        ),
                        #tabPanel "Meta-analysis"
                        #https://stackoverflow.com/questions/44953873/add-tooltip-to-tabs-in-shiny
@@ -131,6 +132,8 @@ server <- function(input, output, session) {
   source("server/server_meta_exact.R", local=T)$value
 
   source("server/server_meta_multilevel.R", local=T)$value
+  
+  source("server/server_meta_bivariate.R", local=T)$value
 
   source("server/server_cum_data.R", local=T)$value
 

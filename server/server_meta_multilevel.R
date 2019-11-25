@@ -1,3 +1,5 @@
+library(shinyMatrix)
+
 #############################
 ##       effect_norm       ##
 #############################
@@ -6,7 +8,7 @@
 # TODO: Truncate confidence intervals for proportions in metafor plots to 0 to 1
 dataModal2_multilevel <- function(failed=F) {
   modalDialog(
-    selectInput("type_multilevel", "Type of data", c("One proportion", "One mean", "Event count", "Two proportions", "Two means", "Event counts", "Regression coefficient", "Cronbach α", "Generic effect size", "Raw mean difference", "Diagnostic"), switch(dataType$type,
+    selectInput("type_multilevel", "Type of data", c("One proportion", "One mean", "Event count", "Two proportions", "Two means", "Event counts", "Regression coefficient", "Cronbach α", "Generic effect size", "Raw mean difference", "Diagnostic (2x2 data)", "Sensitivity and Specificity"), switch(dataType$type,
                                                                                                                                               "proportion" = "One proportion",
                                                                                                                                               "mean" = "One mean",
                                                                                                                                               "event count" = "Event count",
@@ -17,7 +19,8 @@ dataModal2_multilevel <- function(failed=F) {
                                                                                                                                               "cronbach alpha" = "Cronbach α",
                                                                                                                                               "generic effect size" = "Generic effect size",
                                                                                                                                               "mean difference" = "Raw mean difference",
-                                                                                                                                              "diagnostic" = "Diagnostic"
+                                                                                                                                              "diagnostic" = "Diagnostic",
+                                                                                                                                              "sens and spec" = "Sensitivity and Specificity"
     )
     ),
     selectInput("grouping_variables_random_effects", "Outer hierarchical variables - Random effects within each group, groups are assumed independent)", colnames(hot$data), multiple=T),
@@ -40,6 +43,13 @@ dataModal2_multilevel <- function(failed=F) {
                 multiple=T,
                 options=list(maxItems=2)
                ),
+    checkboxInput("use_custom_correlation_matrix",
+                  "Manually input the correlation matrix for the different values of the first outer hierarchical variable? E.g. for correlations among species in a phylogenetic meta-analysis"
+    ),
+    #TODO: Automatically Use values from values within outer variables as rows/columns to actually specify correlations..  if this won't work, possibly specify number of rows/columns or let user manually set row/column names 
+    conditionalPanel(condition="input.use_custom_correlation_matrix && input.grouping_variables_random_effects",
+                     matrixInput('hierarchical_correlation_matrix', diag(5), rows=list(names=T), cols=list(names=T), class="numeric", paste=T, copy=T)
+                     ),
     # Phylogenetic meta-analysis; really probably need to pass in species correlation matrices? Then modify other argument... check rma.mv documentation
    # checkboxInput("is_phylogenetic", "Perform a phylogenetic meta-analysis? (i.e. force the correlation of effects ", colnames(hot$data), multiple=T),
     conditionalPanel(
@@ -70,7 +80,7 @@ dataModal2_multilevel <- function(failed=F) {
                   )
     ),
     conditionalPanel(
-      condition="input.type_multilevel == 'Two proportions' || input.type_multilevel == 'Diagnostic'",
+      condition="input.type_multilevel == 'Two proportions' || input.type_multilevel == 'Diagnostic (2x2 data)' || input.type_multilevel == 'Sensitivity and Specificity'",
       selectInput("metric3_multilevel",
                   "Metric", 
                   c(`RR - log risk ratio`="RR", 
@@ -368,7 +378,7 @@ observeEvent(input$okmultilevel_escalc, {                         ####oknorm_esc
       print("ERROR:  There must be at least one column named \"yi\" and either \"vi\" or \"sei\"")
     })
     removeModal()
-  } else if (!is.null(hot$data) & input$type_multilevel == "Diagnostic") {
+  } else if (!is.null(hot$data) & input$type_multilevel == "Diagnostic (2x2 data)") {
     vals$dataescalc <- tryCatch({ # TODO: Add error handling for other column names/check similar names
       escalc(measure=input$metric3_multilevel,
              ai=ai,
@@ -380,6 +390,19 @@ observeEvent(input$okmultilevel_escalc, {                         ####oknorm_esc
              data=hot$data)},
       error=function(err){
         print("ERROR:  There must be at least one column each named \"ai\", \"bi\", \"ci\", and \"di\"")
+      }
+    )#ends tryCatch
+    removeModal()
+  } else if (!is.null(hot$data) & input$type_multilevel == "Sensitivity and Specificity") {
+    vals$dataescalc <- tryCatch({ # TODO: Add error handling for other column names/check similar names
+      escalc(measure=input$metric3_multilevel,
+             ai=sensitivity * true_positive,
+             bi=(1 - specificity) * true_negative,
+             ci=(1 - sensitivity) * true_positive,
+             di=specificity * true_negative,
+             data=hot$data)},
+      error=function(err){
+        print("ERROR:  There must be at least one column each named \"sensitivity\", \"specificity\", \"true_positive\", and \"true_negative\"")
       }
     )#ends tryCatch
     removeModal()
@@ -448,6 +471,24 @@ res_multilevel <- eventReactive(input$okmultilevel_res, {
   inner_variable_length <- length(input$inner_variables_random_effects)
   
     tryCatch({
+      print(if (!is.null(input$inner_variables_random_effects) && !is.null(input$grouping_variables_random_effects)) {
+        #print(2)
+        inner_variable_length <- length(input$inner_variables_random_effects)
+        #print(inner_variable_length)
+        # Don't recycle length of inner variables, just use them once then do no correlated inner effect for any excess outer grouping variables in order
+        mapply(function(x, y, z) reformulate(paste(ifelse(z > inner_variable_length, "1", y), "|", x)),
+               input$grouping_variables_random_effects,
+               input$inner_variables_random_effects,
+               seq_along(input$grouping_variables_random_effects),
+               SIMPLIFY=F
+        )
+      } else if (!is.null(input$grouping_variables_random_effects)) lapply(input$grouping_variables_random_effects, function(x) reformulate(paste("1 |", x)))
+      )
+      print(input$grouping_variables_random_effects[[1]])
+      print(if(input$use_custom_correlation_matrix) {
+        first_outer_variable_name <- input$grouping_variables_random_effects[[1]]
+        list(first_outer_variable_name = input$hierarchical_correlation_matrix)
+      })
     rma.mv(yi,
         vi,
         W=if (!is.null(hot$data$weights)) hot$data$weights,
@@ -467,6 +508,11 @@ res_multilevel <- eventReactive(input$okmultilevel_res, {
                } else if (!is.null(input$grouping_variables_random_effects)) lapply(input$grouping_variables_random_effects, function(x) reformulate(paste("1 |", x)))
                ,
         struct=ifelse(is.null(input$inner_variance_structure), "CS", input$inner_variance_structure),
+        R=if(input$use_custom_correlation_matrix) {
+          correlation_matrix_list <- list(input$hierarchical_correlation_matrix)
+          names(correlation_matrix_list) <- input$grouping_variables_random_effects[[1]]
+          correlation_matrix_list
+          },
         level=conflevel,
         test="t",
         digits=input$digits_multilevel
@@ -534,7 +580,7 @@ output$forest_multilevel <- renderPlot({
   })
 
 output$msummary_multilevel <- renderPrint({
-  if (input$type_multilevel %in% c("Two proportions", "Diagnostic")) {
+  if (input$type_multilevel %in% c("Two proportions", "Diagnostic (2x2 data)")) {
     np_first <- min(hot$data$ai)
     np_second <- min(hot$data$ci)
     if (input$type_multilevel == "Two proportions") {
@@ -650,4 +696,13 @@ observe({
                            
                            if (!is.null(fixed_multilevel) && fixed_multilevel == "RE") "REML"
                           )
+  if (!is.null(input$grouping_variables_random_effects)) {
+    outer_variables <- unique(hot$data[[input$grouping_variables_random_effects[[1]]]])
+    print(outer_variables)
+    new_matrix <- diag(length(outer_variables))
+    class(new_matrix) <- "numeric"
+    rownames(new_matrix) <- outer_variables
+    colnames(new_matrix) <- outer_variables
+    updateMatrixInput(session, "hierarchical_correlation_matrix", new_matrix)
+  }
 })

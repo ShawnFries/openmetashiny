@@ -94,7 +94,8 @@ ui <- function(session) {
                                                               "raw mean difference ( x₁ - x₂ )"="mean difference"),
                                                           "Data on test performance"=
                                                             c("diagnostic (TP┼FP┼FN┼TN)"="diagnostic",
-                                                            "sensitivity and specificity"="sens and spec")
+                                                            "sensitivity and specificity"="sens and spec",
+                                                            "positive and negative predictive value"="predictive value")
                                                          )
                                                     )
                                      ),

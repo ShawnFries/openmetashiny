@@ -6,7 +6,7 @@
 # TODO: Truncate confidence intervals for proportions in metafor plots to 0 to 1
 dataModal2 <- function(failed=F) {
   modalDialog(
-    selectInput("type", "Type of data", c("One proportion", "One mean", "Event count", "Two proportions", "Two means", "Event counts", "Regression coefficient", "Cronbach α", "Generic effect size", "Raw mean difference", "Diagnostic (2x2 data)", "Sensitivity and Specificity"), switch(dataType$type,
+    selectInput("type", "Type of data", c("One proportion", "One mean", "Event count", "Two proportions", "Two means", "Event counts", "Regression coefficient", "Cronbach α", "Generic effect size", "Raw mean difference", "Diagnostic (2x2 data)", "Sensitivity and Specificity", "Positive and Negative Predictive Value"), switch(dataType$type,
                                                                                                                                               "proportion" = "One proportion",
                                                                                                                                               "mean" = "One mean",
                                                                                                                                               "event count" = "Event count",
@@ -18,7 +18,8 @@ dataModal2 <- function(failed=F) {
                                                                                                                                               "generic effect size" = "Generic effect size",
                                                                                                                                               "mean difference" = "Raw mean difference",
                                                                                                                                               "diagnostic" = "Diagnostic (2x2 data)",
-                                                                                                                                              "sens and spec" = "Sensitivity and Specificity"
+                                                                                                                                              "sens and spec" = "Sensitivity and Specificity",
+                                                                                                                                              "predictive value" = "Positive and Negative Predictive Value"
     )
     ),
     conditionalPanel(
@@ -48,7 +49,7 @@ dataModal2 <- function(failed=F) {
                    )
                   )
     ), conditionalPanel(
-      condition="input.type == 'Two proportions' || input.type == 'Diagnostic (2x2 data)' || input.type == 'Sensitivity and Specificity'",
+      condition="input.type == 'Two proportions' || input.type == 'Diagnostic (2x2 data)' || input.type == 'Sensitivity and Specificity' || input.type == 'Positive and Negative Predictive Value'",
       selectInput("model_type",
                   "Select the model type to fit 2x2 data to",
                   c("Linear Mixed Effects"="rma",
@@ -58,7 +59,7 @@ dataModal2 <- function(failed=F) {
       )
     ),
     conditionalPanel(
-      condition="(input.type == 'Two proportions' || input.type == 'Diagnostic (2x2 data)' || input.type == 'Sensitivity and Specificity') && input.model_type != 'mh' && input.model_type != 'peto'",
+      condition="(input.type == 'Two proportions' || input.type == 'Diagnostic (2x2 data)' || input.type == 'Sensitivity and Specificity' || input.type == 'Positive and Negative Predictive Value') && input.model_type != 'mh' && input.model_type != 'peto'",
       selectInput("metric3",
                   "Metric", 
                   c(`RR - log risk ratio`="RR", 
@@ -76,7 +77,7 @@ dataModal2 <- function(failed=F) {
                    )
                  )
     ), conditionalPanel(
-      condition="(input.type == 'Two proportions' || input.type == 'Diagnostic (2x2 data)' || input.type == 'Sensitivity and Specificity') && input.model_type == 'mh'",
+      condition="(input.type == 'Two proportions' || input.type == 'Diagnostic (2x2 data)' || input.type == 'Sensitivity and Specificity' || input.type == 'Positive and Negative Predictive Value') && input.model_type == 'mh'",
       selectInput("metric_mh",
                   "Metric", 
                   c(`RR - relative risk`="RR", 
@@ -368,13 +369,26 @@ observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
   } else if (!is.null(hot$data) & input$type == "Sensitivity and Specificity") {
     vals$dataescalc <- tryCatch({ # TODO: Add error handling for other column names/check similar names
       escalc(measure=input$metric3,
-             ai=sensitivity * measured_positive,
-             bi=(1 - sensitivity) * measured_positive,
-             ci=(1 - specificity) * measured_negative,
-             di=specificity * measured_negative,
+             ai=sensitivity * true_positive,
+             bi=(1 - specificity) * true_negative,
+             ci=(1 - sensitivity) * true_positive,
+             di=specificity * true_negative,
              data=hot$data)},
       error=function(err){
-        print("ERROR:  There must be at least one column each named \"sensitivity\", \"specificity\", \"measured_positive\", and \"measured_negative\"")
+        print("ERROR:  There must be at least one column each named \"sensitivity\", \"specificity\", \"true_positive\", and \"true_negative\"")
+      }
+    )#ends tryCatch
+    removeModal()
+  } else if (!is.null(hot$data) & input$type == "Positive and Negative Predictive Value") {
+    vals$dataescalc <- tryCatch({ # TODO: Add error handling for other column names/check similar names
+      escalc(measure=input$metric3,
+             ai=positive_predictive_value * measured_positive,
+             bi=(1 - positive_predictive_value) * measured_positive,
+             ci=(1 - negative_predictive_value) * measured_negative,
+             di=negative_predictive_value * measured_negative,
+             data=hot$data)},
+      error=function(err){
+        print("ERROR:  There must be at least one column each named \"positive_predicted_value\", \"negative_predictive_value\", \"measured_positive\", and \"measured_negative\"")
       }
     )#ends tryCatch
     removeModal()
@@ -436,7 +450,7 @@ res <- eventReactive(input$oknorm_res, {
   cc <- as.numeric(as.character(input$cc))
   
     tryCatch({
-    if (!(input$type %in% c("Two proportions", "Diagnostic (2x2 data)", "Sensitivity and Specificity")) || input$model_type != "rma") {
+    if (!(input$type %in% c("Two proportions", "Diagnostic (2x2 data)", "Sensitivity and Specificity", "Positive and Negative Predictive Value")) || input$model_type != "rma") {
     rma(yi,
         vi,
         weights=if (!is.null(hot$data$weights)) hot$data$weights,
@@ -463,17 +477,27 @@ res <- eventReactive(input$oknorm_res, {
                                                to=input$addto,
                                                level=conflevel,
                                                digits=input$digits
-             ), # Last case (sensitivity and specificity)
-             rma.mh(ai=sensitivity * measured_positive,
-                    bi=(1 - sensitivity) * measured_positive,
-                    ci=(1 - specificity) * measured_negative,
-                    di=specificity * measured_negative,
+             ), "Sensitivity and Specificity"
+             =rma.mh(ai=sensitivity * true_positive,
+                    bi=(1 - specificity) * true_negative,
+                    ci=(1 - sensitivity) * true_positive,
+                    di=specificity * true_negative,
                        data=vals$dataescalc,
                        measure=input$metric_mh,
                        add=cc,
                        to=input$addto,
                        level=conflevel,
                        digits=input$digits
+             ), "Positive and Negative Predictive Value"=rma.mh(ai=positive_predictive_value * measured_positive,
+                                                                bi=(1 - positive_predictive_value) * measured_positive,
+                                                                ci=(1 - negative_predictive_value) * measured_negative,
+                                                                di=negative_predictive_value * measured_negative,
+                                                                data=vals$dataescalc,
+                                                                measure=input$metric_mh,
+                                                                add=cc,
+                                                                to=input$addto,
+                                                                level=conflevel,
+                                                                digits=input$digits
              )),
              switch(input$type, "Two proportions"=rma.peto(ai, n1i=n1i, ci=ci, n2i=n2i,
                                                          data=vals$dataescalc,
@@ -487,16 +511,25 @@ res <- eventReactive(input$oknorm_res, {
                                                to=input$addto,
                                                level=conflevel,
                                                digits=input$digits
-             ), # Last case (sensitivity and specificity)
-             rma.peto(ai=sensitivity * measured_positive,
-                    bi=(1 - sensitivity) * measured_positive,
-                    ci=(1 - specificity) * measured_negative,
-                    di=specificity * measured_negative,
+             ), "Sensitivity and Specificity"# Last case (sensitivity and specificity)
+             =rma.peto(ai=sensitivity * true_positive,
+                      bi=(1 - specificity) * true_negative,
+                      ci=(1 - sensitivity) * true_positive,
+                      di=specificity * true_negative,
                     data=vals$dataescalc,
                     add=cc,
                     to=input$addto,
                     level=conflevel,
                     digits=input$digits
+             ), "Positive and Negative Predictive Value"=rma.peto(ai=positive_predictive_value * measured_positive,
+                                                                  bi=(1 - positive_predictive_value) * measured_positive,
+                                                                  ci=(1 - negative_predictive_value) * measured_negative,
+                                                                  di=negative_predictive_value * measured_negative,
+                                                                  data=vals$dataescalc,
+                                                                  add=cc,
+                                                                  to=input$addto,
+                                                                  level=conflevel,
+                                                                  digits=input$digits
              )))
     }
     },
