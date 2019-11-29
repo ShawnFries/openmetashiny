@@ -76,7 +76,10 @@ ui <- function(session) {
     conditionalPanel('output.page == 3 && input.language == "en" && input.is_real_data == "user_input"',
                      titlePanel("What type of data do you have?"),
                      sidebarLayout(
-                         sidebarPanel(selectizeInput("dataType",
+                         sidebarPanel(tags$style(type='text/css',
+                                                 ".selectize-dropdown-content{
+                 max-height: 1000px;
+                }"), selectizeInput("dataType",
                                                      "Data Type",
                                                      #TODO: Do we need this if not starting from scratch? Could just have an option to import (and infer datatype)
                                                      # or start from one of the below as a backup..
@@ -95,7 +98,8 @@ ui <- function(session) {
                                                           "Data on test performance"=
                                                             c("diagnostic (TP┼FP┼FN┼TN)"="diagnostic",
                                                             "sensitivity and specificity"="sens and spec",
-                                                            "positive and negative predictive value"="predictive value")
+                                                            "positive and negative predictive value"="predictive value"
+                                                            )
                                                          )
                                                     )
                                      ),
@@ -105,7 +109,11 @@ ui <- function(session) {
     ), conditionalPanel('output.page == 3 && input.language == "de" && input.is_real_data == "user_input"',
                         titlePanel("Welche Art von Daten haben Sie?"),
                         sidebarLayout(
-                          sidebarPanel(selectizeInput("dataType_de",
+                          # Increase size of selectInput so user doesn't have to scroll
+                          sidebarPanel(tags$style(type='text/css',
+                                                  ".selectize-dropdown-content{
+                 max-height: 1000px;
+                }"),selectizeInput("dataType_de",
                                                       "Datentyp",
                                                       #TODO: Do we need this if not starting from scratch? Could just have an option to import (and infer datatype)
                                                       # or start from one of the below as a backup..
@@ -135,7 +143,10 @@ ui <- function(session) {
     conditionalPanel('output.page == 3 && input.language == "en" && input.is_real_data == "sample"',
                      titlePanel("Which sample dataset would you like to use?"),
                      sidebarLayout(
-                       sidebarPanel(selectInput("sample_dataset",
+                       sidebarPanel(tags$style(type='text/css',
+                                               ".selectize-dropdown-content{
+                 max-height: 1000px;
+                }"), selectInput("sample_dataset",
                                                 "Sample Dataset",
                                                 c("Senn (2013) - (One mean) Results from 26 trials examining the effectiveness of glucose-lowering agents in patients with type 2 diabetes"="dat.senn2013",
                                                   "Normand (1999) - (Two means) Data on length of hospital stay under stroke patients under specialized care (m1i i.e. mean 1) vs under routine care (m2i)"="dat.normand1999",
@@ -167,7 +178,9 @@ ui <- function(session) {
                      actionButton("backButton_sample_data", "Back")
     ), uiOutput("main_page"),
     conditionalPanel('output.page > 3',
-                     actionButton("backButton_main_page", "Back")
+                     actionButton("backButton_main_page", "Back"),
+                     # Use HTML to print raw text into app
+                     HTML("Right click a cell in the table for additional options, e.g. adding rows or columns")
                      ),
     
   tags$style(type='text/css', '.navbar { 

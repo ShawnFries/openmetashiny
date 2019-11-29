@@ -7,8 +7,9 @@
 # (Is part of backcalc)
 dataModal2_exact <- function(failed=F) {
   modalDialog(
-    selectInput("type_exact", "Type of data", c("Two proportions", "Diagnostic"), switch(dataType$type,
-                                                                                         "diagnostic"="Diagnostic"
+    selectInput("type_exact", "Type of data", c("Two proportions", "Diagnostic", "Positive and Negative Predictive Value"), switch(dataType$type,
+                                                                                         "diagnostic"="Diagnostic",
+                                                                                         "predictive value" = "Positive and Negative Predictive Value"
                                                                                         )
     ), 
     footer=tagList(
@@ -68,6 +69,28 @@ observeEvent(input$okexact_escalc, {                         ####okexact_escalc
              data=hot$data)},
       error=function(err){
         print("ERROR:  There must be at least one column each named \"ai\", \"bi\", \"ci\", and \"di\"")
+      }
+    )#ends tryCatch
+    removeModal()
+  } else if (!is.null(hot$data) & input$type_exact == "Positive and Negative Predictive Value") {
+    vals$dataescalc_exact <- tryCatch({ # TODO: Add error handling for other column names/check similar names
+      rma.glmm(measure="OR",
+               ai=positive_predictive_value * measured_positive,
+               bi=(1 - positive_predictive_value) * measured_positive,
+               ci=(1 - negative_predictive_value) * measured_negative,
+               di=negative_predictive_value * measured_negative,
+               slab=paste(if (!is.null(hot$data$author)) hot$data$author
+                          else if (!is.null(hot$data$authors)) hot$data$authors,
+                          
+                          if (!is.null(hot$data$year)) hot$data$year
+                          else if (!is.null(hot$data$years)) hot$data$years,
+                          
+                          sep=", "
+               ),
+               model="CM.EL",
+               data=hot$data)},
+      error=function(err){
+        print("ERROR:  There must be at least one column each named \"positive_predicted_value\", \"negative_predictive_value\", \"measured_positive\", and \"measured_negative\"")
       }
     )#ends tryCatch
     removeModal()

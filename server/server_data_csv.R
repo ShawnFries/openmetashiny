@@ -290,18 +290,19 @@ output$hot <- renderRHandsontable({####dat_csv in ui_data.R
   } else if (is.null(vals$datar)) {
       if (input$is_real_data == "sample") {
         DF <- get(input$sample_dataset) # I coded this input variable to the exact name of the built-in Metafor datasets. Get, as the name suggests, gets the dataframe of that name
+        # TODO: Put friendlier names e.g. sample size instead of ni...
       } else if (dataType$type == "proportion") {
-        DF <- data.frame(names="Study A", year=as.integer(format(Sys.Date(), "%Y")), count=5, ni=10, proportion=0.5, stringsAsFactors=F)
+        DF <- data.frame(names=c("Study A", "Study B"), year=rep(as.integer(format(Sys.Date(), "%Y")), 2), count=c(5, 7), ni=c(10, 17), proportion=c(0.5, 7/17), stringsAsFactors=F)
       } else if (dataType$type == "mean") {
-        DF <- data.frame(X=1, study=1, source="Location A", ni=10, mi=5, sdi=1, stringsAsFactors=F)
+        DF <- data.frame(study=c(1, 2), source=c("Location A", "Location B"), ni=c(10, 15), mi=c(5, 7), sdi=c(1, 2), stringsAsFactors=F)
       } else if (dataType$type == "proportions") {
-        DF <- data.frame(X=1, study=1, author="Author A", year=as.integer(format(Sys.Date(), "%Y")), ai=5, n1i=10, ci=3, n2i=15, stringsAsFactors=F)
+        DF <- data.frame(study=c(1, 2), author=c("Author A", "Author B"), year=rep(as.integer(format(Sys.Date(), "%Y")), 2), ai=c(5, 8), n1i=c(10, 15), ci=c(3, 4), n2i=c(15, 22), stringsAsFactors=F)
       } else if (dataType$type == "means") {
-        DF <- data.frame(X=1, study=1, source="Location A")#, n1i=10, m1i=5, sd1i=1, n2i=30, m2i=7, sd2i=2, stringsAsFactors=F)
+        DF <- data.frame(study=c(1, 2), source=c("Location A", "Location B"), n1i=c(10, 15), m1i=c(5, 7), sd1i=c(1, 2), n2i=c(30, 45), m2i=c(7, 15), sd2i=c(2, 5), stringsAsFactors=F)
       } else if (dataType$type == "sens and spec") {
-        DF <- data.frame(X=1, study=1, author="Author A", year=as.integer(format(Sys.Date(), "%Y")), sensitivity=.8, specificity=.95, true_positive=100, true_negative=100, stringsAsFactors=F)
+        DF <- data.frame(study=c(1, 2), author=c("Author A", "Author B"), year=rep(as.integer(format(Sys.Date(), "%Y")), 2), sensitivity=c(.8, .5), specificity=c(.95, .99), true_positive=c(100, 60), true_negative=c(100, 150), stringsAsFactors=F)
       } else if (dataType$type == "predictive value") {
-        DF <- data.frame(X=1, study=1, author="Author A", year=as.integer(format(Sys.Date(), "%Y")), positive_predictive_value=.9, negative_predictive_value=.8, measured_positive=100, measured_negative=100, stringsAsFactors=F)
+        DF <- data.frame(study=c(1, 2), author=c("Author A", "Author B"), year=rep(as.integer(format(Sys.Date(), "%Y")), 2), positive_predictive_value=c(.9, .2), negative_predictive_value=c(.8, .5), measured_positive=c(100, 170), measured_negative=c(100, 120), stringsAsFactors=F)
       } 
     } else {
       DF <- hot$data
