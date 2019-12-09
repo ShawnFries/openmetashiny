@@ -34,9 +34,11 @@ sidebarLayout(
     tabBox(width=12,
            tabPanel("Transformed data", tableOutput("escalcdat_exact")),
            tabPanel("Meta-analysis summary", verbatimTextOutput("msummary_exact")),      ####msummary_exact in server_meta_exact.R
-           tabPanel("Forest plot", plotOutput("forest_exact"),
-                    actionButton("save_fplot_exact", "Save forest plot")                     ####save_fplot in server_meta_exact.R
-                   )
+           tabPanel("Forest plot", br(), br(), br(), column(12, align="center", "Meta-Analysis (Exact Distribution, Hypergeometric within studies)"),
+                     br(), br(), column(12, align="left", "Study and Author"),
+                     plotOutput("forest_exact", height="800px"),
+                     actionButton("save_fplot_exact", "Save forest plot")
+                )
            )
   )#ends mainPanel
 )

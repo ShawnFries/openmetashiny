@@ -23,7 +23,7 @@ dataModal2_multilevel <- function(failed=F) {
                                                                                                                                               "sens and spec" = "Sensitivity and Specificity"
     )
     ),
-    selectInput("grouping_variables_random_effects", "Outer hierarchical variables - Random effects within each group, groups are assumed independent)", colnames(hot$data), multiple=T),
+    selectInput("grouping_variables_random_effects", "Outer hierarchical variables - Random effects within each group, groups are assumed independent", colnames(hot$data), multiple=T),
     selectizeInput("inner_variables_random_effects",
                    "Inner hierarchical variables - Correlated random effects within each above group depending on value of inner variable (applied in same order, first here to first above etc)",
                    colnames(hot$data), multiple=T, options=list(maxItems=2)
@@ -598,7 +598,7 @@ output$msummary_multilevel <- renderPrint({
   }
   print(res_multilevel)
   print("Study weights (percent; model is fit using inverse-variance approach)")
-  print(weights(res_multilevel))
+  print(round(weights(res_multilevel), 2))
   print("Confidence intervals for residual heterogeneity")
   print(confint(res_multilevel))
 })

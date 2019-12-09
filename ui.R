@@ -148,10 +148,10 @@ ui <- function(session) {
                  max-height: 1000px;
                 }"), selectInput("sample_dataset",
                                                 "Sample Dataset",
-                                                c("Senn (2013) - (One mean) Results from 26 trials examining the effectiveness of glucose-lowering agents in patients with type 2 diabetes"="dat.senn2013",
-                                                  "Normand (1999) - (Two means) Data on length of hospital stay under stroke patients under specialized care (m1i i.e. mean 1) vs under routine care (m2i)"="dat.normand1999",
-                                                  "Hasselblad (1998) - (One proportion) Results from 24 studies on the effectiveness of various counseling types for smoking cessation"="dat.hasselblad1998",
+                                                c("Hasselblad (1998) - (One proportion) Results from 24 studies on the effectiveness of various counseling types for smoking cessation"="dat.hasselblad1998",
                                                   "Egger (2001) - (Two proportions) Effectiveness of intravenous magnesium in the prevention of death following acute myocardial infarction (ai is number of deaths in magnesium group, ci is for control group)."="dat.egger2001",
+                                                  "Senn (2013) - (One mean) Results from 26 trials examining the effectiveness of glucose-lowering agents in patients with type 2 diabetes"="dat.senn2013",
+                                                  "Normand (1999) - (Two means) Data on length of hospital stay under stroke patients under specialized care (m1i i.e. mean 1) vs under routine care (m2i)"="dat.normand1999",
                                                   "Hart (1999) - (Event counts) Results from 6 clinical trials examining the effectiveness of adjusted-dose warfarin for preventing strokes in patients with atrial fibrillation."="dat.hart1999",
                                                   "Molloy (2014) - (Raw correlation coefficient) Results from 16 studies on the correlation between conscientiousness and medication adherence."="dat.molloy2014",
                                                   "Bonett (2010) - (Cronbach's α) Results from 9 studies on the reliability of the Center for Epidemiologic Studies Depression (CESD) Scale administered to children providing care to an elderly parent"="dat.bonett2010"
@@ -178,9 +178,7 @@ ui <- function(session) {
                      actionButton("backButton_sample_data", "Back")
     ), uiOutput("main_page"),
     conditionalPanel('output.page > 3',
-                     actionButton("backButton_main_page", "Back"),
-                     # Use HTML to print raw text into app
-                     HTML("Right click a cell in the table for additional options, e.g. adding rows or columns")
+                     actionButton("backButton_main_page", "Back")
                      ),
     
   tags$style(type='text/css', '.navbar { 

@@ -213,7 +213,6 @@ observeEvent(input$oknorm_leave_res, {
              vi,
              method=if (input$fixed_leave_norm == "RE") input$rand_leave_est else "FE",
              data=vals$dataescalc_leave,
-             weighted=F,
              add=cc,
              to=input$addto_leave,
              digits=input$digits_leave,

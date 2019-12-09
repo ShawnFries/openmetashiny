@@ -212,9 +212,10 @@ res_bivariate <- eventReactive(input$oknorm_res_bivariate, {
         vi,
         mods = ~ group_ - 1,
         random = ~ group_ | study,
+        method=input$est_bivariate,
         data=vals$dataescalc_bivariate,
         level=conflevel,
-        struct="DIAG",  # To allow no correlation among the 2 variables (i.e. independence)
+        struct="UN",  # To allow correlation among the 2 variables
         digits=input$digits_bivariate
        )
     },
@@ -242,18 +243,19 @@ output$forest_norm_bivariate <- renderPlot({
   #print(as.name(input$atransf))
   ##display forest plot
   if (input$type_bivariate == "Two proportions" && input$metric1_bivariate == "PR") {
-    forest(res_bivariate, refline=NA, level=conflevel, digits=input$digits_bivariate, slab=paste(if (!is.null(hot$data$author)) hot$data$author
-                                                                           else if (!is.null(hot$data$authors)) hot$data$authors
-                                                                           else if (!is.null(hot$data$study.name)) hot$data$study.name
-                                                                           else if (!is.null(hot$data$study.names)) hot$data$study.names
-                                                                           else if (!is.null(hot$data[["study name"]])) hot$data[["study name"]]
-                                                                           else if (!is.null(hot$data[["study names"]])) hot$data[["study names"]]
-                                                                           else if (!is.null(hot$data$study)) hot$data$study
-                                                                           else if (!is.null(hot$data$studies)) hot$data$studies
+    forest(res_bivariate, refline=NA, level=conflevel, digits=input$digits_bivariate, mlab=vals$dataescalc_bivariate$specificity, slab=paste(if (!is.null(vals$dataescalc_bivariate$author)) vals$dataescalc_bivariate$author
+                                                                           else if (!is.null(vals$dataescalc_bivariate$authors)) vals$dataescalc_bivariate$authors
+                                                                           else if (!is.null(vals$dataescalc_bivariate$study.name)) vals$dataescalc_bivariate$study.name
+                                                                           else if (!is.null(vals$dataescalc_bivariate$study.names)) vals$dataescalc_bivariate$study.names
+                                                                           else if (!is.null(res_bivariate[["study name"]])) res_bivariate[["study name"]]
+                                                                           else if (!is.null(res_bivariate[["study names"]])) res_bivariate[["study names"]]
+                                                                           else if (!is.null(vals$dataescalc_bivariate$study)) vals$dataescalc_bivariate$study
+                                                                           else if (!is.null(vals$dataescalc_bivariate$studies)) vals$dataescalc_bivariate$studies
                                                                            else "NA",
-                                                                           if (!is.null(hot$data$year)) hot$data$year
-                                                                           else if (!is.null(hot$data$years)) hot$data$years
+                                                                           if (!is.null(vals$dataescalc_bivariate$year)) vals$dataescalc_bivariate$year
+                                                                           else if (!is.null(vals$dataescalc_bivariate$years)) vals$dataescalc_bivariate$years
                                                                            else "NA",
+                                                                           vals$dataescalc_bivariate$group_,
                                                                            sep=", "
                                                                           ), transf=if (input$atransf_bivariate != "none") get(paste0("transf.", input$atransf_bivariate)),
          # If raw proportion (cannot be less than 0 or greater than 1), enforce that limit on x-axis and confidence intervals
@@ -261,18 +263,19 @@ output$forest_norm_bivariate <- renderPlot({
          clim=c(0, 1)
   )
   } else {
-    forest(res_bivariate, refline=NA, level=conflevel, digits=input$digits_bivariate, slab=paste(if (!is.null(hot$data$author)) hot$data$author
-                                                                             else if (!is.null(hot$data$authors)) hot$data$authors
-                                                                             else if (!is.null(hot$data$study.name)) hot$data$study.name
-                                                                             else if (!is.null(hot$data$study.names)) hot$data$study.names
-                                                                             else if (!is.null(hot$data[["study name"]])) hot$data[["study name"]]
-                                                                             else if (!is.null(hot$data[["study names"]])) hot$data[["study names"]]
-                                                                             else if (!is.null(hot$data$study)) hot$data$study
-                                                                             else if (!is.null(hot$data$studies)) hot$data$studies
+    forest(res_bivariate, refline=NA, level=conflevel, digits=input$digits_bivariate, slab=paste(if (!is.null(vals$dataescalc_bivariate$author)) vals$dataescalc_bivariate$author
+                                                                             else if (!is.null(vals$dataescalc_bivariate$authors)) vals$dataescalc_bivariate$authors
+                                                                             else if (!is.null(vals$dataescalc_bivariate$study.name)) vals$dataescalc_bivariate$study.name
+                                                                             else if (!is.null(vals$dataescalc_bivariate$study.names)) vals$dataescalc_bivariate$study.names
+                                                                             else if (!is.null(res_bivariate[["study name"]])) res_bivariate[["study name"]]
+                                                                             else if (!is.null(res_bivariate[["study names"]])) res_bivariate[["study names"]]
+                                                                             else if (!is.null(vals$dataescalc_bivariate$study)) vals$dataescalc_bivariate$study
+                                                                             else if (!is.null(vals$dataescalc_bivariate$studies)) vals$dataescalc_bivariate$studies
                                                                              else "NA",
-                                                                             if (!is.null(hot$data$year)) hot$data$year
-                                                                             else if (!is.null(hot$data$years)) hot$data$years
+                                                                             if (!is.null(vals$dataescalc_bivariate$year)) vals$dataescalc_bivariate$year
+                                                                             else if (!is.null(vals$dataescalc_bivariate$years)) vals$dataescalc_bivariate$years
                                                                              else "NA",
+                                                                             vals$dataescalc_bivariate$group_,
                                                                              sep=", "
     ), transf=if (input$atransf_bivariate != "none") get(paste0("transf.", input$atransf_bivariate))
     # If raw proportion (cannot be less than 0 or greater than 1), enforce that limit on x-axis and confidence intervals
@@ -300,8 +303,8 @@ output$msummary_norm_bivariate <- renderPrint({
     } 
   }
   print(res_bivariate)
- # print("Study weights (percent; model is fit using inverse-variance approach)")
- # print(weights(res_bivariate))
+  print("Study weights (percent; model is fit using inverse-variance approach)")
+  print(round(weights(res_bivariate), 2))
   print("Confidence intervals for residual heterogeneity")
   print(confint(res_bivariate))
 })
@@ -395,15 +398,9 @@ observe({
                            "est_bivariate",
                            "Estimation method (Ignored if data contains a column called 'weights', unless using Peto/MH method)",
                            
-                           if (!is.null(fixed_norm) && fixed_norm == "RE") c(`DerSimonian Laird`="DL",
-                                                     `Hedges`="HE",
-                                                     `Hunter-Schmidt`="HS",
-                                                     `Sidik-Jonkman`="SJ",
+                           if (!is.null(fixed_norm) && fixed_norm == "RE") c(
                                                      `Maximum likelihood`="ML",
-                                                     `Restricted ML`="REML",
-                                                     `Empirical Bayes`="EB",
-                                                     `Paule-Mandel`="PM",
-                                                     `Generalized Q-statistic`="GENQ"
+                                                     `Restricted ML`="REML"
                                                     )
                            else c(`Inverse-variance`="FE"),
                            

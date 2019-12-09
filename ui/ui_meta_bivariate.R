@@ -5,15 +5,9 @@ sidebarLayout(
                 "Fixed or random effect",
                 c(`Fixed effect`="FE", Random_effects="RE"),
                 "RE"),
-    selectInput("est_bivariate", "Estimation method (Ignored if data contains a column called 'weights' unless using Peto/MH method)", c(`DerSimonian Laird`="DL",
-                                              `Hedges`="HE",
-                                              `Hunter-Schmidt`="HS",
-                                              `Sidik-Jonkman`="SJ",
+    selectInput("est_bivariate", "Estimation method (Ignored if data contains a column called 'weights' unless using Peto/MH method)", c(
                                               `Maximum likelihood`="ML",
-                                              `Restricted ML`="REML",
-                                              `Empirical Bayes`="EB",
-                                              `Paule-Mandel`="PM",
-                                              `Generalized Q-statistic`="GENQ"
+                                              `Restricted ML`="REML"
                                              ), "REML"),
     sliderInput("digits_bivariate", "Number of digits to display", min=1, max=10, value=3, step=1),
     textInput("conflevel_bivariate", "Confidence level", value="95"),
@@ -35,7 +29,7 @@ sidebarLayout(
     tabBox(width=12,
            tabPanel("Transformed data", tableOutput("escalcdat_bivariate")),
            tabPanel("Meta-analysis summary", verbatimTextOutput("msummary_norm_bivariate")),      ####msummary_norm in server_meta_norm.R
-           tabPanel("Forest plot", br(), br(), br(), column(12, align="center", "Meta-Analysis (Normal Approximation)"), plotOutput("forest_norm_bivariate"),
+           tabPanel("Forest plot", br(), br(), br(), column(12, align="center", "Meta-Analysis (Normal Approximation)"), plotOutput("forest_norm_bivariate", height="800px"),
                     actionButton("save_fplot_bivariate", "Save forest plot")                     ####save_fplot in server_meta_norm.R
                    )
            )

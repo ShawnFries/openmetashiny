@@ -10,5 +10,7 @@ fluidPage(
                          (which you can do in Excel-like double click fashion; right click to add/remove rows or columns)"
                         )),
   fluidRow(fluidRow(uiOutput("row_filters"))),
-  fluidRow(rHandsontableOutput("hot"))
+  fluidRow(rHandsontableOutput("hot")),
+  # Use HTML to print raw text into app
+  fluidRow(HTML("Right click a cell in the table for additional options, e.g. adding rows or columns"))
 )

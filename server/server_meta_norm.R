@@ -448,9 +448,11 @@ observeEvent(input$oknorm_escalc, {                         ####oknorm_escalc
 res <- eventReactive(input$oknorm_res, {
   conflevel <- as.numeric(as.character(input$conflevel))
   cc <- as.numeric(as.character(input$cc))
+  print(input$fixed_norm)
+  print(!(input$type %in% c("Two proportions", "Diagnostic (2x2 data)", "Sensitivity and Specificity", "Positive and Negative Predictive Value")) || input$model_type != "rma")
   
     tryCatch({
-    if (!(input$type %in% c("Two proportions", "Diagnostic (2x2 data)", "Sensitivity and Specificity", "Positive and Negative Predictive Value")) || input$model_type != "rma") {
+    if (!(input$type %in% c("Two proportions", "Diagnostic (2x2 data)", "Sensitivity and Specificity", "Positive and Negative Predictive Value") && input$model_type != "rma")) {
     rma(yi,
         vi,
         weights=if (!is.null(hot$data$weights)) hot$data$weights,
@@ -556,6 +558,7 @@ output$forest_norm <- renderPlot({
   conflevel <- as.numeric(as.character(input$conflevel))
   #print(as.name(input$atransf))
   ##display forest plot
+  par(mar=c(5,4,0,2)) # Remove whitespace above plot
   if (input$type == "One proportion" && input$metric1 == "PR") {
     forest(res, refline=NA, level=conflevel, digits=input$digits, slab=paste(if (!is.null(hot$data$author)) hot$data$author
                                                                            else if (!is.null(hot$data$authors)) hot$data$authors
@@ -574,6 +577,11 @@ output$forest_norm <- renderPlot({
          # If raw proportion (cannot be less than 0 or greater than 1), enforce that limit on x-axis and confidence intervals
          alim=c(0, 1),
          clim=c(0, 1)
+         #If large number of studies, make point estimates and other graph attributes larger/easier to see
+        # psize=if(nrow(hot$data) > 20) 1.2 else 1, 
+        # cex=if(nrow(hot$data) > 20) 0.4 else 1, 
+        # efac=if(nrow(hot$data) > 20) c(0, 0.5) else 1
+         
   )
   } else {
     forest(res, refline=NA, level=conflevel, digits=input$digits, slab=paste(if (!is.null(hot$data$author)) hot$data$author
@@ -590,10 +598,14 @@ output$forest_norm <- renderPlot({
                                                                              else "NA",
                                                                              sep=", "
     ), transf=if (input$atransf != "none") get(paste0("transf.", input$atransf))
+    #If large number of studies, make point estimates and other graph attributes larger/easier to see
+    #psize=if(nrow(hot$data) > 20) 2 else 1, 
+    #cex=if(nrow(hot$data) > 20) 1.2 else 1, 
+    #efac=if(nrow(hot$data) > 20) c(0, 0.2) else 1
     # If raw proportion (cannot be less than 0 or greater than 1), enforce that limit on x-axis and confidence intervals
     )
   }
-  text(-16, 26, "Study and Author", pos=4)
+ # text(-16, 26, "Study and Author", pos=4)
 
   })
 
@@ -616,9 +628,12 @@ output$msummary_norm <- renderPrint({
   }
   print(res)
   print("Study weights (percent; model is fit using inverse-variance approach)")
-  print(weights(res))
-  print("Confidence intervals for residual heterogeneity")
-  print(confint(res))
+  print(round(weights(res), 2))
+  try({
+    confint(res)
+    print("Confidence intervals for residual heterogeneity")
+    print(confint(res))
+  })
 })
 
 })
